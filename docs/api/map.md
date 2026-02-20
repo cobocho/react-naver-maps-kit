@@ -103,6 +103,108 @@ export type NaverMapProps = NaverMapOptionProps &
   NaverMapLifecycleProps &
   NaverMapEventProps &
   NaverMapDivProps;
+
+export interface NaverMapRef {
+  getInstance: () => naver.maps.Map | null;
+  addOverlayPane: (name: string, elementOrZIndex: HTMLElement | number) => void;
+  addPane: (
+    ...args: Parameters<naver.maps.Map["addPane"]>
+  ) => ReturnType<naver.maps.Map["addPane"]> | undefined;
+  autoResize: (
+    ...args: Parameters<naver.maps.Map["autoResize"]>
+  ) => ReturnType<naver.maps.Map["autoResize"]> | undefined;
+  destroy: (
+    ...args: Parameters<naver.maps.Map["destroy"]>
+  ) => ReturnType<naver.maps.Map["destroy"]> | undefined;
+  fitBounds: (
+    ...args: Parameters<naver.maps.Map["fitBounds"]>
+  ) => ReturnType<naver.maps.Map["fitBounds"]> | undefined;
+  getBounds: (
+    ...args: Parameters<naver.maps.Map["getBounds"]>
+  ) => ReturnType<naver.maps.Map["getBounds"]> | undefined;
+  getCenter: (
+    ...args: Parameters<naver.maps.Map["getCenter"]>
+  ) => ReturnType<naver.maps.Map["getCenter"]> | undefined;
+  getCenterPoint: (
+    ...args: Parameters<naver.maps.Map["getCenterPoint"]>
+  ) => ReturnType<naver.maps.Map["getCenterPoint"]> | undefined;
+  getElement: (
+    ...args: Parameters<naver.maps.Map["getElement"]>
+  ) => ReturnType<naver.maps.Map["getElement"]> | undefined;
+  getMapTypeId: (
+    ...args: Parameters<naver.maps.Map["getMapTypeId"]>
+  ) => ReturnType<naver.maps.Map["getMapTypeId"]> | undefined;
+  getMaxZoom: (
+    ...args: Parameters<naver.maps.Map["getMaxZoom"]>
+  ) => ReturnType<naver.maps.Map["getMaxZoom"]> | undefined;
+  getMinZoom: (
+    ...args: Parameters<naver.maps.Map["getMinZoom"]>
+  ) => ReturnType<naver.maps.Map["getMinZoom"]> | undefined;
+  getOptions: (
+    ...args: Parameters<naver.maps.Map["getOptions"]>
+  ) => ReturnType<naver.maps.Map["getOptions"]> | undefined;
+  getPanes: (
+    ...args: Parameters<naver.maps.Map["getPanes"]>
+  ) => ReturnType<naver.maps.Map["getPanes"]> | undefined;
+  getPrimitiveProjection: (
+    ...args: Parameters<naver.maps.Map["getPrimitiveProjection"]>
+  ) => ReturnType<naver.maps.Map["getPrimitiveProjection"]> | undefined;
+  getProjection: (
+    ...args: Parameters<naver.maps.Map["getProjection"]>
+  ) => ReturnType<naver.maps.Map["getProjection"]> | undefined;
+  getSize: (
+    ...args: Parameters<naver.maps.Map["getSize"]>
+  ) => ReturnType<naver.maps.Map["getSize"]> | undefined;
+  getZoom: (
+    ...args: Parameters<naver.maps.Map["getZoom"]>
+  ) => ReturnType<naver.maps.Map["getZoom"]> | undefined;
+  morph: (
+    ...args: Parameters<naver.maps.Map["morph"]>
+  ) => ReturnType<naver.maps.Map["morph"]> | undefined;
+  panBy: (
+    ...args: Parameters<naver.maps.Map["panBy"]>
+  ) => ReturnType<naver.maps.Map["panBy"]> | undefined;
+  panTo: (
+    ...args: Parameters<naver.maps.Map["panTo"]>
+  ) => ReturnType<naver.maps.Map["panTo"]> | undefined;
+  panToBounds: (
+    ...args: Parameters<naver.maps.Map["panToBounds"]>
+  ) => ReturnType<naver.maps.Map["panToBounds"]> | undefined;
+  refresh: (
+    ...args: Parameters<naver.maps.Map["refresh"]>
+  ) => ReturnType<naver.maps.Map["refresh"]> | undefined;
+  removeOverlayPane: (name: string) => void;
+  removePane: (
+    ...args: Parameters<naver.maps.Map["removePane"]>
+  ) => ReturnType<naver.maps.Map["removePane"]> | undefined;
+  setCenter: (
+    ...args: Parameters<naver.maps.Map["setCenter"]>
+  ) => ReturnType<naver.maps.Map["setCenter"]> | undefined;
+  setCenterPoint: (
+    ...args: Parameters<naver.maps.Map["setCenterPoint"]>
+  ) => ReturnType<naver.maps.Map["setCenterPoint"]> | undefined;
+  setMapTypeId: (
+    ...args: Parameters<naver.maps.Map["setMapTypeId"]>
+  ) => ReturnType<naver.maps.Map["setMapTypeId"]> | undefined;
+  setOptions: (
+    ...args: Parameters<naver.maps.Map["setOptions"]>
+  ) => ReturnType<naver.maps.Map["setOptions"]> | undefined;
+  setSize: (
+    ...args: Parameters<naver.maps.Map["setSize"]>
+  ) => ReturnType<naver.maps.Map["setSize"]> | undefined;
+  setZoom: (
+    ...args: Parameters<naver.maps.Map["setZoom"]>
+  ) => ReturnType<naver.maps.Map["setZoom"]> | undefined;
+  stop: (
+    ...args: Parameters<naver.maps.Map["stop"]>
+  ) => ReturnType<naver.maps.Map["stop"]> | undefined;
+  updateBy: (
+    ...args: Parameters<naver.maps.Map["updateBy"]>
+  ) => ReturnType<naver.maps.Map["updateBy"]> | undefined;
+  zoomBy: (
+    ...args: Parameters<naver.maps.Map["zoomBy"]>
+  ) => ReturnType<naver.maps.Map["zoomBy"]> | undefined;
+}
 ```
 
 ## 지도 옵션 프로퍼티
@@ -202,6 +304,66 @@ export type NaverMapProps = NaverMapOptionProps &
 | `onZoomChanged`        | `(zoom: number) => void`                          | 줌 레벨 변경 이벤트        |
 | `onZooming`            | `() => void`                                      | 줌 애니메이션 진행 이벤트  |
 | `onZoomStart`          | `() => void`                                      | 줌 애니메이션 시작 이벤트  |
+
+## Ref 메서드
+
+```tsx
+import { useRef } from "react";
+import { NaverMap, type NaverMapRef } from "react-naver-maps-kit";
+
+function RefExample() {
+  const mapRef = useRef<NaverMapRef>(null);
+
+  return (
+    <>
+      <button onClick={() => mapRef.current?.panTo({ lat: 37.5666, lng: 126.9784 })}>
+        서울시청으로 이동
+      </button>
+      <NaverMap ref={mapRef} zoom={10} style={{ width: 480, height: 320 }} />
+    </>
+  );
+}
+```
+
+### Ref 메서드 상세
+
+| Method                   | Signature                                                                                                                              | Description                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `getInstance`            | `() => naver.maps.Map \| null`                                                                                                         | 내부 지도 인스턴스를 반환합니다.        |
+| `addOverlayPane`         | `(name: string, elementOrZIndex: HTMLElement \| number) => void`                                                                       | 오버레이 pane을 추가합니다.             |
+| `addPane`                | `(...args: Parameters<naver.maps.Map["addPane"]>) => ReturnType<naver.maps.Map["addPane"]> \| undefined`                               | 사용자 정의 pane을 추가합니다.          |
+| `removeOverlayPane`      | `(name: string) => void`                                                                                                               | 오버레이 pane을 제거합니다.             |
+| `removePane`             | `(...args: Parameters<naver.maps.Map["removePane"]>) => ReturnType<naver.maps.Map["removePane"]> \| undefined`                         | 사용자 정의 pane을 제거합니다.          |
+| `autoResize`             | `(...args: Parameters<naver.maps.Map["autoResize"]>) => ReturnType<naver.maps.Map["autoResize"]> \| undefined`                         | 지도 크기를 자동 재조정합니다.          |
+| `destroy`                | `(...args: Parameters<naver.maps.Map["destroy"]>) => ReturnType<naver.maps.Map["destroy"]> \| undefined`                               | 지도 인스턴스를 정리합니다.             |
+| `refresh`                | `(...args: Parameters<naver.maps.Map["refresh"]>) => ReturnType<naver.maps.Map["refresh"]> \| undefined`                               | 타일/렌더 상태를 새로 고칩니다.         |
+| `stop`                   | `(...args: Parameters<naver.maps.Map["stop"]>) => ReturnType<naver.maps.Map["stop"]> \| undefined`                                     | 진행 중인 지도 애니메이션을 중지합니다. |
+| `getBounds`              | `(...args: Parameters<naver.maps.Map["getBounds"]>) => ReturnType<naver.maps.Map["getBounds"]> \| undefined`                           | 현재 지도 경계를 반환합니다.            |
+| `getCenter`              | `(...args: Parameters<naver.maps.Map["getCenter"]>) => ReturnType<naver.maps.Map["getCenter"]> \| undefined`                           | 현재 중심 좌표를 반환합니다.            |
+| `getCenterPoint`         | `(...args: Parameters<naver.maps.Map["getCenterPoint"]>) => ReturnType<naver.maps.Map["getCenterPoint"]> \| undefined`                 | 현재 중심 세계 좌표를 반환합니다.       |
+| `getElement`             | `(...args: Parameters<naver.maps.Map["getElement"]>) => ReturnType<naver.maps.Map["getElement"]> \| undefined`                         | 지도 컨테이너 DOM 요소를 반환합니다.    |
+| `getMapTypeId`           | `(...args: Parameters<naver.maps.Map["getMapTypeId"]>) => ReturnType<naver.maps.Map["getMapTypeId"]> \| undefined`                     | 현재 지도 타입 ID를 반환합니다.         |
+| `getMaxZoom`             | `(...args: Parameters<naver.maps.Map["getMaxZoom"]>) => ReturnType<naver.maps.Map["getMaxZoom"]> \| undefined`                         | 최대 줌 레벨을 반환합니다.              |
+| `getMinZoom`             | `(...args: Parameters<naver.maps.Map["getMinZoom"]>) => ReturnType<naver.maps.Map["getMinZoom"]> \| undefined`                         | 최소 줌 레벨을 반환합니다.              |
+| `getOptions`             | `(...args: Parameters<naver.maps.Map["getOptions"]>) => ReturnType<naver.maps.Map["getOptions"]> \| undefined`                         | 지도 옵션을 조회합니다.                 |
+| `getPanes`               | `(...args: Parameters<naver.maps.Map["getPanes"]>) => ReturnType<naver.maps.Map["getPanes"]> \| undefined`                             | pane 집합을 반환합니다.                 |
+| `getPrimitiveProjection` | `(...args: Parameters<naver.maps.Map["getPrimitiveProjection"]>) => ReturnType<naver.maps.Map["getPrimitiveProjection"]> \| undefined` | 원본 projection을 반환합니다.           |
+| `getProjection`          | `(...args: Parameters<naver.maps.Map["getProjection"]>) => ReturnType<naver.maps.Map["getProjection"]> \| undefined`                   | 지도 projection을 반환합니다.           |
+| `getSize`                | `(...args: Parameters<naver.maps.Map["getSize"]>) => ReturnType<naver.maps.Map["getSize"]> \| undefined`                               | 지도 크기를 반환합니다.                 |
+| `getZoom`                | `(...args: Parameters<naver.maps.Map["getZoom"]>) => ReturnType<naver.maps.Map["getZoom"]> \| undefined`                               | 현재 줌 레벨을 반환합니다.              |
+| `fitBounds`              | `(...args: Parameters<naver.maps.Map["fitBounds"]>) => ReturnType<naver.maps.Map["fitBounds"]> \| undefined`                           | 지정 경계에 맞춰 지도를 이동합니다.     |
+| `panBy`                  | `(...args: Parameters<naver.maps.Map["panBy"]>) => ReturnType<naver.maps.Map["panBy"]> \| undefined`                                   | 픽셀 오프셋 기준으로 지도를 이동합니다. |
+| `panTo`                  | `(...args: Parameters<naver.maps.Map["panTo"]>) => ReturnType<naver.maps.Map["panTo"]> \| undefined`                                   | 지정 좌표로 부드럽게 이동합니다.        |
+| `panToBounds`            | `(...args: Parameters<naver.maps.Map["panToBounds"]>) => ReturnType<naver.maps.Map["panToBounds"]> \| undefined`                       | 경계에 맞춰 부드럽게 이동합니다.        |
+| `morph`                  | `(...args: Parameters<naver.maps.Map["morph"]>) => ReturnType<naver.maps.Map["morph"]> \| undefined`                                   | 좌표/줌 조합으로 전환 이동합니다.       |
+| `updateBy`               | `(...args: Parameters<naver.maps.Map["updateBy"]>) => ReturnType<naver.maps.Map["updateBy"]> \| undefined`                             | 좌표/줌으로 즉시 이동합니다.            |
+| `zoomBy`                 | `(...args: Parameters<naver.maps.Map["zoomBy"]>) => ReturnType<naver.maps.Map["zoomBy"]> \| undefined`                                 | 상대 줌 레벨로 변경합니다.              |
+| `setCenter`              | `(...args: Parameters<naver.maps.Map["setCenter"]>) => ReturnType<naver.maps.Map["setCenter"]> \| undefined`                           | 중심 좌표를 설정합니다.                 |
+| `setCenterPoint`         | `(...args: Parameters<naver.maps.Map["setCenterPoint"]>) => ReturnType<naver.maps.Map["setCenterPoint"]> \| undefined`                 | 중심 세계 좌표를 설정합니다.            |
+| `setMapTypeId`           | `(...args: Parameters<naver.maps.Map["setMapTypeId"]>) => ReturnType<naver.maps.Map["setMapTypeId"]> \| undefined`                     | 지도 타입 ID를 설정합니다.              |
+| `setOptions`             | `(...args: Parameters<naver.maps.Map["setOptions"]>) => ReturnType<naver.maps.Map["setOptions"]> \| undefined`                         | 지도 옵션을 설정합니다.                 |
+| `setSize`                | `(...args: Parameters<naver.maps.Map["setSize"]>) => ReturnType<naver.maps.Map["setSize"]> \| undefined`                               | 지도 크기를 설정합니다.                 |
+| `setZoom`                | `(...args: Parameters<naver.maps.Map["setZoom"]>) => ReturnType<naver.maps.Map["setZoom"]> \| undefined`                               | 줌 레벨을 설정합니다.                   |
 
 ## DOM 프로퍼티
 

@@ -1,4 +1,12 @@
-import { memo, useContext, useEffect, useRef } from "react";
+import {
+  forwardRef,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef
+} from "react";
 
 import { NaverMapContext } from "../provider/NaverMapProvider";
 
@@ -104,6 +112,50 @@ export type NaverMapProps = NaverMapOptionProps &
   NaverMapLifecycleProps &
   NaverMapEventProps &
   NaverMapDivProps;
+
+type NaverMapMethod<K extends keyof naver.maps.Map> = naver.maps.Map[K] extends (
+  ...args: infer A
+) => infer R
+  ? (...args: A) => R | undefined
+  : never;
+
+export interface NaverMapRef {
+  getInstance: () => naver.maps.Map | null;
+  addOverlayPane: (name: string, elementOrZIndex: HTMLElement | number) => void;
+  addPane: NaverMapMethod<"addPane">;
+  autoResize: NaverMapMethod<"autoResize">;
+  destroy: NaverMapMethod<"destroy">;
+  fitBounds: NaverMapMethod<"fitBounds">;
+  getBounds: NaverMapMethod<"getBounds">;
+  getCenter: NaverMapMethod<"getCenter">;
+  getCenterPoint: NaverMapMethod<"getCenterPoint">;
+  getElement: NaverMapMethod<"getElement">;
+  getMapTypeId: NaverMapMethod<"getMapTypeId">;
+  getMaxZoom: NaverMapMethod<"getMaxZoom">;
+  getMinZoom: NaverMapMethod<"getMinZoom">;
+  getOptions: NaverMapMethod<"getOptions">;
+  getPanes: NaverMapMethod<"getPanes">;
+  getPrimitiveProjection: NaverMapMethod<"getPrimitiveProjection">;
+  getProjection: NaverMapMethod<"getProjection">;
+  getSize: NaverMapMethod<"getSize">;
+  getZoom: NaverMapMethod<"getZoom">;
+  morph: NaverMapMethod<"morph">;
+  panBy: NaverMapMethod<"panBy">;
+  panTo: NaverMapMethod<"panTo">;
+  panToBounds: NaverMapMethod<"panToBounds">;
+  refresh: NaverMapMethod<"refresh">;
+  removeOverlayPane: (name: string) => void;
+  removePane: NaverMapMethod<"removePane">;
+  setCenter: NaverMapMethod<"setCenter">;
+  setCenterPoint: NaverMapMethod<"setCenterPoint">;
+  setMapTypeId: NaverMapMethod<"setMapTypeId">;
+  setOptions: NaverMapMethod<"setOptions">;
+  setSize: NaverMapMethod<"setSize">;
+  setZoom: NaverMapMethod<"setZoom">;
+  stop: NaverMapMethod<"stop">;
+  updateBy: NaverMapMethod<"updateBy">;
+  zoomBy: NaverMapMethod<"zoomBy">;
+}
 
 const MAP_OPTION_KEYS = [
   "background",
@@ -415,7 +467,7 @@ function areNaverMapPropsEqual(previousProps: NaverMapProps, nextProps: NaverMap
   return true;
 }
 
-function NaverMapInner(props: NaverMapProps) {
+const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInner(props, ref) {
   const context = useContext(NaverMapContext);
 
   if (!context) {
@@ -432,12 +484,145 @@ function NaverMapInner(props: NaverMapProps) {
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
   const mapEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+  const onMapDestroyRef = useRef<NaverMapProps["onMapDestroy"]>(onMapDestroy);
   const previousCenterSignatureRef = useRef<string>("");
   const previousZoomRef = useRef<MapOptions["zoom"] | undefined>(undefined);
   const previousMapTypeIdRef = useRef<MapOptions["mapTypeId"] | undefined>(undefined);
   const latestMapOptionsRef = useRef<naver.maps.MapOptions>(mapOptions);
 
   latestMapOptionsRef.current = mapOptions;
+
+  useEffect(() => {
+    onMapDestroyRef.current = onMapDestroy;
+  }, [onMapDestroy]);
+
+  const invokeMapMethod = useCallback(
+    <K extends keyof naver.maps.Map>(
+      methodName: K,
+      ...args: Parameters<Extract<naver.maps.Map[K], (...params: never[]) => unknown>>
+    ): ReturnType<Extract<naver.maps.Map[K], (...params: never[]) => unknown>> | undefined => {
+      const mapInstance = mapRef.current;
+
+      if (!mapInstance) {
+        return undefined;
+      }
+
+      const method = mapInstance[methodName] as unknown;
+
+      if (typeof method !== "function") {
+        return undefined;
+      }
+
+      return (method as (...params: unknown[]) => unknown).apply(mapInstance, args) as ReturnType<
+        Extract<naver.maps.Map[K], (...params: never[]) => unknown>
+      >;
+    },
+    []
+  );
+
+  const teardownMapInstance = useCallback(() => {
+    const mapInstance = mapRef.current;
+    const containerElement = containerRef.current;
+
+    if (!mapInstance) {
+      return;
+    }
+
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
+    try {
+      if (mapEventListenersRef.current.length > 0) {
+        naver.maps.Event.removeListener(mapEventListenersRef.current);
+        mapEventListenersRef.current = [];
+      }
+
+      naver.maps.Event.clearInstanceListeners(mapInstance);
+    } catch (error) {
+      console.error("[react-naver-maps-kit] failed to clear map listeners", error);
+    }
+
+    if (containerElement) {
+      containerElement.innerHTML = "";
+    }
+
+    mapRef.current = null;
+    isCreatingRef.current = false;
+    appliedOptionsRef.current = {};
+    previousCenterSignatureRef.current = "";
+    previousZoomRef.current = undefined;
+    previousMapTypeIdRef.current = undefined;
+    setMap(null);
+    onMapDestroyRef.current?.();
+  }, [setMap]);
+
+  useImperativeHandle(
+    ref,
+    (): NaverMapRef => ({
+      getInstance: () => mapRef.current,
+      addOverlayPane: (name, elementOrZIndex) => {
+        const mapInstance = mapRef.current as naver.maps.Map & {
+          addOverlayPane?: (name: string, elementOrZIndex: HTMLElement | number) => void;
+        };
+
+        mapInstance.addOverlayPane?.(name, elementOrZIndex);
+      },
+      addPane: (...args) => invokeMapMethod("addPane", ...args),
+      autoResize: (...args) => invokeMapMethod("autoResize", ...args),
+      destroy: (...args) => {
+        const mapInstance = mapRef.current as naver.maps.Map & { destroy?: () => void };
+
+        if (!mapInstance) {
+          return undefined;
+        }
+
+        try {
+          return mapInstance.destroy?.(...args);
+        } finally {
+          teardownMapInstance();
+        }
+      },
+      fitBounds: (...args) => invokeMapMethod("fitBounds", ...args),
+      getBounds: (...args) => invokeMapMethod("getBounds", ...args),
+      getCenter: (...args) => invokeMapMethod("getCenter", ...args),
+      getCenterPoint: (...args) => invokeMapMethod("getCenterPoint", ...args),
+      getElement: (...args) => invokeMapMethod("getElement", ...args),
+      getMapTypeId: (...args) => invokeMapMethod("getMapTypeId", ...args),
+      getMaxZoom: (...args) => invokeMapMethod("getMaxZoom", ...args),
+      getMinZoom: (...args) => invokeMapMethod("getMinZoom", ...args),
+      getOptions: (...args) => invokeMapMethod("getOptions", ...args),
+      getPanes: (...args) => invokeMapMethod("getPanes", ...args),
+      getPrimitiveProjection: (...args) => invokeMapMethod("getPrimitiveProjection", ...args),
+      getProjection: (...args) => invokeMapMethod("getProjection", ...args),
+      getSize: (...args) => invokeMapMethod("getSize", ...args),
+      getZoom: (...args) => invokeMapMethod("getZoom", ...args),
+      morph: (...args) => invokeMapMethod("morph", ...args),
+      panBy: (...args) => invokeMapMethod("panBy", ...args),
+      panTo: (...args) => invokeMapMethod("panTo", ...args),
+      panToBounds: (...args) => invokeMapMethod("panToBounds", ...args),
+      refresh: (...args) => invokeMapMethod("refresh", ...args),
+      removeOverlayPane: (name) => {
+        const mapInstance = mapRef.current as naver.maps.Map & {
+          removeOverlayPane?: (name: string) => void;
+        };
+
+        mapInstance.removeOverlayPane?.(name);
+      },
+      removePane: (...args) => invokeMapMethod("removePane", ...args),
+      setCenter: (...args) => invokeMapMethod("setCenter", ...args),
+      setCenterPoint: (...args) => invokeMapMethod("setCenterPoint", ...args),
+      setMapTypeId: (...args) => invokeMapMethod("setMapTypeId", ...args),
+      setOptions: (...args) => invokeMapMethod("setOptions", ...args),
+      setSize: (...args) => invokeMapMethod("setSize", ...args),
+      setZoom: (...args) => invokeMapMethod("setZoom", ...args),
+      stop: (...args) => invokeMapMethod("stop", ...args),
+      updateBy: (...args) => invokeMapMethod("updateBy", ...args),
+      zoomBy: (...args) => invokeMapMethod("zoomBy", ...args)
+    }),
+    [invokeMapMethod, teardownMapInstance]
+  );
 
   useEffect(() => {
     isUnmountedRef.current = false;
@@ -545,47 +730,14 @@ function NaverMapInner(props: NaverMapProps) {
   }, [props]);
 
   useEffect(() => {
-    const containerElement = containerRef.current;
-
     return () => {
-      const mapInstance = mapRef.current;
-
-      if (!mapInstance) {
-        return;
-      }
-
-      if (retryTimerRef.current) {
-        clearTimeout(retryTimerRef.current);
-        retryTimerRef.current = null;
-      }
-
-      try {
-        if (mapEventListenersRef.current.length > 0) {
-          naver.maps.Event.removeListener(mapEventListenersRef.current);
-          mapEventListenersRef.current = [];
-        }
-
-        naver.maps.Event.clearInstanceListeners(mapInstance);
-      } catch (error) {
-        console.error("[react-naver-maps-kit] failed to clear map listeners", error);
-      }
-
-      if (containerElement) {
-        containerElement.innerHTML = "";
-      }
-
-      mapRef.current = null;
-      isCreatingRef.current = false;
-      appliedOptionsRef.current = {};
-      previousCenterSignatureRef.current = "";
-      previousZoomRef.current = undefined;
-      previousMapTypeIdRef.current = undefined;
-      setMap(null);
-      onMapDestroy?.();
+      teardownMapInstance();
     };
-  }, [onMapDestroy, setMap]);
+  }, [teardownMapInstance]);
 
   return <div ref={containerRef} {...divProps} />;
-}
+});
 
-export const NaverMap = memo(NaverMapInner, areNaverMapPropsEqual);
+NaverMapBase.displayName = "NaverMap";
+
+export const NaverMap = memo(NaverMapBase, areNaverMapPropsEqual);
