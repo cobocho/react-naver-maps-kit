@@ -2,12 +2,14 @@ const NAVER_MAPS_SCRIPT_BASE_URL = "https://oapi.map.naver.com/openapi/v3/maps.j
 
 type LegacyClientIdParam = "ncpClientId" | "govClientId" | "finClientId";
 
+type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+
 export interface LoadNaverMapsScriptOptions {
   ncpKeyId?: string;
   ncpClientId?: string;
   govClientId?: string;
   finClientId?: string;
-  submodules?: string[];
+  submodules?: Array<Submodule>;
   timeoutMs?: number;
   nonce?: string;
 }
