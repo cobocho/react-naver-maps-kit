@@ -1,6 +1,31 @@
-import { NaverMap, NaverMapContext, NaverMapProvider } from "react-naver-maps-kit";
+import { NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
 
 import "./App.css";
+
+function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
+  const { sdkError, sdkStatus } = useNaverMap();
+
+  return (
+    <>
+      <p>
+        ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
+      </p>
+      <p>
+        status: <strong>{sdkStatus}</strong>
+      </p>
+      {sdkError ? <p style={{ color: "crimson" }}>error: {sdkError.message}</p> : null}
+      <NaverMap
+        center={{ lat: 37.3595704, lng: 127.105399 }}
+        zoom={10}
+        draggable={true}
+        scrollWheel={true}
+        zoomControl={true}
+        mapTypeControl={true}
+        style={{ width: 360, height: 360 }}
+      />
+    </>
+  );
+}
 
 function App() {
   const ncpKeyId = String(
@@ -18,36 +43,7 @@ function App() {
         console.error("[react-naver-maps-kit] SDK load error", error);
       }}
     >
-      <NaverMapContext.Consumer>
-        {(context) => {
-          if (!context) {
-            return <p>NaverMapContext is not available.</p>;
-          }
-
-          const { sdkError, sdkStatus } = context;
-
-          return (
-            <>
-              <p>
-                ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
-              </p>
-              <p>
-                status: <strong>{sdkStatus}</strong>
-              </p>
-              {sdkError ? <p style={{ color: "crimson" }}>error: {sdkError.message}</p> : null}
-              <NaverMap
-                center={{ lat: 37.3595704, lng: 127.105399 }}
-                zoom={10}
-                draggable={true}
-                scrollWheel={true}
-                zoomControl={true}
-                mapTypeControl={true}
-                style={{ width: 360, height: 360 }}
-              />
-            </>
-          );
-        }}
-      </NaverMapContext.Consumer>
+      <MapStatusPanel ncpKeyId={ncpKeyId} />
     </NaverMapProvider>
   );
 }

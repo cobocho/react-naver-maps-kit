@@ -6,9 +6,11 @@ export { loadNaverMapsScript } from "./core/loader/loadNaverMapsScript";
 export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScript";
 export { NaverMapProvider, NaverMapContext } from "./react/provider/NaverMapProvider";
 export { NaverMap } from "./react/components/NaverMap";
+export { useNaverMap, useNaverMapInstance } from "./react/hooks/useNaverMap";
 export type {
   NaverMapContextValue,
   NaverMapProviderProps,
   NaverMapSdkStatus
 } from "./react/provider/NaverMapProvider";
 export type { NaverMapProps } from "./react/components/NaverMap";
+export type { UseNaverMapOptions } from "./react/hooks/useNaverMap";
