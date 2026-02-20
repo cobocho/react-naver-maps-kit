@@ -51,6 +51,9 @@ interface NaverMapOptionProps {
 interface NaverMapLifecycleProps {
   onMapReady?: (map: naver.maps.Map) => void;
   onMapDestroy?: () => void;
+  onMapError?: (error: Error) => void;
+  retryOnError?: boolean;
+  retryDelayMs?: number;
 }
 
 type NaverMapDivProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "draggable">;
@@ -149,12 +152,19 @@ function splitNaverMapProps(props: NaverMapProps): {
   divProps: NaverMapDivProps;
   onMapReady?: (map: naver.maps.Map) => void;
   onMapDestroy?: () => void;
+  onMapError?: (error: Error) => void;
+  retryOnError?: boolean;
+  retryDelayMs?: number;
 } {
   const mapOptionEntries: Array<[string, unknown]> = [];
   const divPropEntries: Array<[string, unknown]> = [];
 
   for (const [key, value] of Object.entries(props)) {
     if (key === "onMapReady" || key === "onMapDestroy") {
+      continue;
+    }
+
+    if (key === "onMapError" || key === "retryOnError" || key === "retryDelayMs") {
       continue;
     }
 
@@ -172,7 +182,10 @@ function splitNaverMapProps(props: NaverMapProps): {
     mapOptions: Object.fromEntries(mapOptionEntries) as naver.maps.MapOptions,
     divProps: Object.fromEntries(divPropEntries) as NaverMapDivProps,
     onMapReady: props.onMapReady,
-    onMapDestroy: props.onMapDestroy
+    onMapDestroy: props.onMapDestroy,
+    onMapError: props.onMapError,
+    retryOnError: props.retryOnError,
+    retryDelayMs: props.retryDelayMs
   };
 }
 
@@ -273,10 +286,14 @@ function NaverMapInner(props: NaverMapProps) {
     throw new Error("NaverMap must be used inside NaverMapProvider.");
   }
 
-  const { mapOptions, divProps, onMapReady, onMapDestroy } = splitNaverMapProps(props);
-  const { sdkStatus, setMap } = context;
+  const { mapOptions, divProps, onMapReady, onMapDestroy, onMapError, retryOnError, retryDelayMs } =
+    splitNaverMapProps(props);
+  const { reloadSdk, sdkStatus, setMap } = context;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
+  const isCreatingRef = useRef(false);
+  const isUnmountedRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
   const previousCenterSignatureRef = useRef<string>("");
   const previousZoomRef = useRef<MapOptions["zoom"] | undefined>(undefined);
@@ -286,9 +303,19 @@ function NaverMapInner(props: NaverMapProps) {
   latestMapOptionsRef.current = mapOptions;
 
   useEffect(() => {
-    if (sdkStatus !== "ready" || !containerRef.current || mapRef.current) {
+    isUnmountedRef.current = false;
+
+    return () => {
+      isUnmountedRef.current = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (sdkStatus !== "ready" || !containerRef.current || mapRef.current || isCreatingRef.current) {
       return;
     }
+
+    isCreatingRef.current = true;
 
     try {
       const mapInstance = new naver.maps.Map(containerRef.current, latestMapOptionsRef.current);
@@ -300,9 +327,27 @@ function NaverMapInner(props: NaverMapProps) {
       previousMapTypeIdRef.current = latestMapOptionsRef.current.mapTypeId;
       onMapReady?.(mapInstance);
     } catch (error) {
-      console.error("[react-naver-maps-kit] failed to create naver.maps.Map", error);
+      const normalizedError =
+        error instanceof Error ? error : new Error("Failed to create naver.maps.Map instance.");
+
+      console.error("[react-naver-maps-kit] failed to create naver.maps.Map", normalizedError);
+      onMapError?.(normalizedError);
+
+      if (retryOnError && !isUnmountedRef.current) {
+        const retryDelay = retryDelayMs ?? 1000;
+
+        if (retryTimerRef.current) {
+          clearTimeout(retryTimerRef.current);
+        }
+
+        retryTimerRef.current = setTimeout(() => {
+          void reloadSdk().catch(() => undefined);
+        }, retryDelay);
+      }
+    } finally {
+      isCreatingRef.current = false;
     }
-  }, [onMapReady, sdkStatus, setMap]);
+  }, [onMapError, onMapReady, reloadSdk, retryDelayMs, retryOnError, sdkStatus, setMap]);
 
   useEffect(() => {
     const mapInstance = mapRef.current;
@@ -335,6 +380,11 @@ function NaverMapInner(props: NaverMapProps) {
         return;
       }
 
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+
       try {
         naver.maps.Event.clearInstanceListeners(mapInstance);
       } catch (error) {
@@ -353,6 +403,7 @@ function NaverMapInner(props: NaverMapProps) {
       }
 
       mapRef.current = null;
+      isCreatingRef.current = false;
       appliedOptionsRef.current = {};
       previousCenterSignatureRef.current = "";
       previousZoomRef.current = undefined;

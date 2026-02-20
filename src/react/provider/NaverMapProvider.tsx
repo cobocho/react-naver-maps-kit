@@ -19,6 +19,8 @@ export interface NaverMapContextValue {
   map: naver.maps.Map | null;
   setMap: (map: naver.maps.Map | null) => void;
   reloadSdk: () => Promise<void>;
+  retrySdk: () => Promise<void>;
+  clearSdkError: () => void;
 }
 
 export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
@@ -47,6 +49,7 @@ export function NaverMapProvider({
   const [sdkError, setSdkError] = useState<Error | null>(null);
   const [map, setMap] = useState<naver.maps.Map | null>(null);
   const mountedRef = useRef(true);
+  const inFlightLoadRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -87,40 +90,51 @@ export function NaverMapProvider({
   }, [onError]);
 
   const reloadSdk = useCallback(async () => {
+    if (inFlightLoadRef.current) {
+      return inFlightLoadRef.current;
+    }
+
     if (mountedRef.current) {
       setSdkStatus("loading");
       setSdkError(null);
     }
 
-    try {
-      await loadNaverMapsScript({
-        ncpKeyId,
-        ncpClientId,
-        govClientId,
-        finClientId,
-        submodules,
-        timeoutMs,
-        nonce
+    const loadPromise = loadNaverMapsScript({
+      ncpKeyId,
+      ncpClientId,
+      govClientId,
+      finClientId,
+      submodules,
+      timeoutMs,
+      nonce
+    })
+      .then(() => {
+        if (mountedRef.current) {
+          setSdkStatus("ready");
+          setSdkError(null);
+        }
+
+        onReady?.();
+      })
+      .catch((error) => {
+        const normalizedError =
+          error instanceof Error ? error : new Error("Failed to load Naver Maps SDK.");
+
+        if (mountedRef.current) {
+          setSdkStatus("error");
+          setSdkError(normalizedError);
+        }
+
+        onError?.(normalizedError);
+        throw normalizedError;
+      })
+      .finally(() => {
+        inFlightLoadRef.current = null;
       });
 
-      if (mountedRef.current) {
-        setSdkStatus("ready");
-        setSdkError(null);
-      }
+    inFlightLoadRef.current = loadPromise;
 
-      onReady?.();
-    } catch (error) {
-      const normalizedError =
-        error instanceof Error ? error : new Error("Failed to load Naver Maps SDK.");
-
-      if (mountedRef.current) {
-        setSdkStatus("error");
-        setSdkError(normalizedError);
-      }
-
-      onError?.(normalizedError);
-      throw normalizedError;
-    }
+    return loadPromise;
   }, [
     finClientId,
     govClientId,
@@ -138,8 +152,15 @@ export function NaverMapProvider({
       return;
     }
 
-    void reloadSdk();
+    void reloadSdk().catch(() => undefined);
   }, [autoLoad, reloadSdk]);
+
+  const clearSdkError = useCallback(() => {
+    if (mountedRef.current) {
+      setSdkError(null);
+      setSdkStatus((current) => (current === "error" ? "idle" : current));
+    }
+  }, []);
 
   const value = useMemo<NaverMapContextValue>(
     () => ({
@@ -147,9 +168,11 @@ export function NaverMapProvider({
       sdkError,
       map,
       setMap,
-      reloadSdk
+      reloadSdk,
+      retrySdk: reloadSdk,
+      clearSdkError
     }),
-    [map, reloadSdk, sdkError, sdkStatus]
+    [clearSdkError, map, reloadSdk, sdkError, sdkStatus]
   );
 
   return <NaverMapContext.Provider value={value}>{children}</NaverMapContext.Provider>;

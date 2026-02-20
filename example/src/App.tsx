@@ -45,6 +45,9 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
       <p>
         applied mapTypeId: <strong>{appliedMapTypeId}</strong>
       </p>
+      <p>
+        selected mapTypeId: <strong>{mapTypeId}</strong>
+      </p>
       {sdkError ? <p style={{ color: "crimson" }}>error: {sdkError.message}</p> : null}
       <div
         style={{
@@ -134,6 +137,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
       <NaverMap
         center={center}
         draggable={draggable}
+        mapTypeId={mapTypeId}
         mapTypeControl={mapTypeControl}
         scrollWheel={scrollWheel}
         style={{ width: 360, height: 360 }}
