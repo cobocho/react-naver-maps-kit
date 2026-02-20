@@ -19,10 +19,10 @@ onMounted(async () => {
     const [{ createElement }, { createRoot }, kit] = await Promise.all([
       import("react"),
       import("react-dom/client"),
-      import("react-naver-maps-kit")
+      import("../../../../src/index.ts")
     ]);
 
-    const { NaverMap, NaverMapProvider, useNaverMap } = kit;
+    const { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } = kit;
 
     function StatusPanel() {
       const { sdkError, sdkStatus } = useNaverMap();
@@ -35,6 +35,7 @@ onMounted(async () => {
     }
 
     function LiveReactMapDemo() {
+      const center = { lat: 37.3595704, lng: 127.105399 };
       const ncpKeyId = String(
         import.meta.env.VITE_NCP_KEY_ID ?? import.meta.env.VITE_NCP_CLIENT_ID ?? ""
       ).trim();
@@ -55,13 +56,28 @@ onMounted(async () => {
           { className: "live-demo-shell" },
           createElement(StatusPanel),
           createElement(NaverMap, {
-            center: { lat: 37.3595704, lng: 127.105399 },
+            center,
             mapTypeControl: true,
             scrollWheel: true,
             style: { width: "100%", height: "320px" },
             zoom: 10,
             zoomControl: true
-          })
+          }),
+          createElement(
+            Marker,
+            { position: center },
+            createElement("span", { className: "live-demo-marker-chip" }, "KIT")
+          ),
+          createElement(
+            InfoWindow,
+            { position: center, visible: true },
+            createElement(
+              "div",
+              { className: "live-demo-info-window" },
+              createElement("strong", null, "react-naver-maps-kit"),
+              createElement("p", null, "Marker + InfoWindow demo")
+            )
+          )
         )
       );
     }
@@ -115,5 +131,30 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 13px;
   color: #475569;
+}
+
+:deep(.live-demo-marker-chip) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid #78350f;
+  background: #fef3c7;
+  color: #78350f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+:deep(.live-demo-info-window) {
+  min-width: 160px;
+  color: #0f172a;
+  font-size: 12px;
+}
+
+:deep(.live-demo-info-window p) {
+  margin: 4px 0 0;
 }
 </style>
