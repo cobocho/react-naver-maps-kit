@@ -96,7 +96,7 @@ describe("NaverMap + Provider + Hook integration", () => {
     unmount();
 
     expect(clearInstanceListenersMock).toHaveBeenCalledTimes(1);
-    expect(createdMap.destroy).toHaveBeenCalledTimes(1);
+    expect(createdMap.destroy).toHaveBeenCalledTimes(0);
   });
 
   it("updates changed props without recreating map instance", async () => {

@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import { NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
+import { useState } from "react";
+import { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
 
 import "./App.css";
 
 function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
-  const { map, sdkError, sdkStatus } = useNaverMap();
+  const { sdkError } = useNaverMap();
   const [zoom, setZoom] = useState(10);
   const [draggable, setDraggable] = useState(true);
   const [scrollWheel, setScrollWheel] = useState(true);
   const [zoomControl, setZoomControl] = useState(true);
   const [mapTypeControl, setMapTypeControl] = useState(true);
+  const [showInfoWindow, setShowInfoWindow] = useState(true);
+  const [markerEventText, setMarkerEventText] = useState("-");
   const [mapTypeId, setMapTypeId] = useState<naver.maps.MapTypeIdLiteral>("normal");
-  const [appliedMapTypeId, setAppliedMapTypeId] = useState<string>("-");
   const [centerKey, setCenterKey] = useState<"greenFactory" | "cityHall" | "busanStation">(
     "greenFactory"
   );
@@ -23,16 +24,6 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   };
 
   const center = centerByKey[centerKey];
-
-  useEffect(() => {
-    if (!map || sdkStatus !== "ready") {
-      return;
-    }
-
-    map.setMapTypeId(mapTypeId);
-    map.refresh();
-    setAppliedMapTypeId(map.getMapTypeId());
-  }, [map, mapTypeId, sdkStatus]);
 
   return (
     <section className="demo-card">
@@ -46,13 +37,10 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
         </p>
         <p>
-          status: <strong>{sdkStatus}</strong>
-        </p>
-        <p>
-          applied mapTypeId: <strong>{appliedMapTypeId}</strong>
-        </p>
-        <p>
           selected mapTypeId: <strong>{mapTypeId}</strong>
+        </p>
+        <p>
+          marker event: <strong>{markerEventText}</strong>
         </p>
       </div>
 
@@ -133,6 +121,15 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           />{" "}
           mapTypeControl
         </label>
+
+        <label className="control-item checkbox-item">
+          <input
+            checked={showInfoWindow}
+            onChange={(event) => setShowInfoWindow(event.target.checked)}
+            type="checkbox"
+          />{" "}
+          infoWindow
+        </label>
       </div>
 
       <div className="map-wrap">
@@ -146,6 +143,33 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           zoom={zoom}
           zoomControl={zoomControl}
         />
+        <Marker
+          position={center}
+          onClick={() => {
+            alert("click");
+          }}
+          onDragEnd={() => {
+            setMarkerEventText(`dragend @ ${new Date().toLocaleTimeString()}`);
+          }}
+        >
+          <div className="marker-chip" style={{ color: "red", width: "40px", height: "40px" }}>
+            KIT
+          </div>
+        </Marker>
+        <InfoWindow
+          position={{
+            lat: center.lat + 0.15,
+            lng: center.lng + 0.15
+          }}
+          visible={showInfoWindow}
+        >
+          <div className="info-window-box">
+            <strong>react-naver-maps-kit</strong>
+            <p>
+              center: {center.lat.toFixed(4)}, {center.lng.toFixed(4)}
+            </p>
+          </div>
+        </InfoWindow>
       </div>
     </section>
   );

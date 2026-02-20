@@ -13,6 +13,7 @@
 
 - [Getting Started](/guide/getting-started)
 - [Core Composition](/guide/provider-map-hook)
-- [Integration Example](/guide/live-component)
+- [Map Integration](/guide/integration-map)
+- [Overlay Integration](/guide/integration-overlay)
 - [API Reference](/api/provider)
 - [Troubleshooting](/troubleshooting/common-issues)

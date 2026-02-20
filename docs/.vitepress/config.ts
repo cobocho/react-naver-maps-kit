@@ -21,7 +21,8 @@ export default defineConfig({
         items: [
           { text: "Getting Started", link: "/guide/getting-started" },
           { text: "Core Composition", link: "/guide/provider-map-hook" },
-          { text: "Integration Example", link: "/guide/live-component" }
+          { text: "Map Integration", link: "/guide/integration-map" },
+          { text: "Overlay Integration", link: "/guide/integration-overlay" }
         ]
       },
       {
@@ -29,6 +30,8 @@ export default defineConfig({
         items: [
           { text: "NaverMapProvider", link: "/api/provider" },
           { text: "NaverMap", link: "/api/map" },
+          { text: "Marker", link: "/api/marker" },
+          { text: "InfoWindow", link: "/api/info-window" },
           { text: "Hooks", link: "/api/hooks" },
           { text: "loadNaverMapsScript", link: "/api/load-script" }
         ]
