@@ -22,6 +22,8 @@
     "build": "pnpm clean && rolldown -c && tsc -p tsconfig.build.json",
     "dev": "rolldown -c --watch",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -43,15 +45,19 @@
   "devDependencies": {
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/navermaps": "^3.9.1",
     "@eslint/js": "^9.21.0",
     "eslint": "^9.21.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "jsdom": "^26.0.0",
     "prettier": "^3.5.2",
     "rolldown": "^1.0.0-beta.41",
+    "@testing-library/react": "^16.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.25.0"
+    "typescript-eslint": "^8.25.0",
+    "vitest": "^2.1.8"
   }
 }
