@@ -201,7 +201,7 @@ function getChangedOptions(
     const previousValue = previous[optionKey];
     const nextValue = next[optionKey];
 
-    if (!areValuesEqual(previousValue, nextValue)) {
+    if (!areValuesEqual(previousValue, nextValue) && nextValue !== undefined) {
       changedEntries.push([key, nextValue]);
     }
   });
@@ -253,11 +253,6 @@ function applyChangedMapOptions(
     nextMapTypeId !== previousMapTypeIdRef.current
   ) {
     mapInstance.setMapTypeId(nextMapTypeId);
-
-    if (typeof mapInstance.refresh === "function") {
-      mapInstance.refresh();
-    }
-
     previousMapTypeIdRef.current = nextMapTypeId;
   }
 
@@ -389,13 +384,6 @@ function NaverMapInner(props: NaverMapProps) {
         naver.maps.Event.clearInstanceListeners(mapInstance);
       } catch (error) {
         console.error("[react-naver-maps-kit] failed to clear map listeners", error);
-      }
-
-      try {
-        const destroyableMap = mapInstance as naver.maps.Map & { destroy?: () => void };
-        destroyableMap.destroy?.();
-      } catch (error) {
-        console.error("[react-naver-maps-kit] failed to destroy map instance", error);
       }
 
       if (containerElement) {

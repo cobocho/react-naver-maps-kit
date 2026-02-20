@@ -11,7 +11,7 @@
     /* Bundler mode */
     "baseUrl": ".",
     "paths": {
-      "react-naver-maps-kit": ["../src/index.ts"]
+      "react-naver-maps-kit": ["../dist/index.d.ts"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

@@ -23,6 +23,16 @@ interface MarkerLifecycleProps {
   onMarkerReady?: (marker: naver.maps.Marker) => void;
   onMarkerDestroy?: () => void;
   onMarkerError?: (error: Error) => void;
+  onClick?: (event: naver.maps.PointerEvent) => void;
+  onDoubleClick?: (event: naver.maps.PointerEvent) => void;
+  onRightClick?: (event: naver.maps.PointerEvent) => void;
+  onMouseDown?: (event: naver.maps.PointerEvent) => void;
+  onMouseUp?: (event: naver.maps.PointerEvent) => void;
+  onMouseOver?: (event: naver.maps.PointerEvent) => void;
+  onMouseOut?: (event: naver.maps.PointerEvent) => void;
+  onDragStart?: (event: naver.maps.PointerEvent) => void;
+  onDrag?: (event: naver.maps.PointerEvent) => void;
+  onDragEnd?: (event: naver.maps.PointerEvent) => void;
 }
 
 export type MarkerProps = MarkerOverlayProps & MarkerLifecycleProps;
@@ -46,6 +56,16 @@ export type MarkerProps = MarkerOverlayProps & MarkerLifecycleProps;
 | `onMarkerReady`   | `(marker: naver.maps.Marker) => void`                                            | 인스턴스 생성 완료 콜백      |
 | `onMarkerDestroy` | `() => void`                                                                     | 인스턴스 정리 완료 콜백      |
 | `onMarkerError`   | `(error: Error) => void`                                                         | 생성 실패 콜백               |
+| `onClick`         | `(event: naver.maps.PointerEvent) => void`                                       | 클릭 이벤트                  |
+| `onDoubleClick`   | `(event: naver.maps.PointerEvent) => void`                                       | 더블 클릭 이벤트             |
+| `onRightClick`    | `(event: naver.maps.PointerEvent) => void`                                       | 우클릭 이벤트                |
+| `onMouseDown`     | `(event: naver.maps.PointerEvent) => void`                                       | 마우스 다운 이벤트           |
+| `onMouseUp`       | `(event: naver.maps.PointerEvent) => void`                                       | 마우스 업 이벤트             |
+| `onMouseOver`     | `(event: naver.maps.PointerEvent) => void`                                       | 마우스 오버 이벤트           |
+| `onMouseOut`      | `(event: naver.maps.PointerEvent) => void`                                       | 마우스 아웃 이벤트           |
+| `onDragStart`     | `(event: naver.maps.PointerEvent) => void`                                       | 드래그 시작 이벤트           |
+| `onDrag`          | `(event: naver.maps.PointerEvent) => void`                                       | 드래그 이벤트                |
+| `onDragEnd`       | `(event: naver.maps.PointerEvent) => void`                                       | 드래그 종료 이벤트           |
 
 ## 동작 규칙
 

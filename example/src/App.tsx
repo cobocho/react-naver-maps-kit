@@ -11,6 +11,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   const [zoomControl, setZoomControl] = useState(true);
   const [mapTypeControl, setMapTypeControl] = useState(true);
   const [showInfoWindow, setShowInfoWindow] = useState(true);
+  const [markerEventText, setMarkerEventText] = useState("-");
   const [mapTypeId, setMapTypeId] = useState<naver.maps.MapTypeIdLiteral>("normal");
   const [appliedMapTypeId, setAppliedMapTypeId] = useState<string>("-");
   const [centerKey, setCenterKey] = useState<"greenFactory" | "cityHall" | "busanStation">(
@@ -26,13 +27,16 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   const center = centerByKey[centerKey];
 
   useEffect(() => {
-    if (!map || sdkStatus !== "ready") {
+    if (sdkStatus !== "ready") {
       return;
     }
 
-    map.setMapTypeId(mapTypeId);
-    map.refresh();
-    setAppliedMapTypeId(map.getMapTypeId());
+    if (map) {
+      setAppliedMapTypeId(map.getMapTypeId());
+      return;
+    }
+
+    setAppliedMapTypeId(mapTypeId);
   }, [map, mapTypeId, sdkStatus]);
 
   return (
@@ -54,6 +58,9 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
         </p>
         <p>
           selected mapTypeId: <strong>{mapTypeId}</strong>
+        </p>
+        <p>
+          marker event: <strong>{markerEventText}</strong>
         </p>
       </div>
 
@@ -156,7 +163,17 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           zoom={zoom}
           zoomControl={zoomControl}
         />
-        <Marker position={center}>
+        <Marker
+          position={center}
+          onClick={(event) => {
+            setMarkerEventText(
+              `click(${event.point.y.toFixed(1)}, ${event.point.x.toFixed(1)}) @ ${new Date().toLocaleTimeString()}`
+            );
+          }}
+          onDragEnd={() => {
+            setMarkerEventText(`dragend @ ${new Date().toLocaleTimeString()}`);
+          }}
+        >
           <span className="marker-chip">KIT</span>
         </Marker>
         <InfoWindow position={center} visible={showInfoWindow}>
