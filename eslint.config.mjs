@@ -8,7 +8,14 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig(
   {
-    ignores: ["dist", "node_modules", "**/dist", "**/node_modules"]
+    ignores: [
+      "dist",
+      "node_modules",
+      "**/dist",
+      "**/node_modules",
+      "**/.vitepress/cache",
+      "**/.vitepress/dist"
+    ]
   },
   js.configs.recommended,
   tseslint.configs.recommended,

@@ -9,4 +9,6 @@ pnpm install
 pnpm build
 pnpm dev
 pnpm typecheck
+pnpm docs:dev
+pnpm docs:build
 ```
