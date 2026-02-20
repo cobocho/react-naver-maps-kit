@@ -55,9 +55,54 @@ interface NaverMapLifecycleProps {
   retryDelayMs?: number;
 }
 
+interface NaverMapEventProps {
+  onAddLayer?: (layer: naver.maps.Layer) => void;
+  onBoundsChanged?: (bounds: naver.maps.Bounds) => void;
+  onCenterChanged?: (center: naver.maps.Coord) => void;
+  onCenterPointChanged?: (centerPoint: naver.maps.Point) => void;
+  onClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDblClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDoubleTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDrag?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDragEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDragStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onIdle?: () => void;
+  onInit?: () => void;
+  onKeyDown?: (keyboardEvent: KeyboardEvent) => void;
+  onKeyUp?: (keyboardEvent: KeyboardEvent) => void;
+  onLongTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMapTypeChanged?: (mapType: naver.maps.MapType) => void;
+  onMapTypeIdChanged?: (mapTypeId: string) => void;
+  onMouseDown?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseMove?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseOut?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseOver?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseUp?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPanning?: () => void;
+  onPinch?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPinchEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPinchStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onProjectionChanged?: (projection: naver.maps.Projection) => void;
+  onRemoveLayer?: (layerName: string) => void;
+  onResize?: () => void;
+  onRightClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onSingleTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchMove?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTwoFingerTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onWheel?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onZoomChanged?: (zoom: number) => void;
+  onZooming?: () => void;
+  onZoomStart?: () => void;
+}
+
 type NaverMapDivProps = Omit<React.ComponentPropsWithoutRef<"div">, "children" | "draggable">;
 
-export type NaverMapProps = NaverMapOptionProps & NaverMapLifecycleProps & NaverMapDivProps;
+export type NaverMapProps = NaverMapOptionProps &
+  NaverMapLifecycleProps &
+  NaverMapEventProps &
+  NaverMapDivProps;
 ```
 
 ## 지도 옵션 프로퍼티
@@ -113,6 +158,50 @@ export type NaverMapProps = NaverMapOptionProps & NaverMapLifecycleProps & Naver
 | `onMapError`   | `(error: Error) => void`        | 생성/업데이트 실패 콜백      |
 | `retryOnError` | `boolean`                       | 에러 시 SDK 재시도 여부      |
 | `retryDelayMs` | `number`                        | 재시도 지연(ms)              |
+
+## 지도 이벤트 프로퍼티
+
+| Prop                   | Type                                              | Description                |
+| ---------------------- | ------------------------------------------------- | -------------------------- |
+| `onAddLayer`           | `(layer: naver.maps.Layer) => void`               | 레이어 추가 이벤트         |
+| `onBoundsChanged`      | `(bounds: naver.maps.Bounds) => void`             | 좌표 경계 변경 이벤트      |
+| `onCenterChanged`      | `(center: naver.maps.Coord) => void`              | 중심 좌표 변경 이벤트      |
+| `onCenterPointChanged` | `(centerPoint: naver.maps.Point) => void`         | 중심 세계 좌표 변경 이벤트 |
+| `onClick`              | `(pointerEvent: naver.maps.PointerEvent) => void` | 지도 클릭 이벤트           |
+| `onDblClick`           | `(pointerEvent: naver.maps.PointerEvent) => void` | 지도 더블 클릭 이벤트      |
+| `onDoubleTap`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 더블 탭 이벤트             |
+| `onDrag`               | `(pointerEvent: naver.maps.PointerEvent) => void` | 드래그 이벤트              |
+| `onDragEnd`            | `(pointerEvent: naver.maps.PointerEvent) => void` | 드래그 종료 이벤트         |
+| `onDragStart`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 드래그 시작 이벤트         |
+| `onIdle`               | `() => void`                                      | 지도 유휴 상태 이벤트      |
+| `onInit`               | `() => void`                                      | 지도 초기화 이벤트         |
+| `onKeyDown`            | `(keyboardEvent: KeyboardEvent) => void`          | 키 다운 이벤트             |
+| `onKeyUp`              | `(keyboardEvent: KeyboardEvent) => void`          | 키 업 이벤트               |
+| `onLongTap`            | `(pointerEvent: naver.maps.PointerEvent) => void` | 롱탭 이벤트                |
+| `onMapTypeChanged`     | `(mapType: naver.maps.MapType) => void`           | 지도 타입 객체 변경 이벤트 |
+| `onMapTypeIdChanged`   | `(mapTypeId: string) => void`                     | 지도 타입 ID 변경 이벤트   |
+| `onMouseDown`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 마우스 다운 이벤트         |
+| `onMouseMove`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 마우스 이동 이벤트         |
+| `onMouseOut`           | `(pointerEvent: naver.maps.PointerEvent) => void` | 마우스 아웃 이벤트         |
+| `onMouseOver`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 마우스 오버 이벤트         |
+| `onMouseUp`            | `(pointerEvent: naver.maps.PointerEvent) => void` | 마우스 업 이벤트           |
+| `onPanning`            | `() => void`                                      | 패닝 시작 이벤트           |
+| `onPinch`              | `(pointerEvent: naver.maps.PointerEvent) => void` | 핀치 이벤트                |
+| `onPinchEnd`           | `(pointerEvent: naver.maps.PointerEvent) => void` | 핀치 종료 이벤트           |
+| `onPinchStart`         | `(pointerEvent: naver.maps.PointerEvent) => void` | 핀치 시작 이벤트           |
+| `onProjectionChanged`  | `(projection: naver.maps.Projection) => void`     | 지도 투영 변경 이벤트      |
+| `onRemoveLayer`        | `(layerName: string) => void`                     | 레이어 제거 이벤트         |
+| `onResize`             | `() => void`                                      | 지도 리사이즈 이벤트       |
+| `onRightClick`         | `(pointerEvent: naver.maps.PointerEvent) => void` | 우클릭 이벤트              |
+| `onSingleTap`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 싱글 탭 이벤트             |
+| `onTouchEnd`           | `(pointerEvent: naver.maps.PointerEvent) => void` | 터치 종료 이벤트           |
+| `onTouchMove`          | `(pointerEvent: naver.maps.PointerEvent) => void` | 터치 이동 이벤트           |
+| `onTouchStart`         | `(pointerEvent: naver.maps.PointerEvent) => void` | 터치 시작 이벤트           |
+| `onTwoFingerTap`       | `(pointerEvent: naver.maps.PointerEvent) => void` | 두 손가락 탭 이벤트        |
+| `onWheel`              | `(pointerEvent: naver.maps.PointerEvent) => void` | 휠 이벤트                  |
+| `onZoomChanged`        | `(zoom: number) => void`                          | 줌 레벨 변경 이벤트        |
+| `onZooming`            | `() => void`                                      | 줌 애니메이션 진행 이벤트  |
+| `onZoomStart`          | `() => void`                                      | 줌 애니메이션 시작 이벤트  |
 
 ## DOM 프로퍼티
 

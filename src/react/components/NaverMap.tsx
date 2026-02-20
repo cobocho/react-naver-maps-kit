@@ -56,9 +56,54 @@ interface NaverMapLifecycleProps {
   retryDelayMs?: number;
 }
 
+interface NaverMapEventProps {
+  onAddLayer?: (layer: naver.maps.Layer) => void;
+  onBoundsChanged?: (bounds: naver.maps.Bounds) => void;
+  onCenterChanged?: (center: naver.maps.Coord) => void;
+  onCenterPointChanged?: (centerPoint: naver.maps.Point) => void;
+  onClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDblClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDoubleTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDrag?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDragEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onDragStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onIdle?: () => void;
+  onInit?: () => void;
+  onKeyDown?: (keyboardEvent: KeyboardEvent) => void;
+  onKeyUp?: (keyboardEvent: KeyboardEvent) => void;
+  onLongTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMapTypeChanged?: (mapType: naver.maps.MapType) => void;
+  onMapTypeIdChanged?: (mapTypeId: string) => void;
+  onMouseDown?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseMove?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseOut?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseOver?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onMouseUp?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPanning?: () => void;
+  onPinch?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPinchEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onPinchStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onProjectionChanged?: (projection: naver.maps.Projection) => void;
+  onRemoveLayer?: (layerName: string) => void;
+  onResize?: () => void;
+  onRightClick?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onSingleTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchEnd?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchMove?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTouchStart?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onTwoFingerTap?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onWheel?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onZoomChanged?: (zoom: number) => void;
+  onZooming?: () => void;
+  onZoomStart?: () => void;
+}
+
 type NaverMapDivProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "draggable">;
 
-export type NaverMapProps = NaverMapOptionProps & NaverMapLifecycleProps & NaverMapDivProps;
+export type NaverMapProps = NaverMapOptionProps &
+  NaverMapLifecycleProps &
+  NaverMapEventProps &
+  NaverMapDivProps;
 
 const MAP_OPTION_KEYS = [
   "background",
@@ -103,6 +148,98 @@ const MAP_OPTION_KEYS = [
 ] as const satisfies readonly (keyof NaverMapOptionProps)[];
 
 const MAP_OPTION_KEY_SET = new Set<string>(MAP_OPTION_KEYS as readonly string[]);
+
+const MAP_EVENT_PROP_KEYS = [
+  "onAddLayer",
+  "onBoundsChanged",
+  "onCenterChanged",
+  "onCenterPointChanged",
+  "onClick",
+  "onDblClick",
+  "onDoubleTap",
+  "onDrag",
+  "onDragEnd",
+  "onDragStart",
+  "onIdle",
+  "onInit",
+  "onKeyDown",
+  "onKeyUp",
+  "onLongTap",
+  "onMapTypeChanged",
+  "onMapTypeIdChanged",
+  "onMouseDown",
+  "onMouseMove",
+  "onMouseOut",
+  "onMouseOver",
+  "onMouseUp",
+  "onPanning",
+  "onPinch",
+  "onPinchEnd",
+  "onPinchStart",
+  "onProjectionChanged",
+  "onRemoveLayer",
+  "onResize",
+  "onRightClick",
+  "onSingleTap",
+  "onTouchEnd",
+  "onTouchMove",
+  "onTouchStart",
+  "onTwoFingerTap",
+  "onWheel",
+  "onZoomChanged",
+  "onZooming",
+  "onZoomStart"
+] as const satisfies readonly (keyof NaverMapEventProps)[];
+
+const MAP_EVENT_PROP_KEY_SET = new Set<string>(MAP_EVENT_PROP_KEYS as readonly string[]);
+
+type MapEventBinding = {
+  prop: keyof NaverMapEventProps;
+  eventName: string;
+  hasPayload: boolean;
+};
+
+const MAP_EVENT_BINDINGS: readonly MapEventBinding[] = [
+  { prop: "onAddLayer", eventName: "addLayer", hasPayload: true },
+  { prop: "onBoundsChanged", eventName: "bounds_changed", hasPayload: true },
+  { prop: "onCenterChanged", eventName: "center_changed", hasPayload: true },
+  { prop: "onCenterPointChanged", eventName: "centerPoint_changed", hasPayload: true },
+  { prop: "onClick", eventName: "click", hasPayload: true },
+  { prop: "onDblClick", eventName: "dblclick", hasPayload: true },
+  { prop: "onDoubleTap", eventName: "doubletap", hasPayload: true },
+  { prop: "onDrag", eventName: "drag", hasPayload: true },
+  { prop: "onDragEnd", eventName: "dragend", hasPayload: true },
+  { prop: "onDragStart", eventName: "dragstart", hasPayload: true },
+  { prop: "onIdle", eventName: "idle", hasPayload: false },
+  { prop: "onInit", eventName: "init", hasPayload: false },
+  { prop: "onKeyDown", eventName: "keydown", hasPayload: true },
+  { prop: "onKeyUp", eventName: "keyup", hasPayload: true },
+  { prop: "onLongTap", eventName: "longtap", hasPayload: true },
+  { prop: "onMapTypeChanged", eventName: "mapType_changed", hasPayload: true },
+  { prop: "onMapTypeIdChanged", eventName: "mapTypeId_changed", hasPayload: true },
+  { prop: "onMouseDown", eventName: "mousedown", hasPayload: true },
+  { prop: "onMouseMove", eventName: "mousemove", hasPayload: true },
+  { prop: "onMouseOut", eventName: "mouseout", hasPayload: true },
+  { prop: "onMouseOver", eventName: "mouseover", hasPayload: true },
+  { prop: "onMouseUp", eventName: "mouseup", hasPayload: true },
+  { prop: "onPanning", eventName: "panning", hasPayload: false },
+  { prop: "onPinch", eventName: "pinch", hasPayload: true },
+  { prop: "onPinchEnd", eventName: "pinchend", hasPayload: true },
+  { prop: "onPinchStart", eventName: "pinchstart", hasPayload: true },
+  { prop: "onProjectionChanged", eventName: "projection_changed", hasPayload: true },
+  { prop: "onRemoveLayer", eventName: "removeLayer", hasPayload: true },
+  { prop: "onResize", eventName: "resize", hasPayload: false },
+  { prop: "onRightClick", eventName: "rightclick", hasPayload: true },
+  { prop: "onSingleTap", eventName: "singletap", hasPayload: true },
+  { prop: "onTouchEnd", eventName: "touchend", hasPayload: true },
+  { prop: "onTouchMove", eventName: "touchmove", hasPayload: true },
+  { prop: "onTouchStart", eventName: "touchstart", hasPayload: true },
+  { prop: "onTwoFingerTap", eventName: "twofingertap", hasPayload: true },
+  { prop: "onWheel", eventName: "wheel", hasPayload: true },
+  { prop: "onZoomChanged", eventName: "zoom_changed", hasPayload: true },
+  { prop: "onZooming", eventName: "zooming", hasPayload: false },
+  { prop: "onZoomStart", eventName: "zoomstart", hasPayload: false }
+];
 
 function toCenterSignature(center: MapOptions["center"] | undefined): string {
   if (!center) {
@@ -165,6 +302,10 @@ function splitNaverMapProps(props: NaverMapProps): {
     }
 
     if (key === "onMapError" || key === "retryOnError" || key === "retryDelayMs") {
+      continue;
+    }
+
+    if (MAP_EVENT_PROP_KEY_SET.has(key)) {
       continue;
     }
 
@@ -290,6 +431,7 @@ function NaverMapInner(props: NaverMapProps) {
   const isUnmountedRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
+  const mapEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const previousCenterSignatureRef = useRef<string>("");
   const previousZoomRef = useRef<MapOptions["zoom"] | undefined>(undefined);
   const previousMapTypeIdRef = useRef<MapOptions["mapTypeId"] | undefined>(undefined);
@@ -366,6 +508,43 @@ function NaverMapInner(props: NaverMapProps) {
   });
 
   useEffect(() => {
+    const mapInstance = mapRef.current;
+
+    if (!mapInstance) {
+      return;
+    }
+
+    if (mapEventListenersRef.current.length > 0) {
+      naver.maps.Event.removeListener(mapEventListenersRef.current);
+      mapEventListenersRef.current = [];
+    }
+
+    mapEventListenersRef.current = MAP_EVENT_BINDINGS.map((binding) => {
+      const handler = props[binding.prop];
+
+      if (typeof handler !== "function") {
+        return null;
+      }
+
+      return naver.maps.Event.addListener(mapInstance, binding.eventName, (event: unknown) => {
+        if (binding.hasPayload) {
+          (handler as (event: unknown) => void)(event);
+          return;
+        }
+
+        (handler as () => void)();
+      });
+    }).filter((listener): listener is naver.maps.MapEventListener => listener !== null);
+
+    return () => {
+      if (mapEventListenersRef.current.length > 0) {
+        naver.maps.Event.removeListener(mapEventListenersRef.current);
+        mapEventListenersRef.current = [];
+      }
+    };
+  }, [props]);
+
+  useEffect(() => {
     const containerElement = containerRef.current;
 
     return () => {
@@ -381,6 +560,11 @@ function NaverMapInner(props: NaverMapProps) {
       }
 
       try {
+        if (mapEventListenersRef.current.length > 0) {
+          naver.maps.Event.removeListener(mapEventListenersRef.current);
+          mapEventListenersRef.current = [];
+        }
+
         naver.maps.Event.clearInstanceListeners(mapInstance);
       } catch (error) {
         console.error("[react-naver-maps-kit] failed to clear map listeners", error);

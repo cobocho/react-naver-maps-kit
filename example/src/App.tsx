@@ -12,6 +12,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   const [mapTypeControl, setMapTypeControl] = useState(true);
   const [showInfoWindow, setShowInfoWindow] = useState(true);
   const [markerEventText, setMarkerEventText] = useState("-");
+  const [mapEventText, setMapEventText] = useState("-");
   const [mapTypeId, setMapTypeId] = useState<naver.maps.MapTypeIdLiteral>("normal");
   const [centerKey, setCenterKey] = useState<"greenFactory" | "cityHall" | "busanStation">(
     "greenFactory"
@@ -41,6 +42,9 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
         </p>
         <p>
           marker event: <strong>{markerEventText}</strong>
+        </p>
+        <p>
+          map event: <strong>{mapEventText}</strong>
         </p>
       </div>
 
@@ -138,6 +142,14 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           draggable={draggable}
           mapTypeId={mapTypeId}
           mapTypeControl={mapTypeControl}
+          onCenterChanged={(coord) => {
+            setMapEventText(`center_changed(${coord.y.toFixed(4)}, ${coord.x.toFixed(4)})`);
+          }}
+          onIdle={() => {
+            setMapEventText(
+              (prev) => `${prev.split(" @")[0]} @ ${new Date().toLocaleTimeString()}`
+            );
+          }}
           scrollWheel={scrollWheel}
           style={{ width: "100%", height: 420 }}
           zoom={zoom}
