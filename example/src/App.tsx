@@ -35,30 +35,31 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   }, [map, mapTypeId, sdkStatus]);
 
   return (
-    <>
-      <p>
-        ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
-      </p>
-      <p>
-        status: <strong>{sdkStatus}</strong>
-      </p>
-      <p>
-        applied mapTypeId: <strong>{appliedMapTypeId}</strong>
-      </p>
-      <p>
-        selected mapTypeId: <strong>{mapTypeId}</strong>
-      </p>
-      {sdkError ? <p style={{ color: "crimson" }}>error: {sdkError.message}</p> : null}
-      <div
-        style={{
-          display: "grid",
-          gap: 8,
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          marginBottom: 12,
-          maxWidth: 520
-        }}
-      >
-        <label>
+    <section className="demo-card">
+      <header className="demo-header">
+        <h1>react-naver-maps-kit</h1>
+        <p>실시간 상태 확인 + 옵션 제어 예제</p>
+      </header>
+
+      <div className="status-grid">
+        <p>
+          ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
+        </p>
+        <p>
+          status: <strong>{sdkStatus}</strong>
+        </p>
+        <p>
+          applied mapTypeId: <strong>{appliedMapTypeId}</strong>
+        </p>
+        <p>
+          selected mapTypeId: <strong>{mapTypeId}</strong>
+        </p>
+      </div>
+
+      {sdkError ? <p className="error-text">error: {sdkError.message}</p> : null}
+
+      <div className="control-grid">
+        <label className="control-item">
           zoom: <strong>{zoom}</strong>
           <input
             max={21}
@@ -70,7 +71,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           />
         </label>
 
-        <label>
+        <label className="control-item">
           center
           <select
             onChange={(event) => setCenterKey(event.target.value as typeof centerKey)}
@@ -83,7 +84,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           </select>
         </label>
 
-        <label>
+        <label className="control-item">
           mapTypeId
           <select
             onChange={(event) => setMapTypeId(event.target.value as naver.maps.MapTypeIdLiteral)}
@@ -97,7 +98,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           </select>
         </label>
 
-        <label>
+        <label className="control-item checkbox-item">
           <input
             checked={draggable}
             onChange={(event) => setDraggable(event.target.checked)}
@@ -106,7 +107,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           draggable
         </label>
 
-        <label>
+        <label className="control-item checkbox-item">
           <input
             checked={scrollWheel}
             onChange={(event) => setScrollWheel(event.target.checked)}
@@ -115,7 +116,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           scrollWheel
         </label>
 
-        <label>
+        <label className="control-item checkbox-item">
           <input
             checked={zoomControl}
             onChange={(event) => setZoomControl(event.target.checked)}
@@ -124,7 +125,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           zoomControl
         </label>
 
-        <label>
+        <label className="control-item checkbox-item">
           <input
             checked={mapTypeControl}
             onChange={(event) => setMapTypeControl(event.target.checked)}
@@ -134,17 +135,19 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
         </label>
       </div>
 
-      <NaverMap
-        center={center}
-        draggable={draggable}
-        mapTypeId={mapTypeId}
-        mapTypeControl={mapTypeControl}
-        scrollWheel={scrollWheel}
-        style={{ width: 360, height: 360 }}
-        zoom={zoom}
-        zoomControl={zoomControl}
-      />
-    </>
+      <div className="map-wrap">
+        <NaverMap
+          center={center}
+          draggable={draggable}
+          mapTypeId={mapTypeId}
+          mapTypeControl={mapTypeControl}
+          scrollWheel={scrollWheel}
+          style={{ width: "100%", height: 420 }}
+          zoom={zoom}
+          zoomControl={zoomControl}
+        />
+      </div>
+    </section>
   );
 }
 
