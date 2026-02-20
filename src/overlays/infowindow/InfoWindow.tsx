@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
@@ -22,6 +22,7 @@ interface InfoWindowOptionProps {
   anchorSkew?: InfoWindowOptions["anchorSkew"];
   anchorSize?: InfoWindowOptions["anchorSize"];
   anchorColor?: InfoWindowOptions["anchorColor"];
+  autoPanPadding?: naver.maps.Point | naver.maps.PointLiteral;
 }
 
 interface InfoWindowLifecycleProps {
@@ -33,7 +34,57 @@ interface InfoWindowLifecycleProps {
   onInfoWindowError?: (error: Error) => void;
 }
 
-export type InfoWindowProps = InfoWindowOptionProps & InfoWindowLifecycleProps;
+interface InfoWindowEventProps {
+  onOpen?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onClose?: (pointerEvent: naver.maps.PointerEvent) => void;
+  onAnchorColorChanged?: (anchorColor: string) => void;
+  onAnchorSizeChanged?: (anchorSize: naver.maps.Size) => void;
+  onAnchorSkewChanged?: (anchorSkew: boolean) => void;
+  onBackgroundColorChanged?: (backgroundColor: string) => void;
+  onBorderColorChanged?: (borderColor: string) => void;
+  onBorderWidthChanged?: (borderWidth: number) => void;
+  onContentChanged?: (content: string | HTMLElement) => void;
+  onDisableAnchorChanged?: (disableAnchor: boolean) => void;
+  onDisableAutoPanChanged?: (disableAutoPan: boolean) => void;
+  onMaxWidthChanged?: (maxWidth: number) => void;
+  onPixelOffsetChanged?: (pixelOffset: naver.maps.Point) => void;
+  onPositionChanged?: (position: naver.maps.Coord) => void;
+  onZIndexChanged?: (zIndex: number) => void;
+}
+
+export type InfoWindowProps = InfoWindowOptionProps &
+  InfoWindowLifecycleProps &
+  InfoWindowEventProps;
+
+type InfoWindowMethod<K extends keyof naver.maps.InfoWindow> = naver.maps.InfoWindow[K] extends (
+  ...args: infer A
+) => infer R
+  ? (...args: A) => R | undefined
+  : never;
+
+export interface InfoWindowRef {
+  getInstance: () => naver.maps.InfoWindow | null;
+  close: InfoWindowMethod<"close">;
+  getContent: InfoWindowMethod<"getContent">;
+  getContentElement: InfoWindowMethod<"getContentElement">;
+  getMap: InfoWindowMethod<"getMap">;
+  getOptions: InfoWindowMethod<"getOptions">;
+  getPanes: InfoWindowMethod<"getPanes">;
+  getPosition: InfoWindowMethod<"getPosition">;
+  getProjection: InfoWindowMethod<"getProjection">;
+  getZIndex: InfoWindowMethod<"getZIndex">;
+  open: InfoWindowMethod<"open">;
+  setContent: InfoWindowMethod<"setContent">;
+  setMap: InfoWindowMethod<"setMap">;
+  setOptions: InfoWindowMethod<"setOptions">;
+  setPosition: InfoWindowMethod<"setPosition">;
+  setZIndex: InfoWindowMethod<"setZIndex">;
+}
+
+interface InfoWindowEventBinding {
+  eventName: string;
+  invoke?: (event: unknown) => void;
+}
 
 function toInfoWindowOptions(props: InfoWindowProps): Omit<InfoWindowOptions, "content"> {
   const {
@@ -51,145 +102,249 @@ function toInfoWindowOptions(props: InfoWindowProps): Omit<InfoWindowOptions, "c
     zIndex
   } = props;
 
-  return {
-    anchorColor,
-    anchorSize,
-    anchorSkew,
-    backgroundColor,
-    borderColor,
-    borderWidth,
-    disableAnchor,
-    disableAutoPan,
-    maxWidth,
-    pixelOffset,
-    position,
-    zIndex
-  };
+  const options: Omit<InfoWindowOptions, "content"> = {};
+
+  if (anchorColor !== undefined) {
+    options.anchorColor = anchorColor;
+  }
+
+  if (anchorSize !== undefined) {
+    options.anchorSize = anchorSize;
+  }
+
+  if (anchorSkew !== undefined) {
+    options.anchorSkew = anchorSkew;
+  }
+
+  if (backgroundColor !== undefined) {
+    options.backgroundColor = backgroundColor;
+  }
+
+  if (borderColor !== undefined) {
+    options.borderColor = borderColor;
+  }
+
+  if (borderWidth !== undefined) {
+    options.borderWidth = borderWidth;
+  }
+
+  if (disableAnchor !== undefined) {
+    options.disableAnchor = disableAnchor;
+  }
+
+  if (disableAutoPan !== undefined) {
+    options.disableAutoPan = disableAutoPan;
+  }
+
+  if (maxWidth !== undefined) {
+    options.maxWidth = maxWidth;
+  }
+
+  if (pixelOffset !== undefined) {
+    options.pixelOffset = pixelOffset;
+  }
+
+  if (position !== undefined) {
+    options.position = position;
+  }
+
+  if (zIndex !== undefined) {
+    options.zIndex = zIndex;
+  }
+
+  return options;
 }
 
 function resolveInfoWindowContent(
   content: InfoWindowOptions["content"] | undefined,
-  childrenContainer: HTMLElement | null
+  childrenContainer: HTMLElement | null,
+  hasChildren: boolean
 ): string | HTMLElement {
-  if (childrenContainer) {
+  if (hasChildren && childrenContainer) {
     return childrenContainer;
   }
 
-  if (content) {
+  if (content !== undefined) {
     return content;
   }
 
   return "";
 }
 
-export function InfoWindow(props: InfoWindowProps): ReactPortal | null {
-  const { map, sdkStatus } = useNaverMap();
-  const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
-  const onInfoWindowDestroyRef = useRef<InfoWindowProps["onInfoWindowDestroy"]>(
-    props.onInfoWindowDestroy
-  );
-  const childrenContainer = useMemo<HTMLElement | null>(() => {
-    if (typeof document === "undefined") {
-      return null;
+function buildInfoWindowEventBindings(props: InfoWindowProps): InfoWindowEventBinding[] {
+  return [
+    {
+      eventName: "open",
+      invoke: props.onOpen ? (event) => props.onOpen?.(event as naver.maps.PointerEvent) : undefined
+    },
+    {
+      eventName: "close",
+      invoke: props.onClose
+        ? (event) => props.onClose?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "anchorColor_changed",
+      invoke: props.onAnchorColorChanged
+        ? (event) => props.onAnchorColorChanged?.(event as string)
+        : undefined
+    },
+    {
+      eventName: "anchorSize_changed",
+      invoke: props.onAnchorSizeChanged
+        ? (event) => props.onAnchorSizeChanged?.(event as naver.maps.Size)
+        : undefined
+    },
+    {
+      eventName: "anchorSkew_changed",
+      invoke: props.onAnchorSkewChanged
+        ? (event) => props.onAnchorSkewChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "backgroundColor_changed",
+      invoke: props.onBackgroundColorChanged
+        ? (event) => props.onBackgroundColorChanged?.(event as string)
+        : undefined
+    },
+    {
+      eventName: "borderColor_changed",
+      invoke: props.onBorderColorChanged
+        ? (event) => props.onBorderColorChanged?.(event as string)
+        : undefined
+    },
+    {
+      eventName: "borderWidth_changed",
+      invoke: props.onBorderWidthChanged
+        ? (event) => props.onBorderWidthChanged?.(event as number)
+        : undefined
+    },
+    {
+      eventName: "content_changed",
+      invoke: props.onContentChanged
+        ? (event) => props.onContentChanged?.(event as string | HTMLElement)
+        : undefined
+    },
+    {
+      eventName: "disableAnchor_changed",
+      invoke: props.onDisableAnchorChanged
+        ? (event) => props.onDisableAnchorChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "disableAutoPan_changed",
+      invoke: props.onDisableAutoPanChanged
+        ? (event) => props.onDisableAutoPanChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "maxWidth_changed",
+      invoke: props.onMaxWidthChanged
+        ? (event) => props.onMaxWidthChanged?.(event as number)
+        : undefined
+    },
+    {
+      eventName: "pixelOffset_changed",
+      invoke: props.onPixelOffsetChanged
+        ? (event) => props.onPixelOffsetChanged?.(event as naver.maps.Point)
+        : undefined
+    },
+    {
+      eventName: "position_changed",
+      invoke: props.onPositionChanged
+        ? (event) => props.onPositionChanged?.(event as naver.maps.Coord)
+        : undefined
+    },
+    {
+      eventName: "zIndex_changed",
+      invoke: props.onZIndexChanged
+        ? (event) => props.onZIndexChanged?.(event as number)
+        : undefined
     }
+  ];
+}
 
-    return document.createElement("div");
-  }, []);
-  const visible = props.visible ?? true;
-  const optionSnapshot = useMemo(() => toInfoWindowOptions(props), [props]);
+function bindInfoWindowEventListeners(
+  infoWindow: naver.maps.InfoWindow,
+  listenersRef: { current: naver.maps.MapEventListener[] },
+  bindings: InfoWindowEventBinding[]
+): void {
+  if (listenersRef.current.length > 0) {
+    naver.maps.Event.removeListener(listenersRef.current);
+    listenersRef.current = [];
+  }
 
-  useEffect(() => {
-    onInfoWindowDestroyRef.current = props.onInfoWindowDestroy;
-  }, [props.onInfoWindowDestroy]);
+  listenersRef.current = bindings
+    .filter((binding) => typeof binding.invoke === "function")
+    .map((binding) =>
+      naver.maps.Event.addListener(infoWindow, binding.eventName, (event: unknown) => {
+        binding.invoke?.(event);
+      })
+    );
+}
 
-  useEffect(() => {
-    if (!props.children) {
-      const infoWindow = infoWindowRef.current;
+function setInfoWindowOptionByKey(
+  infoWindow: naver.maps.InfoWindow,
+  key: string,
+  value: unknown
+): void {
+  const optionSettable = infoWindow as naver.maps.InfoWindow & {
+    setOptions: (key: string, value: unknown) => void;
+  };
 
-      if (infoWindow) {
-        infoWindow.setContent(resolveInfoWindowContent(props.content, null));
+  optionSettable.setOptions(key, value);
+}
+
+export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
+  function InfoWindowInner(props, ref): ReactPortal | null {
+    const { map, sdkStatus } = useNaverMap();
+    const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
+    const infoWindowEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+    const onInfoWindowDestroyRef = useRef<InfoWindowProps["onInfoWindowDestroy"]>(
+      props.onInfoWindowDestroy
+    );
+    const childrenContainer = useMemo<HTMLElement | null>(() => {
+      if (typeof document === "undefined") {
+        return null;
       }
 
-      return;
-    }
+      return document.createElement("div");
+    }, []);
+    const visible = props.visible ?? true;
+    const hasChildren = props.children !== undefined && props.children !== null;
+    const optionSnapshot = useMemo(() => toInfoWindowOptions(props), [props]);
 
-    const infoWindow = infoWindowRef.current;
+    useEffect(() => {
+      onInfoWindowDestroyRef.current = props.onInfoWindowDestroy;
+    }, [props.onInfoWindowDestroy]);
 
-    if (infoWindow) {
-      infoWindow.setContent(resolveInfoWindowContent(props.content, childrenContainer));
-    }
-  }, [childrenContainer, props.children, props.content]);
+    const invokeInfoWindowMethod = useCallback(
+      <K extends keyof naver.maps.InfoWindow>(
+        methodName: K,
+        ...args: Parameters<Extract<naver.maps.InfoWindow[K], (...params: never[]) => unknown>>
+      ):
+        | ReturnType<Extract<naver.maps.InfoWindow[K], (...params: never[]) => unknown>>
+        | undefined => {
+        const infoWindow = infoWindowRef.current;
 
-  useEffect(() => {
-    if (sdkStatus !== "ready" || !map || infoWindowRef.current) {
-      return;
-    }
+        if (!infoWindow) {
+          return undefined;
+        }
 
-    try {
-      const infoWindow = new naver.maps.InfoWindow({
-        ...optionSnapshot,
-        content: resolveInfoWindowContent(props.content, childrenContainer)
-      });
+        const method = infoWindow[methodName] as unknown;
 
-      infoWindowRef.current = infoWindow;
-      props.onInfoWindowReady?.(infoWindow);
-    } catch (error) {
-      const normalizedError =
-        error instanceof Error
-          ? error
-          : new Error("Failed to create naver.maps.InfoWindow instance.");
+        if (typeof method !== "function") {
+          return undefined;
+        }
 
-      props.onInfoWindowError?.(normalizedError);
-    }
-  }, [childrenContainer, map, optionSnapshot, props, sdkStatus]);
+        return (method as (...params: unknown[]) => unknown).apply(infoWindow, args) as ReturnType<
+          Extract<naver.maps.InfoWindow[K], (...params: never[]) => unknown>
+        >;
+      },
+      []
+    );
 
-  useEffect(() => {
-    const infoWindow = infoWindowRef.current;
-
-    if (!infoWindow) {
-      return;
-    }
-
-    const resolvedContent = resolveInfoWindowContent(props.content, childrenContainer);
-
-    infoWindow.setOptions({
-      ...optionSnapshot,
-      content: resolvedContent
-    });
-    infoWindow.setContent(resolvedContent);
-
-    if (props.position) {
-      infoWindow.setPosition(props.position);
-    }
-
-    if (!map || !visible) {
-      infoWindow.close();
-      return;
-    }
-
-    if (props.anchor) {
-      infoWindow.open(map, props.anchor);
-      return;
-    }
-
-    if (props.position) {
-      infoWindow.open(map, props.position);
-      return;
-    }
-
-    infoWindow.open(map);
-  }, [
-    childrenContainer,
-    map,
-    optionSnapshot,
-    props.anchor,
-    props.content,
-    props.position,
-    visible
-  ]);
-
-  useEffect(() => {
-    return () => {
+    const teardownInfoWindow = useCallback(() => {
       const infoWindow = infoWindowRef.current;
 
       if (!infoWindow) {
@@ -197,6 +352,11 @@ export function InfoWindow(props: InfoWindowProps): ReactPortal | null {
       }
 
       try {
+        if (infoWindowEventListenersRef.current.length > 0) {
+          naver.maps.Event.removeListener(infoWindowEventListenersRef.current);
+          infoWindowEventListenersRef.current = [];
+        }
+
         naver.maps.Event.clearInstanceListeners(infoWindow);
       } catch (error) {
         console.error("[react-naver-maps-kit] failed to clear infoWindow listeners", error);
@@ -206,12 +366,151 @@ export function InfoWindow(props: InfoWindowProps): ReactPortal | null {
       infoWindow.setMap(null);
       infoWindowRef.current = null;
       onInfoWindowDestroyRef.current?.();
-    };
-  }, []);
+    }, []);
 
-  if (!props.children || !childrenContainer) {
-    return null;
+    useImperativeHandle(
+      ref,
+      (): InfoWindowRef => ({
+        getInstance: () => infoWindowRef.current,
+        close: (...args) => invokeInfoWindowMethod("close", ...args),
+        getContent: (...args) => invokeInfoWindowMethod("getContent", ...args),
+        getContentElement: (...args) => invokeInfoWindowMethod("getContentElement", ...args),
+        getMap: (...args) => invokeInfoWindowMethod("getMap", ...args),
+        getOptions: (...args) => invokeInfoWindowMethod("getOptions", ...args),
+        getPanes: (...args) => invokeInfoWindowMethod("getPanes", ...args),
+        getPosition: (...args) => invokeInfoWindowMethod("getPosition", ...args),
+        getProjection: (...args) => invokeInfoWindowMethod("getProjection", ...args),
+        getZIndex: (...args) => invokeInfoWindowMethod("getZIndex", ...args),
+        open: (...args) => invokeInfoWindowMethod("open", ...args),
+        setContent: (...args) => invokeInfoWindowMethod("setContent", ...args),
+        setMap: (...args) => invokeInfoWindowMethod("setMap", ...args),
+        setOptions: (...args) => invokeInfoWindowMethod("setOptions", ...args),
+        setPosition: (...args) => invokeInfoWindowMethod("setPosition", ...args),
+        setZIndex: (...args) => invokeInfoWindowMethod("setZIndex", ...args)
+      }),
+      [invokeInfoWindowMethod]
+    );
+
+    useEffect(() => {
+      if (sdkStatus !== "ready" || !map || infoWindowRef.current) {
+        return;
+      }
+
+      try {
+        const infoWindow = new naver.maps.InfoWindow({
+          ...optionSnapshot,
+          content: resolveInfoWindowContent(props.content, childrenContainer, hasChildren)
+        });
+
+        if (props.autoPanPadding !== undefined) {
+          setInfoWindowOptionByKey(infoWindow, "autoPanPadding", props.autoPanPadding);
+        }
+
+        infoWindowRef.current = infoWindow;
+        bindInfoWindowEventListeners(
+          infoWindow,
+          infoWindowEventListenersRef,
+          buildInfoWindowEventBindings(props)
+        );
+        props.onInfoWindowReady?.(infoWindow);
+      } catch (error) {
+        const normalizedError =
+          error instanceof Error
+            ? error
+            : new Error("Failed to create naver.maps.InfoWindow instance.");
+
+        props.onInfoWindowError?.(normalizedError);
+      }
+    }, [childrenContainer, hasChildren, map, optionSnapshot, props, sdkStatus]);
+
+    useEffect(() => {
+      const infoWindow = infoWindowRef.current;
+
+      if (!infoWindow) {
+        return;
+      }
+
+      const resolvedContent = resolveInfoWindowContent(
+        props.content,
+        childrenContainer,
+        hasChildren
+      );
+
+      infoWindow.setOptions({
+        ...optionSnapshot,
+        content: resolvedContent
+      });
+      infoWindow.setContent(resolvedContent);
+
+      if (props.autoPanPadding !== undefined) {
+        setInfoWindowOptionByKey(infoWindow, "autoPanPadding", props.autoPanPadding);
+      }
+
+      if (props.position) {
+        infoWindow.setPosition(props.position);
+      }
+
+      if (!map || !visible) {
+        infoWindow.close();
+        return;
+      }
+
+      if (props.anchor) {
+        infoWindow.open(map, props.anchor);
+        return;
+      }
+
+      if (props.position) {
+        infoWindow.open(map, props.position);
+        return;
+      }
+
+      infoWindow.open(map);
+    }, [
+      childrenContainer,
+      hasChildren,
+      map,
+      optionSnapshot,
+      props.anchor,
+      props.content,
+      props.position,
+      props.autoPanPadding,
+      visible
+    ]);
+
+    useEffect(() => {
+      const infoWindow = infoWindowRef.current;
+
+      if (!infoWindow) {
+        return;
+      }
+
+      bindInfoWindowEventListeners(
+        infoWindow,
+        infoWindowEventListenersRef,
+        buildInfoWindowEventBindings(props)
+      );
+
+      return () => {
+        if (infoWindowEventListenersRef.current.length > 0) {
+          naver.maps.Event.removeListener(infoWindowEventListenersRef.current);
+          infoWindowEventListenersRef.current = [];
+        }
+      };
+    }, [props]);
+
+    useEffect(() => {
+      return () => {
+        teardownInfoWindow();
+      };
+    }, [teardownInfoWindow]);
+
+    if (!hasChildren || !childrenContainer) {
+      return null;
+    }
+
+    return createPortal(props.children, childrenContainer);
   }
+);
 
-  return createPortal(props.children, childrenContainer);
-}
+InfoWindow.displayName = "InfoWindow";

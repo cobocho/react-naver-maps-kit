@@ -19,4 +19,5 @@ export type { NaverMapRef } from "./react/components/NaverMap";
 export type { MarkerProps } from "./overlays/marker/Marker";
 export type { MarkerRef } from "./overlays/marker/Marker";
 export type { InfoWindowProps } from "./overlays/infowindow/InfoWindow";
+export type { InfoWindowRef } from "./overlays/infowindow/InfoWindow";
 export type { UseNaverMapOptions } from "./react/hooks/useNaverMap";
