@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { memo, useContext, useEffect, useRef } from "react";
 
 import { NaverMapContext } from "../provider/NaverMapProvider";
 
@@ -6,7 +6,7 @@ import type { ComponentPropsWithoutRef } from "react";
 
 type MapOptions = naver.maps.MapOptions;
 
-interface NaverMapCoreProps {
+interface NaverMapOptionProps {
   background?: MapOptions["background"];
   baseTileOpacity?: MapOptions["baseTileOpacity"];
   bounds?: MapOptions["bounds"];
@@ -46,203 +46,244 @@ interface NaverMapCoreProps {
   blankTileImage?: MapOptions["blankTileImage"];
   gl?: MapOptions["gl"];
   customStyleId?: MapOptions["customStyleId"];
+}
+
+interface NaverMapLifecycleProps {
   onMapReady?: (map: naver.maps.Map) => void;
   onMapDestroy?: () => void;
 }
 
-export type NaverMapProps = NaverMapCoreProps &
-  Omit<ComponentPropsWithoutRef<"div">, "children" | "draggable">;
+type NaverMapDivProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "draggable">;
 
-function toMapOptions(props: NaverMapProps): naver.maps.MapOptions {
-  const raw: naver.maps.MapOptions = {
-    background: props.background,
-    baseTileOpacity: props.baseTileOpacity,
-    bounds: props.bounds,
-    center: props.center,
-    zoom: props.zoom,
-    disableDoubleClickZoom: props.disableDoubleClickZoom,
-    disableDoubleTapZoom: props.disableDoubleTapZoom,
-    disableKineticPan: props.disableKineticPan,
-    disableTwoFingerTapZoom: props.disableTwoFingerTapZoom,
-    draggable: props.draggable,
-    keyboardShortcuts: props.keyboardShortcuts,
-    logoControl: props.logoControl,
-    logoControlOptions: props.logoControlOptions,
-    mapDataControl: props.mapDataControl,
-    mapDataControlOptions: props.mapDataControlOptions,
-    mapTypeControl: props.mapTypeControl,
-    mapTypeControlOptions: props.mapTypeControlOptions,
-    mapTypeId: props.mapTypeId,
-    mapTypes: props.mapTypes,
-    maxBounds: props.maxBounds,
-    maxZoom: props.maxZoom,
-    minZoom: props.minZoom,
-    padding: props.padding,
-    pinchZoom: props.pinchZoom,
-    resizeOrigin: props.resizeOrigin,
-    scaleControl: props.scaleControl,
-    scaleControlOptions: props.scaleControlOptions,
-    scrollWheel: props.scrollWheel,
-    size: props.size,
-    overlayZoomEffect: props.overlayZoomEffect,
-    tileSpare: props.tileSpare,
-    tileTransition: props.tileTransition,
-    tileDuration: props.tileDuration,
-    zoomControl: props.zoomControl,
-    zoomControlOptions: props.zoomControlOptions,
-    zoomOrigin: props.zoomOrigin,
-    blankTileImage: props.blankTileImage,
-    gl: props.gl,
-    customStyleId: props.customStyleId
-  };
+export type NaverMapProps = NaverMapOptionProps & NaverMapLifecycleProps & NaverMapDivProps;
 
-  const normalizedEntries = Object.entries(raw).filter(([, value]) => value !== undefined);
+const MAP_OPTION_KEYS = [
+  "background",
+  "baseTileOpacity",
+  "bounds",
+  "center",
+  "zoom",
+  "disableDoubleClickZoom",
+  "disableDoubleTapZoom",
+  "disableKineticPan",
+  "disableTwoFingerTapZoom",
+  "draggable",
+  "keyboardShortcuts",
+  "logoControl",
+  "logoControlOptions",
+  "mapDataControl",
+  "mapDataControlOptions",
+  "mapTypeControl",
+  "mapTypeControlOptions",
+  "mapTypeId",
+  "mapTypes",
+  "maxBounds",
+  "maxZoom",
+  "minZoom",
+  "padding",
+  "pinchZoom",
+  "resizeOrigin",
+  "scaleControl",
+  "scaleControlOptions",
+  "scrollWheel",
+  "size",
+  "overlayZoomEffect",
+  "tileSpare",
+  "tileTransition",
+  "tileDuration",
+  "zoomControl",
+  "zoomControlOptions",
+  "zoomOrigin",
+  "blankTileImage",
+  "gl",
+  "customStyleId"
+] as const satisfies readonly (keyof NaverMapOptionProps)[];
 
-  return Object.fromEntries(normalizedEntries) as naver.maps.MapOptions;
+const MAP_OPTION_KEY_SET = new Set<string>(MAP_OPTION_KEYS as readonly string[]);
+
+function toCenterSignature(center: MapOptions["center"] | undefined): string {
+  if (!center) {
+    return "";
+  }
+
+  if (typeof center === "object") {
+    const maybeCenter = center as { lat?: number; lng?: number; x?: number; y?: number };
+
+    if (typeof maybeCenter.lat === "number" && typeof maybeCenter.lng === "number") {
+      return `latlng:${maybeCenter.lat},${maybeCenter.lng}`;
+    }
+
+    if (typeof maybeCenter.x === "number" && typeof maybeCenter.y === "number") {
+      return `xy:${maybeCenter.x},${maybeCenter.y}`;
+    }
+  }
+
+  return String(center);
 }
 
-export function NaverMap({
-  background,
-  baseTileOpacity,
-  bounds,
-  center,
-  zoom,
-  disableDoubleClickZoom,
-  disableDoubleTapZoom,
-  disableKineticPan,
-  disableTwoFingerTapZoom,
-  draggable,
-  keyboardShortcuts,
-  logoControl,
-  logoControlOptions,
-  mapDataControl,
-  mapDataControlOptions,
-  mapTypeControl,
-  mapTypeControlOptions,
-  mapTypeId,
-  mapTypes,
-  maxBounds,
-  maxZoom,
-  minZoom,
-  padding,
-  pinchZoom,
-  resizeOrigin,
-  scaleControl,
-  scaleControlOptions,
-  scrollWheel,
-  size,
-  overlayZoomEffect,
-  tileSpare,
-  tileTransition,
-  tileDuration,
-  zoomControl,
-  zoomControlOptions,
-  zoomOrigin,
-  blankTileImage,
-  gl,
-  customStyleId,
-  onMapReady,
-  onMapDestroy,
-  ...divProps
-}: NaverMapProps) {
+function areValuesEqual(left: unknown, right: unknown): boolean {
+  if (left === right) {
+    return true;
+  }
+
+  if (left === undefined || right === undefined || left === null || right === null) {
+    return false;
+  }
+
+  if (typeof left === "object" && typeof right === "object") {
+    const leftCenter = toCenterSignature(left as MapOptions["center"]);
+    const rightCenter = toCenterSignature(right as MapOptions["center"]);
+
+    if (leftCenter !== "" && rightCenter !== "") {
+      return leftCenter === rightCenter;
+    }
+
+    return JSON.stringify(left) === JSON.stringify(right);
+  }
+
+  return false;
+}
+
+function splitNaverMapProps(props: NaverMapProps): {
+  mapOptions: naver.maps.MapOptions;
+  divProps: NaverMapDivProps;
+  onMapReady?: (map: naver.maps.Map) => void;
+  onMapDestroy?: () => void;
+} {
+  const mapOptionEntries: Array<[string, unknown]> = [];
+  const divPropEntries: Array<[string, unknown]> = [];
+
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "onMapReady" || key === "onMapDestroy") {
+      continue;
+    }
+
+    if (MAP_OPTION_KEY_SET.has(key)) {
+      if (value !== undefined) {
+        mapOptionEntries.push([key, value]);
+      }
+      continue;
+    }
+
+    divPropEntries.push([key, value]);
+  }
+
+  return {
+    mapOptions: Object.fromEntries(mapOptionEntries) as naver.maps.MapOptions,
+    divProps: Object.fromEntries(divPropEntries) as NaverMapDivProps,
+    onMapReady: props.onMapReady,
+    onMapDestroy: props.onMapDestroy
+  };
+}
+
+function getChangedOptions(
+  previous: naver.maps.MapOptions,
+  next: naver.maps.MapOptions
+): Partial<naver.maps.MapOptions> {
+  const changedEntries: Array<[string, unknown]> = [];
+  const keys = new Set([...Object.keys(previous), ...Object.keys(next)]);
+
+  keys.forEach((key) => {
+    const optionKey = key as keyof naver.maps.MapOptions;
+    const previousValue = previous[optionKey];
+    const nextValue = next[optionKey];
+
+    if (!areValuesEqual(previousValue, nextValue)) {
+      changedEntries.push([key, nextValue]);
+    }
+  });
+
+  return Object.fromEntries(changedEntries) as Partial<naver.maps.MapOptions>;
+}
+
+function applyChangedMapOptions(
+  mapInstance: naver.maps.Map,
+  previousOptionsRef: { current: naver.maps.MapOptions },
+  nextOptions: naver.maps.MapOptions,
+  previousCenterSignatureRef: { current: string },
+  previousZoomRef: { current: MapOptions["zoom"] | undefined },
+  previousMapTypeIdRef: { current: MapOptions["mapTypeId"] | undefined }
+): void {
+  const changedOptions = getChangedOptions(previousOptionsRef.current, nextOptions);
+  const {
+    center: changedCenter,
+    zoom: changedZoom,
+    mapTypeId: changedMapTypeId,
+    ...restChangedOptions
+  } = changedOptions;
+  const nextCenter = nextOptions.center;
+  const nextZoom = nextOptions.zoom;
+  const nextMapTypeId = nextOptions.mapTypeId;
+  const nextCenterSignature = toCenterSignature(nextCenter);
+
+  if (Object.keys(restChangedOptions).length > 0) {
+    mapInstance.setOptions(restChangedOptions);
+  }
+
+  if (
+    changedCenter !== undefined &&
+    nextCenter !== undefined &&
+    nextCenterSignature !== previousCenterSignatureRef.current
+  ) {
+    mapInstance.setCenter(nextCenter);
+    previousCenterSignatureRef.current = nextCenterSignature;
+  }
+
+  if (changedZoom !== undefined && nextZoom !== undefined && nextZoom !== previousZoomRef.current) {
+    mapInstance.setZoom(nextZoom);
+    previousZoomRef.current = nextZoom;
+  }
+
+  if (
+    changedMapTypeId !== undefined &&
+    nextMapTypeId !== undefined &&
+    nextMapTypeId !== previousMapTypeIdRef.current
+  ) {
+    mapInstance.setMapTypeId(nextMapTypeId);
+
+    if (typeof mapInstance.refresh === "function") {
+      mapInstance.refresh();
+    }
+
+    previousMapTypeIdRef.current = nextMapTypeId;
+  }
+
+  previousOptionsRef.current = nextOptions;
+}
+
+function areNaverMapPropsEqual(previousProps: NaverMapProps, nextProps: NaverMapProps): boolean {
+  const keys = new Set([...Object.keys(previousProps), ...Object.keys(nextProps)]);
+
+  for (const key of keys) {
+    const previousValue = previousProps[key as keyof NaverMapProps];
+    const nextValue = nextProps[key as keyof NaverMapProps];
+
+    if (!areValuesEqual(previousValue, nextValue)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function NaverMapInner(props: NaverMapProps) {
   const context = useContext(NaverMapContext);
 
   if (!context) {
     throw new Error("NaverMap must be used inside NaverMapProvider.");
   }
 
+  const { mapOptions, divProps, onMapReady, onMapDestroy } = splitNaverMapProps(props);
   const { sdkStatus, setMap } = context;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
-  const latestMapPropsRef = useRef<NaverMapProps>({
-    background,
-    baseTileOpacity,
-    bounds,
-    center,
-    zoom,
-    disableDoubleClickZoom,
-    disableDoubleTapZoom,
-    disableKineticPan,
-    disableTwoFingerTapZoom,
-    draggable,
-    keyboardShortcuts,
-    logoControl,
-    logoControlOptions,
-    mapDataControl,
-    mapDataControlOptions,
-    mapTypeControl,
-    mapTypeControlOptions,
-    mapTypeId,
-    mapTypes,
-    maxBounds,
-    maxZoom,
-    minZoom,
-    padding,
-    pinchZoom,
-    resizeOrigin,
-    scaleControl,
-    scaleControlOptions,
-    scrollWheel,
-    size,
-    overlayZoomEffect,
-    tileSpare,
-    tileTransition,
-    tileDuration,
-    zoomControl,
-    zoomControlOptions,
-    zoomOrigin,
-    blankTileImage,
-    gl,
-    customStyleId,
-    onMapReady,
-    onMapDestroy,
-    ...divProps
-  });
+  const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
+  const previousCenterSignatureRef = useRef<string>("");
+  const previousZoomRef = useRef<MapOptions["zoom"] | undefined>(undefined);
+  const previousMapTypeIdRef = useRef<MapOptions["mapTypeId"] | undefined>(undefined);
+  const latestMapOptionsRef = useRef<naver.maps.MapOptions>(mapOptions);
 
-  latestMapPropsRef.current = {
-    background,
-    baseTileOpacity,
-    bounds,
-    center,
-    zoom,
-    disableDoubleClickZoom,
-    disableDoubleTapZoom,
-    disableKineticPan,
-    disableTwoFingerTapZoom,
-    draggable,
-    keyboardShortcuts,
-    logoControl,
-    logoControlOptions,
-    mapDataControl,
-    mapDataControlOptions,
-    mapTypeControl,
-    mapTypeControlOptions,
-    mapTypeId,
-    mapTypes,
-    maxBounds,
-    maxZoom,
-    minZoom,
-    padding,
-    pinchZoom,
-    resizeOrigin,
-    scaleControl,
-    scaleControlOptions,
-    scrollWheel,
-    size,
-    overlayZoomEffect,
-    tileSpare,
-    tileTransition,
-    tileDuration,
-    zoomControl,
-    zoomControlOptions,
-    zoomOrigin,
-    blankTileImage,
-    gl,
-    customStyleId,
-    onMapReady,
-    onMapDestroy,
-    ...divProps
-  };
+  latestMapOptionsRef.current = mapOptions;
 
   useEffect(() => {
     if (sdkStatus !== "ready" || !containerRef.current || mapRef.current) {
@@ -250,12 +291,13 @@ export function NaverMap({
     }
 
     try {
-      const mapInstance = new naver.maps.Map(
-        containerRef.current,
-        toMapOptions(latestMapPropsRef.current)
-      );
+      const mapInstance = new naver.maps.Map(containerRef.current, latestMapOptionsRef.current);
       mapRef.current = mapInstance;
       setMap(mapInstance);
+      appliedOptionsRef.current = latestMapOptionsRef.current;
+      previousCenterSignatureRef.current = toCenterSignature(latestMapOptionsRef.current.center);
+      previousZoomRef.current = latestMapOptionsRef.current.zoom;
+      previousMapTypeIdRef.current = latestMapOptionsRef.current.mapTypeId;
       onMapReady?.(mapInstance);
     } catch (error) {
       console.error("[react-naver-maps-kit] failed to create naver.maps.Map", error);
@@ -270,7 +312,14 @@ export function NaverMap({
     }
 
     try {
-      mapInstance.setOptions(toMapOptions(latestMapPropsRef.current));
+      applyChangedMapOptions(
+        mapInstance,
+        appliedOptionsRef,
+        latestMapOptionsRef.current,
+        previousCenterSignatureRef,
+        previousZoomRef,
+        previousMapTypeIdRef
+      );
     } catch (error) {
       console.error("[react-naver-maps-kit] failed to update map options", error);
     }
@@ -304,6 +353,10 @@ export function NaverMap({
       }
 
       mapRef.current = null;
+      appliedOptionsRef.current = {};
+      previousCenterSignatureRef.current = "";
+      previousZoomRef.current = undefined;
+      previousMapTypeIdRef.current = undefined;
       setMap(null);
       onMapDestroy?.();
     };
@@ -311,3 +364,5 @@ export function NaverMap({
 
   return <div ref={containerRef} {...divProps} />;
 }
+
+export const NaverMap = memo(NaverMapInner, areNaverMapPropsEqual);
