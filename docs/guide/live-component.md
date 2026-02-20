@@ -81,3 +81,27 @@ export function LiveMapPage() {
 - `NaverMapProvider`에서 SDK 로딩 및 오류 상태를 관리합니다.
 - `useNaverMap`으로 SDK 상태와 map 인스턴스를 조회합니다.
 - imperative API 호출과 `NaverMap` 선언형 업데이트를 함께 사용할 수 있습니다.
+
+## Overlay 예시
+
+```tsx
+import { InfoWindow, Marker, NaverMap, NaverMapProvider } from "react-naver-maps-kit";
+
+function OverlayExample() {
+  const position = { lat: 37.3595704, lng: 127.105399 };
+
+  return (
+    <NaverMapProvider ncpKeyId={import.meta.env.VITE_NCP_KEY_ID}>
+      <NaverMap center={position} zoom={10} style={{ width: 480, height: 320 }} />
+
+      <Marker position={position}>
+        <span>KIT</span>
+      </Marker>
+
+      <InfoWindow position={position} visible>
+        <div>Overlay API Example</div>
+      </InfoWindow>
+    </NaverMapProvider>
+  );
+}
+```

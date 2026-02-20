@@ -29,6 +29,8 @@ export default defineConfig({
         items: [
           { text: "NaverMapProvider", link: "/api/provider" },
           { text: "NaverMap", link: "/api/map" },
+          { text: "Marker", link: "/api/marker" },
+          { text: "InfoWindow", link: "/api/info-window" },
           { text: "Hooks", link: "/api/hooks" },
           { text: "loadNaverMapsScript", link: "/api/load-script" }
         ]

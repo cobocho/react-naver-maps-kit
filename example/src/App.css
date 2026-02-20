@@ -75,6 +75,30 @@
   border: 1px solid #e1c7a6;
 }
 
+.marker-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #713f12;
+  background: #fef3c7;
+  color: #78350f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.info-window-box {
+  min-width: 160px;
+  color: #1f2937;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.info-window-box p {
+  margin: 0.35rem 0 0;
+}
+
 @media (max-width: 720px) {
   .status-grid,
   .control-grid {

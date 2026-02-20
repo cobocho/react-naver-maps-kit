@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
+import { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
 
 import "./App.css";
 
@@ -10,6 +10,7 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   const [scrollWheel, setScrollWheel] = useState(true);
   const [zoomControl, setZoomControl] = useState(true);
   const [mapTypeControl, setMapTypeControl] = useState(true);
+  const [showInfoWindow, setShowInfoWindow] = useState(true);
   const [mapTypeId, setMapTypeId] = useState<naver.maps.MapTypeIdLiteral>("normal");
   const [appliedMapTypeId, setAppliedMapTypeId] = useState<string>("-");
   const [centerKey, setCenterKey] = useState<"greenFactory" | "cityHall" | "busanStation">(
@@ -133,6 +134,15 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           />{" "}
           mapTypeControl
         </label>
+
+        <label className="control-item checkbox-item">
+          <input
+            checked={showInfoWindow}
+            onChange={(event) => setShowInfoWindow(event.target.checked)}
+            type="checkbox"
+          />{" "}
+          infoWindow
+        </label>
       </div>
 
       <div className="map-wrap">
@@ -146,6 +156,17 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           zoom={zoom}
           zoomControl={zoomControl}
         />
+        <Marker position={center}>
+          <span className="marker-chip">KIT</span>
+        </Marker>
+        <InfoWindow position={center} visible={showInfoWindow}>
+          <div className="info-window-box">
+            <strong>react-naver-maps-kit</strong>
+            <p>
+              center: {center.lat.toFixed(4)}, {center.lng.toFixed(4)}
+            </p>
+          </div>
+        </InfoWindow>
       </div>
     </section>
   );
