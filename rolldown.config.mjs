@@ -2,7 +2,8 @@ import { defineConfig } from "rolldown";
 
 export default defineConfig({
   input: "src/index.ts",
-  external: ["react", "react-dom"],
+  external: (id) =>
+    id === "react" || id.startsWith("react/") || id === "react-dom" || id.startsWith("react-dom/"),
   output: [
     {
       file: "dist/index.js",
