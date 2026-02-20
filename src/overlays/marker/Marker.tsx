@@ -1,4 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState
+} from "react";
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
@@ -10,6 +18,7 @@ type MarkerIcon = NonNullable<MarkerOptions["icon"]>;
 type MarkerIconObject = Exclude<MarkerIcon, string>;
 
 interface MarkerOverlayProps {
+  map?: naver.maps.Map | null;
   position: MarkerOptions["position"];
   icon?: MarkerOptions["icon"];
   animation?: MarkerOptions["animation"];
@@ -20,6 +29,8 @@ interface MarkerOverlayProps {
   draggable?: MarkerOptions["draggable"];
   visible?: MarkerOptions["visible"];
   zIndex?: MarkerOptions["zIndex"];
+  collisionBehavior?: boolean;
+  collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
 }
 
 interface MarkerLifecycleProps {
@@ -27,63 +38,76 @@ interface MarkerLifecycleProps {
   onMarkerReady?: (marker: naver.maps.Marker) => void;
   onMarkerDestroy?: () => void;
   onMarkerError?: (error: Error) => void;
+}
+
+interface MarkerEventProps {
   onClick?: (event: naver.maps.PointerEvent) => void;
-  onDoubleClick?: (event: naver.maps.PointerEvent) => void;
+  onDblClick?: (event: naver.maps.PointerEvent) => void;
   onRightClick?: (event: naver.maps.PointerEvent) => void;
   onMouseDown?: (event: naver.maps.PointerEvent) => void;
   onMouseUp?: (event: naver.maps.PointerEvent) => void;
-  onMouseOver?: (event: naver.maps.PointerEvent) => void;
-  onMouseOut?: (event: naver.maps.PointerEvent) => void;
+  onTouchStart?: (event: naver.maps.PointerEvent) => void;
+  onTouchEnd?: (event: naver.maps.PointerEvent) => void;
   onDragStart?: (event: naver.maps.PointerEvent) => void;
   onDrag?: (event: naver.maps.PointerEvent) => void;
   onDragEnd?: (event: naver.maps.PointerEvent) => void;
+  onClickableChanged?: (clickable: boolean) => void;
+  onCursorChanged?: (cursor: string) => void;
+  onDraggableChanged?: (draggable: boolean) => void;
+  onIconChanged?: (
+    icon: string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon
+  ) => void;
+  onIconLoaded?: (marker: naver.maps.Marker) => void;
+  onPositionChanged?: (position: naver.maps.Coord) => void;
+  onShapeChanged?: (shape: naver.maps.MarkerShape) => void;
+  onTitleChanged?: (title: string) => void;
+  onVisibleChanged?: (visible: boolean) => void;
+  onZIndexChanged?: (zIndex: number) => void;
 }
 
-export type MarkerProps = MarkerOverlayProps & MarkerLifecycleProps;
+export type MarkerProps = MarkerOverlayProps & MarkerLifecycleProps & MarkerEventProps;
 
-interface MarkerEventHandlers {
-  onClick?: (event: naver.maps.PointerEvent) => void;
-  onDoubleClick?: (event: naver.maps.PointerEvent) => void;
-  onRightClick?: (event: naver.maps.PointerEvent) => void;
-  onMouseDown?: (event: naver.maps.PointerEvent) => void;
-  onMouseUp?: (event: naver.maps.PointerEvent) => void;
-  onMouseOver?: (event: naver.maps.PointerEvent) => void;
-  onMouseOut?: (event: naver.maps.PointerEvent) => void;
-  onDragStart?: (event: naver.maps.PointerEvent) => void;
-  onDrag?: (event: naver.maps.PointerEvent) => void;
-  onDragEnd?: (event: naver.maps.PointerEvent) => void;
+type MarkerMethod<K extends keyof naver.maps.Marker> = naver.maps.Marker[K] extends (
+  ...args: infer A
+) => infer R
+  ? (...args: A) => R | undefined
+  : never;
+
+export interface MarkerRef {
+  getInstance: () => naver.maps.Marker | null;
+  getAnimation: MarkerMethod<"getAnimation">;
+  getClickable: MarkerMethod<"getClickable">;
+  getCursor: MarkerMethod<"getCursor">;
+  getDraggable: MarkerMethod<"getDraggable">;
+  getDrawingRect: MarkerMethod<"getDrawingRect">;
+  getElement: MarkerMethod<"getElement">;
+  getIcon: MarkerMethod<"getIcon">;
+  getMap: MarkerMethod<"getMap">;
+  getOptions: MarkerMethod<"getOptions">;
+  getPanes: MarkerMethod<"getPanes">;
+  getPosition: MarkerMethod<"getPosition">;
+  getProjection: MarkerMethod<"getProjection">;
+  getShape: MarkerMethod<"getShape">;
+  getTitle: MarkerMethod<"getTitle">;
+  getVisible: MarkerMethod<"getVisible">;
+  getZIndex: MarkerMethod<"getZIndex">;
+  setAnimation: MarkerMethod<"setAnimation">;
+  setClickable: MarkerMethod<"setClickable">;
+  setCursor: MarkerMethod<"setCursor">;
+  setDraggable: MarkerMethod<"setDraggable">;
+  setIcon: MarkerMethod<"setIcon">;
+  setMap: MarkerMethod<"setMap">;
+  setOptions: MarkerMethod<"setOptions">;
+  setPosition: MarkerMethod<"setPosition">;
+  setShape: MarkerMethod<"setShape">;
+  setTitle: MarkerMethod<"setTitle">;
+  setVisible: MarkerMethod<"setVisible">;
+  setZIndex: MarkerMethod<"setZIndex">;
 }
 
-function bindMarkerEventListeners(
-  marker: naver.maps.Marker,
-  listenersRef: { current: naver.maps.MapEventListener[] },
-  handlers: MarkerEventHandlers
-): void {
-  if (listenersRef.current.length > 0) {
-    naver.maps.Event.removeListener(listenersRef.current);
-    listenersRef.current = [];
-  }
-
-  const eventEntries: Array<[string, ((event: naver.maps.PointerEvent) => void) | undefined]> = [
-    ["click", handlers.onClick],
-    ["dblclick", handlers.onDoubleClick],
-    ["rightclick", handlers.onRightClick],
-    ["mousedown", handlers.onMouseDown],
-    ["mouseup", handlers.onMouseUp],
-    ["mouseover", handlers.onMouseOver],
-    ["mouseout", handlers.onMouseOut],
-    ["dragstart", handlers.onDragStart],
-    ["drag", handlers.onDrag],
-    ["dragend", handlers.onDragEnd]
-  ];
-
-  listenersRef.current = eventEntries
-    .filter(([, handler]) => typeof handler === "function")
-    .map(([eventName, handler]) =>
-      naver.maps.Event.addListener(marker, eventName, (event: naver.maps.PointerEvent) => {
-        handler?.(event);
-      })
-    );
+interface MarkerEventBinding {
+  eventName: string;
+  invoke?: (event: unknown) => void;
 }
 
 function pickHtmlIconAnchor(icon: MarkerIconObject): naver.maps.HtmlIcon["anchor"] | undefined {
@@ -120,206 +144,269 @@ function resolveMarkerIcon(
   };
 }
 
-function toMarkerOptions(props: MarkerProps): Omit<MarkerOptions, "map"> {
-  const { position, icon, animation, shape, title, cursor, clickable, draggable, visible, zIndex } =
-    props;
-
-  const options: Omit<MarkerOptions, "map"> = {
-    position
+function toMarkerOptions(
+  props: MarkerProps,
+  targetMap: naver.maps.Map | null,
+  icon: MarkerOptions["icon"]
+): MarkerOptions {
+  const options: MarkerOptions = {
+    position: props.position,
+    icon
   };
 
-  if (animation !== undefined) {
-    options.animation = animation;
+  if (targetMap) {
+    options.map = targetMap;
   }
 
-  if (clickable !== undefined) {
-    options.clickable = clickable;
+  if (props.animation !== undefined) {
+    options.animation = props.animation;
   }
 
-  if (cursor !== undefined) {
-    options.cursor = cursor;
+  if (props.shape !== undefined) {
+    options.shape = props.shape;
   }
 
-  if (draggable !== undefined) {
-    options.draggable = draggable;
+  if (props.title !== undefined) {
+    options.title = props.title;
   }
 
-  if (icon !== undefined) {
-    options.icon = icon;
+  if (props.cursor !== undefined) {
+    options.cursor = props.cursor;
   }
 
-  if (shape !== undefined) {
-    options.shape = shape;
+  if (props.clickable !== undefined) {
+    options.clickable = props.clickable;
   }
 
-  if (title !== undefined) {
-    options.title = title;
+  if (props.draggable !== undefined) {
+    options.draggable = props.draggable;
   }
 
-  if (visible !== undefined) {
-    options.visible = visible;
+  if (props.visible !== undefined) {
+    options.visible = props.visible;
   }
 
-  if (zIndex !== undefined) {
-    options.zIndex = zIndex;
+  if (props.zIndex !== undefined) {
+    options.zIndex = props.zIndex;
   }
 
   return options;
 }
 
-export function Marker(props: MarkerProps): ReactPortal | null {
-  const { map, sdkStatus } = useNaverMap();
-  const markerRef = useRef<naver.maps.Marker | null>(null);
-  const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
-  const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
-  const [markerDiv, setMarkerDiv] = useState<HTMLDivElement | null>(null);
-  const [portalReady, setPortalReady] = useState(false);
-  const hasChildren = props.children !== undefined && props.children !== null;
-
-  useEffect(() => {
-    onMarkerDestroyRef.current = props.onMarkerDestroy;
-  }, [props.onMarkerDestroy]);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
+function buildMarkerEventBindings(props: MarkerProps): MarkerEventBinding[] {
+  return [
+    {
+      eventName: "click",
+      invoke: props.onClick
+        ? (event) => props.onClick?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "dblclick",
+      invoke: props.onDblClick
+        ? (event) => props.onDblClick?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "rightclick",
+      invoke: props.onRightClick
+        ? (event) => props.onRightClick?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "mousedown",
+      invoke: props.onMouseDown
+        ? (event) => props.onMouseDown?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "mouseup",
+      invoke: props.onMouseUp
+        ? (event) => props.onMouseUp?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "touchstart",
+      invoke: props.onTouchStart
+        ? (event) => props.onTouchStart?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "touchend",
+      invoke: props.onTouchEnd
+        ? (event) => props.onTouchEnd?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "dragstart",
+      invoke: props.onDragStart
+        ? (event) => props.onDragStart?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "drag",
+      invoke: props.onDrag ? (event) => props.onDrag?.(event as naver.maps.PointerEvent) : undefined
+    },
+    {
+      eventName: "dragend",
+      invoke: props.onDragEnd
+        ? (event) => props.onDragEnd?.(event as naver.maps.PointerEvent)
+        : undefined
+    },
+    {
+      eventName: "clickable_changed",
+      invoke: props.onClickableChanged
+        ? (event) => props.onClickableChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "cursor_changed",
+      invoke: props.onCursorChanged
+        ? (event) => props.onCursorChanged?.(event as string)
+        : undefined
+    },
+    {
+      eventName: "draggable_changed",
+      invoke: props.onDraggableChanged
+        ? (event) => props.onDraggableChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "icon_changed",
+      invoke: props.onIconChanged
+        ? (event) =>
+            props.onIconChanged?.(
+              event as string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon
+            )
+        : undefined
+    },
+    {
+      eventName: "icon_loaded",
+      invoke: props.onIconLoaded
+        ? (event) => props.onIconLoaded?.(event as naver.maps.Marker)
+        : undefined
+    },
+    {
+      eventName: "position_changed",
+      invoke: props.onPositionChanged
+        ? (event) => props.onPositionChanged?.(event as naver.maps.Coord)
+        : undefined
+    },
+    {
+      eventName: "shape_changed",
+      invoke: props.onShapeChanged
+        ? (event) => props.onShapeChanged?.(event as naver.maps.MarkerShape)
+        : undefined
+    },
+    {
+      eventName: "title_changed",
+      invoke: props.onTitleChanged ? (event) => props.onTitleChanged?.(event as string) : undefined
+    },
+    {
+      eventName: "visible_changed",
+      invoke: props.onVisibleChanged
+        ? (event) => props.onVisibleChanged?.(event as boolean)
+        : undefined
+    },
+    {
+      eventName: "zIndex_changed",
+      invoke: props.onZIndexChanged
+        ? (event) => props.onZIndexChanged?.(event as number)
+        : undefined
     }
+  ];
+}
 
-    setMarkerDiv(document.createElement("div"));
-  }, []);
+function bindMarkerEventListeners(
+  marker: naver.maps.Marker,
+  listenersRef: { current: naver.maps.MapEventListener[] },
+  bindings: MarkerEventBinding[]
+): void {
+  if (listenersRef.current.length > 0) {
+    naver.maps.Event.removeListener(listenersRef.current);
+    listenersRef.current = [];
+  }
 
-  useEffect(() => {
-    if (!hasChildren || !markerDiv) {
-      setPortalReady(false);
-      return;
-    }
+  listenersRef.current = bindings
+    .filter((binding) => typeof binding.invoke === "function")
+    .map((binding) =>
+      naver.maps.Event.addListener(marker, binding.eventName, (event: unknown) => {
+        binding.invoke?.(event);
+      })
+    );
+}
 
-    const updateReadyState = () => {
-      setPortalReady(markerDiv.childNodes.length > 0);
-    };
+export const Marker = forwardRef<MarkerRef, MarkerProps>(
+  function MarkerInner(props, ref): ReactPortal | null {
+    const { map: contextMap, sdkStatus } = useNaverMap();
+    const markerRef = useRef<naver.maps.Marker | null>(null);
+    const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+    const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
+    const [markerDiv, setMarkerDiv] = useState<HTMLDivElement | null>(null);
+    const [portalReady, setPortalReady] = useState(false);
+    const hasChildren = props.children !== undefined && props.children !== null;
+    const targetMap = props.map ?? contextMap;
 
-    updateReadyState();
+    useEffect(() => {
+      onMarkerDestroyRef.current = props.onMarkerDestroy;
+    }, [props.onMarkerDestroy]);
 
-    const observer = new MutationObserver(updateReadyState);
-    observer.observe(markerDiv, {
-      childList: true,
-      subtree: true
-    });
+    useEffect(() => {
+      if (typeof document === "undefined") {
+        return;
+      }
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasChildren, markerDiv]);
+      setMarkerDiv(document.createElement("div"));
+    }, []);
 
-  useEffect(() => {
-    if (sdkStatus !== "ready" || !map || markerRef.current) {
-      return;
-    }
+    useEffect(() => {
+      if (!hasChildren || !markerDiv) {
+        setPortalReady(false);
+        return;
+      }
 
-    if (hasChildren && !portalReady) {
-      return;
-    }
+      const updateReadyState = () => {
+        setPortalReady(markerDiv.childNodes.length > 0);
+      };
 
-    try {
-      const marker = new naver.maps.Marker({
-        ...toMarkerOptions(props),
-        icon: resolveMarkerIcon(props.icon, markerDiv, hasChildren),
-        map
+      updateReadyState();
+
+      const observer = new MutationObserver(updateReadyState);
+      observer.observe(markerDiv, {
+        childList: true,
+        subtree: true
       });
 
-      markerRef.current = marker;
-      bindMarkerEventListeners(marker, markerEventListenersRef, {
-        onClick: props.onClick,
-        onDoubleClick: props.onDoubleClick,
-        onRightClick: props.onRightClick,
-        onMouseDown: props.onMouseDown,
-        onMouseUp: props.onMouseUp,
-        onMouseOver: props.onMouseOver,
-        onMouseOut: props.onMouseOut,
-        onDragStart: props.onDragStart,
-        onDrag: props.onDrag,
-        onDragEnd: props.onDragEnd
-      });
-      props.onMarkerReady?.(marker);
-    } catch (error) {
-      const normalizedError =
-        error instanceof Error ? error : new Error("Failed to create naver.maps.Marker instance.");
+      return () => {
+        observer.disconnect();
+      };
+    }, [hasChildren, markerDiv]);
 
-      props.onMarkerError?.(normalizedError);
-    }
-  }, [hasChildren, map, markerDiv, portalReady, props, sdkStatus]);
+    const invokeMarkerMethod = useCallback(
+      <K extends keyof naver.maps.Marker>(
+        methodName: K,
+        ...args: Parameters<Extract<naver.maps.Marker[K], (...params: never[]) => unknown>>
+      ): ReturnType<Extract<naver.maps.Marker[K], (...params: never[]) => unknown>> | undefined => {
+        const marker = markerRef.current;
 
-  useLayoutEffect(() => {
-    const marker = markerRef.current;
-
-    if (!marker) {
-      return;
-    }
-
-    const rafId = requestAnimationFrame(() => {
-      const nextOptions = toMarkerOptions(props);
-
-      if (hasChildren) {
-        if (portalReady) {
-          const resolvedIcon = resolveMarkerIcon(props.icon, markerDiv, hasChildren);
-
-          if (resolvedIcon !== undefined) {
-            nextOptions.icon = resolvedIcon;
-          }
-        } else {
-          delete nextOptions.icon;
+        if (!marker) {
+          return undefined;
         }
-      }
 
-      marker.setOptions(nextOptions);
-    });
+        const method = marker[methodName] as unknown;
 
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
-  }, [hasChildren, markerDiv, portalReady, props]);
+        if (typeof method !== "function") {
+          return undefined;
+        }
 
-  useEffect(() => {
-    const marker = markerRef.current;
+        return (method as (...params: unknown[]) => unknown).apply(marker, args) as ReturnType<
+          Extract<naver.maps.Marker[K], (...params: never[]) => unknown>
+        >;
+      },
+      []
+    );
 
-    if (!marker) {
-      return;
-    }
-
-    bindMarkerEventListeners(marker, markerEventListenersRef, {
-      onClick: props.onClick,
-      onDoubleClick: props.onDoubleClick,
-      onRightClick: props.onRightClick,
-      onMouseDown: props.onMouseDown,
-      onMouseUp: props.onMouseUp,
-      onMouseOver: props.onMouseOver,
-      onMouseOut: props.onMouseOut,
-      onDragStart: props.onDragStart,
-      onDrag: props.onDrag,
-      onDragEnd: props.onDragEnd
-    });
-
-    return () => {
-      if (markerEventListenersRef.current.length > 0) {
-        naver.maps.Event.removeListener(markerEventListenersRef.current);
-        markerEventListenersRef.current = [];
-      }
-    };
-  }, [
-    props.onClick,
-    props.onDoubleClick,
-    props.onRightClick,
-    props.onMouseDown,
-    props.onMouseUp,
-    props.onMouseOver,
-    props.onMouseOut,
-    props.onDragStart,
-    props.onDrag,
-    props.onDragEnd
-  ]);
-
-  useEffect(() => {
-    return () => {
+    const teardownMarker = useCallback(() => {
       const marker = markerRef.current;
 
       if (!marker) {
@@ -340,12 +427,138 @@ export function Marker(props: MarkerProps): ReactPortal | null {
       marker.setMap(null);
       markerRef.current = null;
       onMarkerDestroyRef.current?.();
-    };
-  }, []);
+    }, []);
 
-  if (!hasChildren || !markerDiv) {
-    return null;
+    useImperativeHandle(
+      ref,
+      (): MarkerRef => ({
+        getInstance: () => markerRef.current,
+        getAnimation: (...args) => invokeMarkerMethod("getAnimation", ...args),
+        getClickable: (...args) => invokeMarkerMethod("getClickable", ...args),
+        getCursor: (...args) => invokeMarkerMethod("getCursor", ...args),
+        getDraggable: (...args) => invokeMarkerMethod("getDraggable", ...args),
+        getDrawingRect: (...args) => invokeMarkerMethod("getDrawingRect", ...args),
+        getElement: (...args) => invokeMarkerMethod("getElement", ...args),
+        getIcon: (...args) => invokeMarkerMethod("getIcon", ...args),
+        getMap: (...args) => invokeMarkerMethod("getMap", ...args),
+        getOptions: (...args) => invokeMarkerMethod("getOptions", ...args),
+        getPanes: (...args) => invokeMarkerMethod("getPanes", ...args),
+        getPosition: (...args) => invokeMarkerMethod("getPosition", ...args),
+        getProjection: (...args) => invokeMarkerMethod("getProjection", ...args),
+        getShape: (...args) => invokeMarkerMethod("getShape", ...args),
+        getTitle: (...args) => invokeMarkerMethod("getTitle", ...args),
+        getVisible: (...args) => invokeMarkerMethod("getVisible", ...args),
+        getZIndex: (...args) => invokeMarkerMethod("getZIndex", ...args),
+        setAnimation: (...args) => invokeMarkerMethod("setAnimation", ...args),
+        setClickable: (...args) => invokeMarkerMethod("setClickable", ...args),
+        setCursor: (...args) => invokeMarkerMethod("setCursor", ...args),
+        setDraggable: (...args) => invokeMarkerMethod("setDraggable", ...args),
+        setIcon: (...args) => invokeMarkerMethod("setIcon", ...args),
+        setMap: (...args) => invokeMarkerMethod("setMap", ...args),
+        setOptions: (...args) => invokeMarkerMethod("setOptions", ...args),
+        setPosition: (...args) => invokeMarkerMethod("setPosition", ...args),
+        setShape: (...args) => invokeMarkerMethod("setShape", ...args),
+        setTitle: (...args) => invokeMarkerMethod("setTitle", ...args),
+        setVisible: (...args) => invokeMarkerMethod("setVisible", ...args),
+        setZIndex: (...args) => invokeMarkerMethod("setZIndex", ...args)
+      }),
+      [invokeMarkerMethod]
+    );
+
+    useEffect(() => {
+      if (sdkStatus !== "ready" || !targetMap || markerRef.current) {
+        return;
+      }
+
+      if (hasChildren && !portalReady) {
+        return;
+      }
+
+      try {
+        const resolvedIcon = resolveMarkerIcon(props.icon, markerDiv, hasChildren);
+        const marker = new naver.maps.Marker(toMarkerOptions(props, targetMap, resolvedIcon));
+
+        markerRef.current = marker;
+
+        if (props.collisionBehavior !== undefined) {
+          marker.setOptions("collisionBehavior", props.collisionBehavior);
+        }
+
+        if (props.collisionBoxSize !== undefined) {
+          marker.setOptions("collisionBoxSize", props.collisionBoxSize);
+        }
+
+        bindMarkerEventListeners(marker, markerEventListenersRef, buildMarkerEventBindings(props));
+        props.onMarkerReady?.(marker);
+      } catch (error) {
+        const normalizedError =
+          error instanceof Error
+            ? error
+            : new Error("Failed to create naver.maps.Marker instance.");
+
+        props.onMarkerError?.(normalizedError);
+      }
+    }, [hasChildren, markerDiv, portalReady, props, sdkStatus, targetMap]);
+
+    useLayoutEffect(() => {
+      const marker = markerRef.current;
+
+      if (!marker || !targetMap) {
+        return;
+      }
+
+      const rafId = requestAnimationFrame(() => {
+        const resolvedIcon =
+          hasChildren && portalReady
+            ? resolveMarkerIcon(props.icon, markerDiv, hasChildren)
+            : props.icon;
+        const nextOptions = toMarkerOptions(props, targetMap, resolvedIcon);
+
+        marker.setOptions(nextOptions);
+
+        if (props.collisionBehavior !== undefined) {
+          marker.setOptions("collisionBehavior", props.collisionBehavior);
+        }
+
+        if (props.collisionBoxSize !== undefined) {
+          marker.setOptions("collisionBoxSize", props.collisionBoxSize);
+        }
+      });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+      };
+    }, [hasChildren, markerDiv, portalReady, props, targetMap]);
+
+    useEffect(() => {
+      const marker = markerRef.current;
+
+      if (!marker) {
+        return;
+      }
+
+      bindMarkerEventListeners(marker, markerEventListenersRef, buildMarkerEventBindings(props));
+
+      return () => {
+        if (markerEventListenersRef.current.length > 0) {
+          naver.maps.Event.removeListener(markerEventListenersRef.current);
+          markerEventListenersRef.current = [];
+        }
+      };
+    }, [props]);
+
+    useEffect(() => {
+      return () => {
+        teardownMarker();
+      };
+    }, [teardownMarker]);
+
+    if (!hasChildren || !markerDiv) {
+      return null;
+    }
+
+    return createPortal(props.children, markerDiv);
   }
+);
 
-  return createPortal(props.children, markerDiv);
-}
+Marker.displayName = "Marker";
