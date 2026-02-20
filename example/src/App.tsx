@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
 
 import "./App.css";
 
 function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
-  const { map, sdkError, sdkStatus } = useNaverMap();
+  const { sdkError } = useNaverMap();
   const [zoom, setZoom] = useState(10);
   const [draggable, setDraggable] = useState(true);
   const [scrollWheel, setScrollWheel] = useState(true);
@@ -13,7 +13,6 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   const [showInfoWindow, setShowInfoWindow] = useState(true);
   const [markerEventText, setMarkerEventText] = useState("-");
   const [mapTypeId, setMapTypeId] = useState<naver.maps.MapTypeIdLiteral>("normal");
-  const [appliedMapTypeId, setAppliedMapTypeId] = useState<string>("-");
   const [centerKey, setCenterKey] = useState<"greenFactory" | "cityHall" | "busanStation">(
     "greenFactory"
   );
@@ -26,19 +25,6 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
 
   const center = centerByKey[centerKey];
 
-  useEffect(() => {
-    if (sdkStatus !== "ready") {
-      return;
-    }
-
-    if (map) {
-      setAppliedMapTypeId(map.getMapTypeId());
-      return;
-    }
-
-    setAppliedMapTypeId(mapTypeId);
-  }, [map, mapTypeId, sdkStatus]);
-
   return (
     <section className="demo-card">
       <header className="demo-header">
@@ -49,12 +35,6 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
       <div className="status-grid">
         <p>
           ncpKeyId: <code>{ncpKeyId || "(empty)"}</code>
-        </p>
-        <p>
-          status: <strong>{sdkStatus}</strong>
-        </p>
-        <p>
-          applied mapTypeId: <strong>{appliedMapTypeId}</strong>
         </p>
         <p>
           selected mapTypeId: <strong>{mapTypeId}</strong>
@@ -165,18 +145,24 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
         />
         <Marker
           position={center}
-          onClick={(event) => {
-            setMarkerEventText(
-              `click(${event.point.y.toFixed(1)}, ${event.point.x.toFixed(1)}) @ ${new Date().toLocaleTimeString()}`
-            );
+          onClick={() => {
+            alert("click");
           }}
           onDragEnd={() => {
             setMarkerEventText(`dragend @ ${new Date().toLocaleTimeString()}`);
           }}
         >
-          <span className="marker-chip">KIT</span>
+          <div className="marker-chip" style={{ color: "red", width: "40px", height: "40px" }}>
+            KIT
+          </div>
         </Marker>
-        <InfoWindow position={center} visible={showInfoWindow}>
+        <InfoWindow
+          position={{
+            lat: center.lat + 0.15,
+            lng: center.lng + 0.15
+          }}
+          visible={showInfoWindow}
+        >
           <div className="info-window-box">
             <strong>react-naver-maps-kit</strong>
             <p>

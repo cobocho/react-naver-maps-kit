@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
@@ -104,9 +104,10 @@ function pickHtmlIconSize(icon: MarkerIconObject): naver.maps.HtmlIcon["size"] |
 
 function resolveMarkerIcon(
   icon: MarkerOptions["icon"],
-  childrenContainer: HTMLElement | null
+  childrenContainer: HTMLDivElement | null,
+  hasChildren: boolean
 ): MarkerOptions["icon"] {
-  if (!childrenContainer) {
+  if (!hasChildren || !childrenContainer) {
     return icon;
   }
 
@@ -123,68 +124,106 @@ function toMarkerOptions(props: MarkerProps): Omit<MarkerOptions, "map"> {
   const { position, icon, animation, shape, title, cursor, clickable, draggable, visible, zIndex } =
     props;
 
-  return {
-    animation,
-    clickable,
-    cursor,
-    draggable,
-    icon,
-    position,
-    shape,
-    title,
-    visible,
-    zIndex
+  const options: Omit<MarkerOptions, "map"> = {
+    position
   };
+
+  if (animation !== undefined) {
+    options.animation = animation;
+  }
+
+  if (clickable !== undefined) {
+    options.clickable = clickable;
+  }
+
+  if (cursor !== undefined) {
+    options.cursor = cursor;
+  }
+
+  if (draggable !== undefined) {
+    options.draggable = draggable;
+  }
+
+  if (icon !== undefined) {
+    options.icon = icon;
+  }
+
+  if (shape !== undefined) {
+    options.shape = shape;
+  }
+
+  if (title !== undefined) {
+    options.title = title;
+  }
+
+  if (visible !== undefined) {
+    options.visible = visible;
+  }
+
+  if (zIndex !== undefined) {
+    options.zIndex = zIndex;
+  }
+
+  return options;
 }
 
 export function Marker(props: MarkerProps): ReactPortal | null {
   const { map, sdkStatus } = useNaverMap();
   const markerRef = useRef<naver.maps.Marker | null>(null);
-  const childrenContainer = useMemo<HTMLElement | null>(() => {
-    if (typeof document === "undefined") {
-      return null;
-    }
-
-    return document.createElement("div");
-  }, []);
   const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
+  const [markerDiv, setMarkerDiv] = useState<HTMLDivElement | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
+  const hasChildren = props.children !== undefined && props.children !== null;
 
   useEffect(() => {
     onMarkerDestroyRef.current = props.onMarkerDestroy;
   }, [props.onMarkerDestroy]);
 
   useEffect(() => {
-    if (!props.children) {
-      if (markerRef.current) {
-        const fallbackIcon = resolveMarkerIcon(props.icon, null);
-
-        if (fallbackIcon) {
-          markerRef.current.setIcon(fallbackIcon);
-        }
-      }
-
+    if (typeof document === "undefined") {
       return;
     }
 
-    if (markerRef.current) {
-      const resolvedIcon = resolveMarkerIcon(props.icon, childrenContainer);
+    setMarkerDiv(document.createElement("div"));
+  }, []);
 
-      if (resolvedIcon) {
-        markerRef.current.setIcon(resolvedIcon);
-      }
+  useEffect(() => {
+    if (!hasChildren || !markerDiv) {
+      setPortalReady(false);
+      return;
     }
-  }, [childrenContainer, props.children, props.icon]);
+
+    const updateReadyState = () => {
+      setPortalReady(markerDiv.childNodes.length > 0);
+    };
+
+    updateReadyState();
+
+    const observer = new MutationObserver(updateReadyState);
+    observer.observe(markerDiv, {
+      childList: true,
+      subtree: true
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasChildren, markerDiv]);
 
   useEffect(() => {
     if (sdkStatus !== "ready" || !map || markerRef.current) {
       return;
     }
 
+    if (hasChildren && !portalReady) {
+      return;
+    }
+
     try {
       const marker = new naver.maps.Marker({
         ...toMarkerOptions(props),
-        icon: resolveMarkerIcon(props.icon, childrenContainer),
+        icon: resolveMarkerIcon(props.icon, markerDiv, hasChildren),
         map
       });
 
@@ -208,20 +247,37 @@ export function Marker(props: MarkerProps): ReactPortal | null {
 
       props.onMarkerError?.(normalizedError);
     }
-  }, [childrenContainer, map, props, sdkStatus]);
+  }, [hasChildren, map, markerDiv, portalReady, props, sdkStatus]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const marker = markerRef.current;
 
     if (!marker) {
       return;
     }
 
-    marker.setOptions({
-      ...toMarkerOptions(props),
-      icon: resolveMarkerIcon(props.icon, childrenContainer)
+    const rafId = requestAnimationFrame(() => {
+      const nextOptions = toMarkerOptions(props);
+
+      if (hasChildren) {
+        if (portalReady) {
+          const resolvedIcon = resolveMarkerIcon(props.icon, markerDiv, hasChildren);
+
+          if (resolvedIcon !== undefined) {
+            nextOptions.icon = resolvedIcon;
+          }
+        } else {
+          delete nextOptions.icon;
+        }
+      }
+
+      marker.setOptions(nextOptions);
     });
-  }, [childrenContainer, props]);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
+  }, [hasChildren, markerDiv, portalReady, props]);
 
   useEffect(() => {
     const marker = markerRef.current;
@@ -287,9 +343,9 @@ export function Marker(props: MarkerProps): ReactPortal | null {
     };
   }, []);
 
-  if (!props.children || !childrenContainer) {
+  if (!hasChildren || !markerDiv) {
     return null;
   }
 
-  return createPortal(props.children, childrenContainer);
+  return createPortal(props.children, markerDiv);
 }
