@@ -1,61 +1,50 @@
-import { useState } from "react";
-
-import { loadNaverMapsScript } from "react-naver-maps-kit";
+import { NaverMapContext, NaverMapProvider } from "react-naver-maps-kit";
 
 import "./App.css";
 
 function App() {
-  const [ncpKeyId, setNcpKeyId] = useState(import.meta.env.VITE_NCP_CLIENT_ID);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("아직 로딩하지 않았습니다.");
-
-  const handleLoad = async () => {
-    if (!ncpKeyId.trim()) {
-      setStatus("error");
-      setMessage("ncpKeyId를 입력해 주세요.");
-      return;
-    }
-
-    setStatus("loading");
-    setMessage("Naver Maps SDK 로딩 중...");
-
-    try {
-      await loadNaverMapsScript({
-        ncpKeyId: ncpKeyId.trim(),
-        timeoutMs: 10000
-      });
-
-      setStatus("success");
-      setMessage("SDK 로드 완료: window.naver.maps를 사용할 수 있습니다.");
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "알 수 없는 오류로 로드에 실패했습니다.");
-    }
-  };
+  const ncpClientId = String(import.meta.env.VITE_NCP_CLIENT_ID ?? "").trim();
 
   return (
-    <>
+    <NaverMapProvider autoLoad={true} ncpClientId={ncpClientId} timeoutMs={10000}>
       <h1>react-naver-maps-kit example</h1>
       <div className="card">
-        <input
-          value={ncpKeyId}
-          onChange={(event) => setNcpKeyId(event.target.value)}
-          placeholder="ncpKeyId를 입력하세요"
-          style={{ width: "100%", padding: "0.7rem", marginBottom: "0.8rem" }}
-        />
-        <button type="button" onClick={handleLoad} disabled={status === "loading"}>
-          {status === "loading" ? "로딩 중..." : "loadNaverMapsScript 호출"}
-        </button>
-        <p style={{ marginTop: "0.8rem" }}>
-          상태: <strong>{status}</strong>
-        </p>
-        <p>{message}</p>
+        <NaverMapContext.Consumer>
+          {(context) => {
+            if (!context) {
+              throw new Error(
+                "NaverMapContext is not available. Wrap the app with NaverMapProvider."
+              );
+            }
+
+            const { sdkError, sdkStatus } = context;
+            const message =
+              sdkStatus === "idle"
+                ? "초기 상태입니다."
+                : sdkStatus === "loading"
+                  ? "Naver Maps SDK 자동 로딩 중..."
+                  : sdkStatus === "ready"
+                    ? "SDK 로드 완료: window.naver.maps를 사용할 수 있습니다."
+                    : (sdkError?.message ?? "알 수 없는 오류로 로드에 실패했습니다.");
+
+            return (
+              <>
+                <p>
+                  ncpClientId: <code>{ncpClientId || "(비어 있음)"}</code>
+                </p>
+                <p>
+                  상태: <strong>{sdkStatus}</strong>
+                </p>
+                <p>{message}</p>
+              </>
+            );
+          }}
+        </NaverMapContext.Consumer>
       </div>
       <p className="read-the-docs">
-        기본 기준은 <code>ncpKeyId</code>입니다. 필요하면 라이브러리에서 legacy 키도 하위호환
-        지원합니다.
+        앱 시작 시 <code>NaverMapProvider</code>가 SDK를 자동으로 로딩합니다.
       </p>
-    </>
+    </NaverMapProvider>
   );
 }
 
