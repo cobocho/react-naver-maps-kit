@@ -24,7 +24,7 @@
     "build": "pnpm clean && rolldown -c && tsc -p tsconfig.build.json",
     "dev": "rolldown -c --watch",
     "docs:dev": "pnpm --dir docs dev",
-    "docs:build": "pnpm --dir docs build",
+    "docs:build": "pnpm install && pnpm --dir docs install && pnpm --dir docs build",
     "docs:preview": "pnpm --dir docs preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
