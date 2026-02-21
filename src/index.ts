@@ -8,6 +8,12 @@ export { NaverMapProvider, NaverMapContext } from "./react/provider/NaverMapProv
 export { NaverMap } from "./react/components/NaverMap";
 export { Marker } from "./overlays/marker/Marker";
 export { InfoWindow } from "./overlays/infowindow/InfoWindow";
+export { Circle } from "./overlays/circle/Circle";
+export { Ellipse } from "./overlays/ellipse/Ellipse";
+export { GroundOverlay } from "./overlays/ground-overlay/GroundOverlay";
+export { Polygon } from "./overlays/polygon/Polygon";
+export { Polyline } from "./overlays/polyline/Polyline";
+export { Rectangle } from "./overlays/rectangle/Rectangle";
 export { useNaverMap, useNaverMapInstance } from "./react/hooks/useNaverMap";
 export type {
   NaverMapContextValue,
@@ -20,4 +26,16 @@ export type { MarkerProps } from "./overlays/marker/Marker";
 export type { MarkerRef } from "./overlays/marker/Marker";
 export type { InfoWindowProps } from "./overlays/infowindow/InfoWindow";
 export type { InfoWindowRef } from "./overlays/infowindow/InfoWindow";
+export type { CircleProps } from "./overlays/circle/Circle";
+export type { CircleRef } from "./overlays/circle/Circle";
+export type { EllipseProps } from "./overlays/ellipse/Ellipse";
+export type { EllipseRef } from "./overlays/ellipse/Ellipse";
+export type { GroundOverlayProps } from "./overlays/ground-overlay/GroundOverlay";
+export type { GroundOverlayRef } from "./overlays/ground-overlay/GroundOverlay";
+export type { PolygonProps } from "./overlays/polygon/Polygon";
+export type { PolygonRef } from "./overlays/polygon/Polygon";
+export type { PolylineProps } from "./overlays/polyline/Polyline";
+export type { PolylineRef } from "./overlays/polyline/Polyline";
+export type { RectangleProps } from "./overlays/rectangle/Rectangle";
+export type { RectangleRef } from "./overlays/rectangle/Rectangle";
 export type { UseNaverMapOptions } from "./react/hooks/useNaverMap";
