@@ -1,5 +1,5 @@
 {
-  "name": "react-naver-maps-kit-example",
+  "name": "example",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-naver-maps-kit": "file:..",
+    "react-naver-maps-kit": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

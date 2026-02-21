@@ -1,52 +1,27 @@
 {
-  "name": "react-naver-maps-kit",
+  "name": "react-naver-maps-kit-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "description": "Modern React toolkit for Naver Maps",
+  "description": "Modern React toolkit for Naver Maps - Monorepo",
   "type": "module",
-  "sideEffects": false,
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "pnpm clean && rolldown -c && tsc -p tsconfig.build.json",
-    "dev": "rolldown -c --watch",
-    "docs:dev": "pnpm --dir docs dev",
-    "docs:build": "pnpm install && pnpm --filter react-naver-maps-kit-docs build",
-    "docs:preview": "pnpm --dir docs preview",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "build": "pnpm --filter @cobocho/react-naver-maps-kit build",
+    "dev": "pnpm --filter @cobocho/react-naver-maps-kit dev",
+    "test": "pnpm --filter @cobocho/react-naver-maps-kit test",
+    "typecheck": "pnpm --filter @cobocho/react-naver-maps-kit typecheck",
+    "lint": "pnpm -r lint",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "prepublishOnly": "pnpm build"
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm install && pnpm --filter docs build",
+    "example:dev": "pnpm --filter example dev",
+    "example:build": "pnpm --filter example build"
   },
   "keywords": [
     "react",
-    "naver",
     "naver-maps",
-    "naver-map",
     "maps",
-    "map",
-    "korea",
-    "korean-map",
-    "react-component",
-    "typescript",
-    "naver-cloud-platform"
+    "monorepo"
   ],
   "author": "cobocho <contact@un-defined.dev>",
   "license": "MIT",
@@ -59,26 +34,10 @@
     "url": "https://github.com/cobocho/react-naver-maps-kit/issues"
   },
   "packageManager": "pnpm@10.4.1",
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
-  },
   "devDependencies": {
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@types/navermaps": "^3.9.1",
-    "@eslint/js": "^9.21.0",
-    "eslint": "^9.21.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-unused-imports": "^4.1.4",
-    "jsdom": "^26.0.0",
-    "prettier": "^3.5.2",
-    "rolldown": "^1.0.0-beta.41",
-    "@testing-library/react": "^16.2.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.25.0",
-    "vitest": "^2.1.8"
+    "prettier": "^3.5.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
