@@ -9,11 +9,11 @@
     "preview": "vitepress preview ."
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-naver-maps-kit": "file:.."
+    "react-naver-maps-kit": "workspace:*"
   },
   "devDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "vitepress": "^1.6.4"
   }
 }
