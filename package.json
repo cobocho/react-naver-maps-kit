@@ -13,7 +13,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "docs:dev": "pnpm --filter docs dev",
-    "docs:build": "pnpm install && pnpm --filter react-naver-maps-kit-docs build",
+    "docs:build": "pnpm install && pnpm --filter react-naver-maps-kit build && pnpm --filter react-naver-maps-kit-docs build",
     "example:dev": "pnpm --filter example dev",
     "example:build": "pnpm --filter example build"
   },
