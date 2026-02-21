@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps-kit",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Modern React toolkit for Naver Maps",
   "type": "module",
   "sideEffects": false,
@@ -15,7 +15,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -30,16 +32,32 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "react",
+    "naver",
+    "naver-maps",
     "naver-map",
     "maps",
-    "library"
+    "map",
+    "korea",
+    "korean-map",
+    "react-component",
+    "typescript",
+    "naver-cloud-platform"
   ],
-  "author": "",
+  "author": "cobocho <contact@un-defined.dev>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cobocho/react-naver-maps-kit.git"
+  },
+  "homepage": "https://github.com/cobocho/react-naver-maps-kit#readme",
+  "bugs": {
+    "url": "https://github.com/cobocho/react-naver-maps-kit/issues"
+  },
   "packageManager": "pnpm@10.4.1",
   "peerDependencies": {
     "react": ">=18",
