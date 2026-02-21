@@ -1,17 +1,5 @@
 import { useState } from "react";
-import {
-  Circle,
-  Ellipse,
-  GroundOverlay,
-  InfoWindow,
-  Marker,
-  NaverMap,
-  NaverMapProvider,
-  Polygon,
-  Polyline,
-  Rectangle,
-  useNaverMap
-} from "react-naver-maps-kit";
+import { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
 
 import "./App.css";
 
@@ -37,38 +25,6 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
   };
 
   const center = centerByKey[centerKey];
-  const circleCenter = { lat: center.lat + 0.03, lng: center.lng - 0.04 };
-  const ellipseBounds = {
-    south: center.lat - 0.08,
-    west: center.lng - 0.09,
-    north: center.lat + 0.02,
-    east: center.lng + 0.02
-  };
-  const rectangleBounds = {
-    south: center.lat - 0.02,
-    west: center.lng + 0.02,
-    north: center.lat + 0.07,
-    east: center.lng + 0.12
-  };
-  const polygonPath = [
-    { lat: center.lat - 0.03, lng: center.lng - 0.16 },
-    { lat: center.lat + 0.04, lng: center.lng - 0.12 },
-    { lat: center.lat + 0.01, lng: center.lng - 0.05 },
-    { lat: center.lat - 0.05, lng: center.lng - 0.08 }
-  ];
-  const polygonPaths = [polygonPath];
-  const polylinePath = [
-    { lat: center.lat + 0.11, lng: center.lng - 0.13 },
-    { lat: center.lat + 0.08, lng: center.lng - 0.06 },
-    { lat: center.lat + 0.12, lng: center.lng + 0.01 },
-    { lat: center.lat + 0.09, lng: center.lng + 0.08 }
-  ];
-  const groundOverlayBounds = {
-    south: center.lat - 0.12,
-    west: center.lng + 0.08,
-    north: center.lat - 0.04,
-    east: center.lng + 0.18
-  };
 
   return (
     <section className="demo-card">
@@ -182,13 +138,10 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
 
       <div className="map-wrap">
         <NaverMap
-          center={center}
+          defaultCenter={center}
           draggable={draggable}
           mapTypeId={mapTypeId}
           mapTypeControl={mapTypeControl}
-          onCenterChanged={(coord) => {
-            setMapEventText(`center_changed(${coord.y.toFixed(4)}, ${coord.x.toFixed(4)})`);
-          }}
           onIdle={() => {
             setMapEventText(
               (prev) => `${prev.split(" @")[0]} @ ${new Date().toLocaleTimeString()}`
@@ -198,85 +151,35 @@ function MapStatusPanel({ ncpKeyId }: { ncpKeyId: string }) {
           style={{ width: "100%", height: 420 }}
           zoom={zoom}
           zoomControl={zoomControl}
-        />
-        <Marker
-          position={center}
-          onClick={() => {
-            alert("click");
-          }}
-          onDragEnd={() => {
-            setMarkerEventText(`dragend @ ${new Date().toLocaleTimeString()}`);
-          }}
         >
-          <div className="marker-chip" style={{ color: "red", width: "40px", height: "40px" }}>
-            KIT
-          </div>
-        </Marker>
-        <InfoWindow
-          position={{
-            lat: center.lat + 0.15,
-            lng: center.lng + 0.15
-          }}
-          visible={showInfoWindow}
-        >
-          <div className="info-window-box">
-            <strong>react-naver-maps-kit</strong>
-            <p>
-              center: {center.lat.toFixed(4)}, {center.lng.toFixed(4)}
-            </p>
-          </div>
-        </InfoWindow>
-
-        <Circle
-          center={circleCenter}
-          fillColor="#60a5fa"
-          fillOpacity={0.35}
-          radius={8000}
-          strokeColor="#1d4ed8"
-          strokeWeight={2}
-        />
-
-        <Ellipse
-          bounds={ellipseBounds}
-          fillColor="#fde047"
-          fillOpacity={0.25}
-          strokeColor="#ca8a04"
-          strokeStyle="shortdash"
-          strokeWeight={2}
-        />
-
-        <Rectangle
-          bounds={rectangleBounds}
-          fillColor="#86efac"
-          fillOpacity={0.22}
-          strokeColor="#15803d"
-          strokeWeight={2}
-        />
-
-        <Polygon
-          fillColor="#f9a8d4"
-          fillOpacity={0.25}
-          paths={polygonPaths}
-          strokeColor="#be185d"
-          strokeWeight={2}
-        />
-
-        <Polyline
-          endIcon={1}
-          endIconSize={16}
-          path={polylinePath}
-          startIcon={4}
-          startIconSize={10}
-          strokeColor="#0f766e"
-          strokeStyle="solid"
-          strokeWeight={4}
-        />
-
-        <GroundOverlay
-          bounds={groundOverlayBounds}
-          opacity={0.45}
-          url="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Logo_Naver.svg/320px-Logo_Naver.svg.png"
-        />
+          <Marker
+            position={center}
+            onClick={() => {
+              alert("click");
+            }}
+            onDragEnd={() => {
+              setMarkerEventText(`dragend @ ${new Date().toLocaleTimeString()}`);
+            }}
+          >
+            <div className="marker-chip" style={{ color: "red", width: "40px", height: "40px" }}>
+              KIT
+            </div>
+          </Marker>
+          <InfoWindow
+            position={{
+              lat: center.lat + 0.15,
+              lng: center.lng + 0.15
+            }}
+            visible={showInfoWindow}
+          >
+            <div className="info-window-box">
+              <strong>react-naver-maps-kit</strong>
+              <p>
+                center: {center.lat.toFixed(4)}, {center.lng.toFixed(4)}
+              </p>
+            </div>
+          </InfoWindow>
+        </NaverMap>
       </div>
     </section>
   );

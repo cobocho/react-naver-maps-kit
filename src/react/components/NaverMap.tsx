@@ -5,12 +5,14 @@ import {
   useContext,
   useEffect,
   useImperativeHandle,
-  useRef
+  useMemo,
+  useRef,
+  useState
 } from "react";
 
 import { NaverMapContext } from "../provider/NaverMapProvider";
 
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type MapOptions = naver.maps.MapOptions;
 
@@ -19,7 +21,9 @@ interface NaverMapOptionProps {
   baseTileOpacity?: MapOptions["baseTileOpacity"];
   bounds?: MapOptions["bounds"];
   center?: MapOptions["center"];
+  defaultCenter?: MapOptions["center"];
   zoom?: MapOptions["zoom"];
+  defaultZoom?: MapOptions["zoom"];
   disableDoubleClickZoom?: MapOptions["disableDoubleClickZoom"];
   disableDoubleTapZoom?: MapOptions["disableDoubleTapZoom"];
   disableKineticPan?: MapOptions["disableKineticPan"];
@@ -62,6 +66,7 @@ interface NaverMapLifecycleProps {
   onMapError?: (error: Error) => void;
   retryOnError?: boolean;
   retryDelayMs?: number;
+  fallback?: ReactNode;
 }
 
 interface NaverMapEventProps {
@@ -106,7 +111,7 @@ interface NaverMapEventProps {
   onZoomStart?: () => void;
 }
 
-type NaverMapDivProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "draggable">;
+type NaverMapDivProps = Omit<ComponentPropsWithoutRef<"div">, "draggable">;
 
 export type NaverMapProps = NaverMapOptionProps &
   NaverMapLifecycleProps &
@@ -156,6 +161,8 @@ export interface NaverMapRef {
   updateBy: NaverMapMethod<"updateBy">;
   zoomBy: NaverMapMethod<"zoomBy">;
 }
+
+/* ─── 상수 ─── */
 
 const MAP_OPTION_KEYS = [
   "background",
@@ -293,20 +300,43 @@ const MAP_EVENT_BINDINGS: readonly MapEventBinding[] = [
   { prop: "onZoomStart", eventName: "zoomstart", hasPayload: false }
 ];
 
+const NON_DIV_KEYS = new Set([
+  "onMapReady",
+  "onMapDestroy",
+  "onMapError",
+  "retryOnError",
+  "retryDelayMs",
+  "fallback",
+  "defaultCenter",
+  "defaultZoom",
+  "children"
+]);
+
+/* ─── 유틸 ─── */
+
 function toCenterSignature(center: MapOptions["center"] | undefined): string {
   if (!center) {
     return "";
   }
 
   if (typeof center === "object") {
-    const maybeCenter = center as { lat?: number; lng?: number; x?: number; y?: number };
+    const candidate = center as unknown as Record<string, unknown>;
+    const rawLat = candidate.lat;
+    const rawLng = candidate.lng;
+    const lat = typeof rawLat === "function" ? (rawLat as () => number)() : rawLat;
+    const lng = typeof rawLng === "function" ? (rawLng as () => number)() : rawLng;
 
-    if (typeof maybeCenter.lat === "number" && typeof maybeCenter.lng === "number") {
-      return `latlng:${maybeCenter.lat},${maybeCenter.lng}`;
+    if (typeof lat === "number" && typeof lng === "number") {
+      return `latlng:${lat},${lng}`;
     }
 
-    if (typeof maybeCenter.x === "number" && typeof maybeCenter.y === "number") {
-      return `xy:${maybeCenter.x},${maybeCenter.y}`;
+    const rawX = candidate.x;
+    const rawY = candidate.y;
+    const x = typeof rawX === "function" ? (rawX as () => number)() : rawX;
+    const y = typeof rawY === "function" ? (rawY as () => number)() : rawY;
+
+    if (typeof x === "number" && typeof y === "number") {
+      return `xy:${x},${y}`;
     }
   }
 
@@ -318,7 +348,7 @@ function areValuesEqual(left: unknown, right: unknown): boolean {
     return true;
   }
 
-  if (left === undefined || right === undefined || left === null || right === null) {
+  if (left === null || right === null || left === undefined || right === undefined) {
     return false;
   }
 
@@ -336,128 +366,56 @@ function areValuesEqual(left: unknown, right: unknown): boolean {
   return false;
 }
 
-function splitNaverMapProps(props: NaverMapProps): {
-  mapOptions: naver.maps.MapOptions;
-  divProps: NaverMapDivProps;
-  onMapReady?: (map: naver.maps.Map) => void;
-  onMapDestroy?: () => void;
-  onMapError?: (error: Error) => void;
-  retryOnError?: boolean;
-  retryDelayMs?: number;
-} {
-  const mapOptionEntries: Array<[string, unknown]> = [];
-  const divPropEntries: Array<[string, unknown]> = [];
-
-  for (const [key, value] of Object.entries(props)) {
-    if (key === "onMapReady" || key === "onMapDestroy") {
-      continue;
-    }
-
-    if (key === "onMapError" || key === "retryOnError" || key === "retryDelayMs") {
-      continue;
-    }
-
-    if (MAP_EVENT_PROP_KEY_SET.has(key)) {
-      continue;
-    }
-
-    if (MAP_OPTION_KEY_SET.has(key)) {
-      if (value !== undefined) {
-        mapOptionEntries.push([key, value]);
-      }
-      continue;
-    }
-
-    divPropEntries.push([key, value]);
-  }
-
-  return {
-    mapOptions: Object.fromEntries(mapOptionEntries) as naver.maps.MapOptions,
-    divProps: Object.fromEntries(divPropEntries) as NaverMapDivProps,
-    onMapReady: props.onMapReady,
-    onMapDestroy: props.onMapDestroy,
-    onMapError: props.onMapError,
-    retryOnError: props.retryOnError,
-    retryDelayMs: props.retryDelayMs
-  };
-}
-
 function getChangedOptions(
   previous: naver.maps.MapOptions,
   next: naver.maps.MapOptions
 ): Partial<naver.maps.MapOptions> {
-  const changedEntries: Array<[string, unknown]> = [];
   const keys = new Set([...Object.keys(previous), ...Object.keys(next)]);
+  const changed: Array<[string, unknown]> = [];
 
-  keys.forEach((key) => {
-    const optionKey = key as keyof naver.maps.MapOptions;
-    const previousValue = previous[optionKey];
-    const nextValue = next[optionKey];
+  for (const key of keys) {
+    const typedKey = key as keyof naver.maps.MapOptions;
+    const previousValue = previous[typedKey];
+    const nextValue = next[typedKey];
 
     if (!areValuesEqual(previousValue, nextValue) && nextValue !== undefined) {
-      changedEntries.push([key, nextValue]);
+      changed.push([key, nextValue]);
     }
-  });
+  }
 
-  return Object.fromEntries(changedEntries) as Partial<naver.maps.MapOptions>;
+  return Object.fromEntries(changed) as Partial<naver.maps.MapOptions>;
 }
 
-function applyChangedMapOptions(
-  mapInstance: naver.maps.Map,
-  previousOptionsRef: { current: naver.maps.MapOptions },
-  nextOptions: naver.maps.MapOptions,
-  previousCenterSignatureRef: { current: string },
-  previousZoomRef: { current: MapOptions["zoom"] | undefined },
-  previousMapTypeIdRef: { current: MapOptions["mapTypeId"] | undefined }
-): void {
-  const changedOptions = getChangedOptions(previousOptionsRef.current, nextOptions);
-  const {
-    center: changedCenter,
-    zoom: changedZoom,
-    mapTypeId: changedMapTypeId,
-    ...restChangedOptions
-  } = changedOptions;
-  const nextCenter = nextOptions.center;
-  const nextZoom = nextOptions.zoom;
-  const nextMapTypeId = nextOptions.mapTypeId;
-  const nextCenterSignature = toCenterSignature(nextCenter);
-
-  if (Object.keys(restChangedOptions).length > 0) {
-    mapInstance.setOptions(restChangedOptions);
+function getDivProps(props: NaverMapProps): NaverMapDivProps {
+  const entries: Array<[string, unknown]> = [];
+  for (const [key, value] of Object.entries(props)) {
+    if (NON_DIV_KEYS.has(key) || MAP_OPTION_KEY_SET.has(key) || MAP_EVENT_PROP_KEY_SET.has(key)) {
+      continue;
+    }
+    entries.push([key, value]);
   }
-
-  if (
-    changedCenter !== undefined &&
-    nextCenter !== undefined &&
-    nextCenterSignature !== previousCenterSignatureRef.current
-  ) {
-    mapInstance.setCenter(nextCenter);
-    previousCenterSignatureRef.current = nextCenterSignature;
-  }
-
-  if (changedZoom !== undefined && nextZoom !== undefined && nextZoom !== previousZoomRef.current) {
-    mapInstance.setZoom(nextZoom);
-    previousZoomRef.current = nextZoom;
-  }
-
-  if (
-    changedMapTypeId !== undefined &&
-    nextMapTypeId !== undefined &&
-    nextMapTypeId !== previousMapTypeIdRef.current
-  ) {
-    mapInstance.setMapTypeId(nextMapTypeId);
-    previousMapTypeIdRef.current = nextMapTypeId;
-  }
-
-  previousOptionsRef.current = nextOptions;
+  return Object.fromEntries(entries) as NaverMapDivProps;
 }
 
+/**
+ * memo 비교: children과 함수(콜백)는 skip.
+ * - children: React element는 JSON.stringify 불가
+ * - 함수: ref를 통해 항상 최신 값을 읽으므로 비교 불필요
+ */
 function areNaverMapPropsEqual(previousProps: NaverMapProps, nextProps: NaverMapProps): boolean {
   const keys = new Set([...Object.keys(previousProps), ...Object.keys(nextProps)]);
 
   for (const key of keys) {
+    if (key === "children") {
+      continue;
+    }
+
     const previousValue = previousProps[key as keyof NaverMapProps];
     const nextValue = nextProps[key as keyof NaverMapProps];
+
+    if (typeof previousValue === "function" && typeof nextValue === "function") {
+      continue;
+    }
 
     if (!areValuesEqual(previousValue, nextValue)) {
       return false;
@@ -467,6 +425,8 @@ function areNaverMapPropsEqual(previousProps: NaverMapProps, nextProps: NaverMap
   return true;
 }
 
+/* ─── 컴포넌트 ─── */
+
 const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInner(props, ref) {
   const context = useContext(NaverMapContext);
 
@@ -474,28 +434,90 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     throw new Error("NaverMap must be used inside NaverMapProvider.");
   }
 
-  const { mapOptions, divProps, onMapReady, onMapDestroy, onMapError, retryOnError, retryDelayMs } =
-    splitNaverMapProps(props);
-  const { reloadSdk, sdkStatus, setMap } = context;
+  const { sdkStatus, setMap, reloadSdk } = context;
+
+  // ─── mapReady state: children 렌더 트리거 ───
+  const [mapReady, setMapReady] = useState(false);
+
+  // ─── 콜백/이벤트 핸들러를 ref로 관리 (effect 재실행 방지) ───
+  const propsRef = useRef(props);
+  useEffect(() => {
+    propsRef.current = props;
+  });
+
+  // ─── 초기값 (최초 1회만 캡처) ───
+  const initialCenterRef = useRef(props.center ?? props.defaultCenter);
+  const initialZoomRef = useRef(props.zoom ?? props.defaultZoom);
+
+  // ─── controlled 여부 ───
+  const isControlledCenter = props.center !== undefined;
+  const isControlledZoom = props.zoom !== undefined;
+
+  // ─── map options (개별 prop 의존성, defaultCenter/defaultZoom 제외) ───
+  const mapOptions = useMemo(() => {
+    const entries: Array<[string, unknown]> = [];
+    for (const key of MAP_OPTION_KEYS) {
+      const value = props[key];
+      if (value !== undefined) {
+        entries.push([key, value]);
+      }
+    }
+    return Object.fromEntries(entries) as naver.maps.MapOptions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    props.background,
+    props.baseTileOpacity,
+    props.bounds,
+    props.center,
+    props.zoom,
+    props.disableDoubleClickZoom,
+    props.disableDoubleTapZoom,
+    props.disableKineticPan,
+    props.disableTwoFingerTapZoom,
+    props.draggable,
+    props.keyboardShortcuts,
+    props.logoControl,
+    props.logoControlOptions,
+    props.mapDataControl,
+    props.mapDataControlOptions,
+    props.mapTypeControl,
+    props.mapTypeControlOptions,
+    props.mapTypeId,
+    props.mapTypes,
+    props.maxBounds,
+    props.maxZoom,
+    props.minZoom,
+    props.padding,
+    props.pinchZoom,
+    props.resizeOrigin,
+    props.scaleControl,
+    props.scaleControlOptions,
+    props.scrollWheel,
+    props.size,
+    props.overlayZoomEffect,
+    props.tileSpare,
+    props.tileTransition,
+    props.tileDuration,
+    props.zoomControl,
+    props.zoomControlOptions,
+    props.zoomOrigin,
+    props.blankTileImage,
+    props.gl,
+    props.customStyleId
+  ]);
+
+  // ─── div props ───
+  const divProps = useMemo(() => getDivProps(props), [props]);
+
+  // ─── 내부 refs ───
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
-  const isCreatingRef = useRef(false);
-  const isUnmountedRef = useRef(false);
-  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
-  const mapEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
-  const onMapDestroyRef = useRef<NaverMapProps["onMapDestroy"]>(onMapDestroy);
-  const previousCenterSignatureRef = useRef<string>("");
-  const previousZoomRef = useRef<MapOptions["zoom"] | undefined>(undefined);
-  const previousMapTypeIdRef = useRef<MapOptions["mapTypeId"] | undefined>(undefined);
-  const latestMapOptionsRef = useRef<naver.maps.MapOptions>(mapOptions);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mapOptionsRef = useRef(mapOptions);
+  mapOptionsRef.current = mapOptions;
 
-  latestMapOptionsRef.current = mapOptions;
-
-  useEffect(() => {
-    onMapDestroyRef.current = onMapDestroy;
-  }, [onMapDestroy]);
-
+  // ─── invokeMapMethod (안정적 ref) ───
   const invokeMapMethod = useCallback(
     <K extends keyof naver.maps.Map>(
       methodName: K,
@@ -520,54 +542,16 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     []
   );
 
-  const teardownMapInstance = useCallback(() => {
-    const mapInstance = mapRef.current;
-    const containerElement = containerRef.current;
-
-    if (!mapInstance) {
-      return;
-    }
-
-    if (retryTimerRef.current) {
-      clearTimeout(retryTimerRef.current);
-      retryTimerRef.current = null;
-    }
-
-    try {
-      if (mapEventListenersRef.current.length > 0) {
-        naver.maps.Event.removeListener(mapEventListenersRef.current);
-        mapEventListenersRef.current = [];
-      }
-
-      naver.maps.Event.clearInstanceListeners(mapInstance);
-    } catch (error) {
-      console.error("[react-naver-maps-kit] failed to clear map listeners", error);
-    }
-
-    if (containerElement) {
-      containerElement.innerHTML = "";
-    }
-
-    mapRef.current = null;
-    isCreatingRef.current = false;
-    appliedOptionsRef.current = {};
-    previousCenterSignatureRef.current = "";
-    previousZoomRef.current = undefined;
-    previousMapTypeIdRef.current = undefined;
-    setMap(null);
-    onMapDestroyRef.current?.();
-  }, [setMap]);
-
+  // ─── imperative handle ───
   useImperativeHandle(
     ref,
     (): NaverMapRef => ({
       getInstance: () => mapRef.current,
       addOverlayPane: (name, elementOrZIndex) => {
         const mapInstance = mapRef.current as naver.maps.Map & {
-          addOverlayPane?: (name: string, elementOrZIndex: HTMLElement | number) => void;
+          addOverlayPane?: (paneName: string, elementOrIndex: HTMLElement | number) => void;
         };
-
-        mapInstance.addOverlayPane?.(name, elementOrZIndex);
+        mapInstance?.addOverlayPane?.(name, elementOrZIndex);
       },
       addPane: (...args) => invokeMapMethod("addPane", ...args),
       autoResize: (...args) => invokeMapMethod("autoResize", ...args),
@@ -580,8 +564,8 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
 
         try {
           return mapInstance.destroy?.(...args);
-        } finally {
-          teardownMapInstance();
+        } catch {
+          return undefined;
         }
       },
       fitBounds: (...args) => invokeMapMethod("fitBounds", ...args),
@@ -605,10 +589,9 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
       refresh: (...args) => invokeMapMethod("refresh", ...args),
       removeOverlayPane: (name) => {
         const mapInstance = mapRef.current as naver.maps.Map & {
-          removeOverlayPane?: (name: string) => void;
+          removeOverlayPane?: (paneName: string) => void;
         };
-
-        mapInstance.removeOverlayPane?.(name);
+        mapInstance?.removeOverlayPane?.(name);
       },
       removePane: (...args) => invokeMapMethod("removePane", ...args),
       setCenter: (...args) => invokeMapMethod("setCenter", ...args),
@@ -621,121 +604,166 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
       updateBy: (...args) => invokeMapMethod("updateBy", ...args),
       zoomBy: (...args) => invokeMapMethod("zoomBy", ...args)
     }),
-    [invokeMapMethod, teardownMapInstance]
+    [invokeMapMethod]
   );
 
+  // ─── 지도 생성 + 이벤트 바인딩 (sdkStatus만 의존) ───
   useEffect(() => {
-    isUnmountedRef.current = false;
-
-    return () => {
-      isUnmountedRef.current = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (sdkStatus !== "ready" || !containerRef.current || mapRef.current || isCreatingRef.current) {
+    if (sdkStatus !== "ready" || !containerRef.current) {
       return;
     }
 
-    isCreatingRef.current = true;
+    const container = containerRef.current;
 
+    // 생성 시점의 옵션 스냅샷
+    const initOptions = { ...mapOptionsRef.current };
+    if (initOptions.center === undefined && initialCenterRef.current !== undefined) {
+      initOptions.center = initialCenterRef.current;
+    }
+    if (initOptions.zoom === undefined && initialZoomRef.current !== undefined) {
+      initOptions.zoom = initialZoomRef.current;
+    }
+
+    let mapInstance: naver.maps.Map;
     try {
-      const mapInstance = new naver.maps.Map(containerRef.current, latestMapOptionsRef.current);
-      mapRef.current = mapInstance;
-      setMap(mapInstance);
-      appliedOptionsRef.current = latestMapOptionsRef.current;
-      previousCenterSignatureRef.current = toCenterSignature(latestMapOptionsRef.current.center);
-      previousZoomRef.current = latestMapOptionsRef.current.zoom;
-      previousMapTypeIdRef.current = latestMapOptionsRef.current.mapTypeId;
-      onMapReady?.(mapInstance);
+      mapInstance = new naver.maps.Map(container, initOptions);
     } catch (error) {
       const normalizedError =
         error instanceof Error ? error : new Error("Failed to create naver.maps.Map instance.");
+      propsRef.current.onMapError?.(normalizedError);
 
-      console.error("[react-naver-maps-kit] failed to create naver.maps.Map", normalizedError);
-      onMapError?.(normalizedError);
-
-      if (retryOnError && !isUnmountedRef.current) {
-        const retryDelay = retryDelayMs ?? 1000;
-
-        if (retryTimerRef.current) {
-          clearTimeout(retryTimerRef.current);
-        }
-
+      if (propsRef.current.retryOnError) {
         retryTimerRef.current = setTimeout(() => {
           void reloadSdk().catch(() => undefined);
-        }, retryDelay);
-      }
-    } finally {
-      isCreatingRef.current = false;
-    }
-  }, [onMapError, onMapReady, reloadSdk, retryDelayMs, retryOnError, sdkStatus, setMap]);
-
-  useEffect(() => {
-    const mapInstance = mapRef.current;
-
-    if (!mapInstance) {
-      return;
-    }
-
-    try {
-      applyChangedMapOptions(
-        mapInstance,
-        appliedOptionsRef,
-        latestMapOptionsRef.current,
-        previousCenterSignatureRef,
-        previousZoomRef,
-        previousMapTypeIdRef
-      );
-    } catch (error) {
-      console.error("[react-naver-maps-kit] failed to update map options", error);
-    }
-  });
-
-  useEffect(() => {
-    const mapInstance = mapRef.current;
-
-    if (!mapInstance) {
-      return;
-    }
-
-    if (mapEventListenersRef.current.length > 0) {
-      naver.maps.Event.removeListener(mapEventListenersRef.current);
-      mapEventListenersRef.current = [];
-    }
-
-    mapEventListenersRef.current = MAP_EVENT_BINDINGS.map((binding) => {
-      const handler = props[binding.prop];
-
-      if (typeof handler !== "function") {
-        return null;
+        }, propsRef.current.retryDelayMs ?? 1000);
       }
 
-      return naver.maps.Event.addListener(mapInstance, binding.eventName, (event: unknown) => {
-        if (binding.hasPayload) {
-          (handler as (event: unknown) => void)(event);
+      return () => {
+        if (retryTimerRef.current) {
+          clearTimeout(retryTimerRef.current);
+          retryTimerRef.current = null;
+        }
+      };
+    }
+
+    mapRef.current = mapInstance;
+    appliedOptionsRef.current = initOptions;
+    setMap(mapInstance);
+    setMapReady(true);
+    propsRef.current.onMapReady?.(mapInstance);
+
+    // 이벤트 리스너 — ref를 통해 항상 최신 핸들러를 읽으므로 1회만 바인딩
+    const listeners = MAP_EVENT_BINDINGS.map((binding) =>
+      naver.maps.Event.addListener(mapInstance, binding.eventName, (event: unknown) => {
+        const handler = propsRef.current[binding.prop];
+        if (typeof handler !== "function") {
           return;
         }
-
-        (handler as () => void)();
-      });
-    }).filter((listener): listener is naver.maps.MapEventListener => listener !== null);
+        if (binding.hasPayload) {
+          (handler as (payload: unknown) => void)(event);
+        } else {
+          (handler as () => void)();
+        }
+      })
+    );
 
     return () => {
-      if (mapEventListenersRef.current.length > 0) {
-        naver.maps.Event.removeListener(mapEventListenersRef.current);
-        mapEventListenersRef.current = [];
+      // 이벤트 해제
+      try {
+        naver.maps.Event.removeListener(listeners);
+        naver.maps.Event.clearInstanceListeners(mapInstance);
+      } catch {
+        // 이미 해제된 경우 무시
       }
-    };
-  }, [props]);
 
+      // 타이머 정리
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+
+      // DOM 정리
+      container.innerHTML = "";
+
+      // 상태 초기화
+      mapRef.current = null;
+      appliedOptionsRef.current = {};
+      setMap(null);
+      setMapReady(false);
+      propsRef.current.onMapDestroy?.();
+    };
+  }, [sdkStatus, setMap, reloadSdk]);
+
+  // ─── 옵션 동기화 (controlled prop만 지도에 반영) ───
   useEffect(() => {
-    return () => {
-      teardownMapInstance();
-    };
-  }, [teardownMapInstance]);
+    const mapInstance = mapRef.current;
+    if (!mapInstance) {
+      return;
+    }
 
-  return <div ref={containerRef} {...divProps} />;
+    const changed = getChangedOptions(appliedOptionsRef.current, mapOptions);
+    if (Object.keys(changed).length === 0) {
+      appliedOptionsRef.current = mapOptions;
+      return;
+    }
+
+    const {
+      center: changedCenter,
+      zoom: changedZoom,
+      mapTypeId: changedMapTypeId,
+      ...otherChanged
+    } = changed;
+
+    // uncontrolled 상태 보존: setOptions/setMapTypeId 등이
+    // 내부적으로 center/zoom을 리셋할 수 있으므로 미리 저장
+    const savedCenter = !isControlledCenter ? mapInstance.getCenter() : null;
+    const savedZoom = !isControlledZoom ? mapInstance.getZoom() : null;
+
+    // center/zoom/mapTypeId 이외 옵션 → setOptions
+    if (Object.keys(otherChanged).length > 0) {
+      mapInstance.setOptions(otherChanged);
+    }
+
+    // mapTypeId 동기화
+    if (changedMapTypeId !== undefined && mapOptions.mapTypeId !== undefined) {
+      mapInstance.setMapTypeId(mapOptions.mapTypeId);
+    }
+
+    // controlled center 동기화
+    if (isControlledCenter && changedCenter !== undefined) {
+      mapInstance.setCenter(changedCenter as naver.maps.Coord);
+    }
+
+    // controlled zoom 동기화
+    if (isControlledZoom && changedZoom !== undefined && mapOptions.zoom !== undefined) {
+      mapInstance.setZoom(mapOptions.zoom);
+    }
+
+    // uncontrolled center/zoom 복원: 다른 옵션 변경으로 리셋됐을 수 있음
+    if (savedCenter) {
+      mapInstance.setCenter(savedCenter);
+    }
+    if (savedZoom !== null) {
+      mapInstance.setZoom(savedZoom);
+    }
+
+    appliedOptionsRef.current = mapOptions;
+  }, [mapOptions, isControlledCenter, isControlledZoom]);
+
+  // ─── 렌더 ───
+  if (sdkStatus === "error") {
+    return <>{props.fallback ?? <div {...divProps}>지도를 불러올 수 없습니다.</div>}</>;
+  }
+
+  if (sdkStatus === "loading") {
+    return <>{props.fallback ?? <div {...divProps} />}</>;
+  }
+
+  return (
+    <div ref={containerRef} {...divProps}>
+      {mapReady ? props.children : null}
+    </div>
+  );
 });
 
 NaverMapBase.displayName = "NaverMap";
