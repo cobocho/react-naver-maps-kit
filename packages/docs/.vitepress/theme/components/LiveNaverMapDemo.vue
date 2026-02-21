@@ -19,7 +19,7 @@ onMounted(async () => {
     const [{ createElement }, { createRoot }, kit] = await Promise.all([
       import("react"),
       import("react-dom/client"),
-      import("../../../../src/index.ts")
+      import("react-naver-maps-kit")
     ]);
 
     const { InfoWindow, Marker, NaverMap, NaverMapProvider, useNaverMap } = kit;
