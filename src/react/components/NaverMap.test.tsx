@@ -45,13 +45,20 @@ describe("NaverMap + Provider + Hook integration", () => {
   let clearInstanceListenersMock: ReturnType<typeof vi.fn>;
   let mapConstructorMock: ReturnType<typeof vi.fn>;
 
+  let addListenerMock: ReturnType<typeof vi.fn>;
+  let removeListenerMock: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     clearInstanceListenersMock = vi.fn();
+    addListenerMock = vi.fn(() => ({}));
+    removeListenerMock = vi.fn();
     mapConstructorMock = vi.fn(() => createMockMapInstance());
 
     (window as Window & { naver?: unknown }).naver = {
       maps: {
         Event: {
+          addListener: addListenerMock,
+          removeListener: removeListenerMock,
           clearInstanceListeners: clearInstanceListenersMock
         },
         Map: mapConstructorMock
