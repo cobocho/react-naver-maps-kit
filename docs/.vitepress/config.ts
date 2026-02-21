@@ -32,6 +32,12 @@ export default defineConfig({
           { text: "NaverMap", link: "/api/map" },
           { text: "Marker", link: "/api/marker" },
           { text: "InfoWindow", link: "/api/info-window" },
+          { text: "Circle", link: "/api/circle" },
+          { text: "Ellipse", link: "/api/ellipse" },
+          { text: "GroundOverlay", link: "/api/ground-overlay" },
+          { text: "Polygon", link: "/api/polygon" },
+          { text: "Polyline", link: "/api/polyline" },
+          { text: "Rectangle", link: "/api/rectangle" },
           { text: "Hooks", link: "/api/hooks" },
           { text: "loadNaverMapsScript", link: "/api/load-script" }
         ]
