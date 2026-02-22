@@ -1,17 +1,11 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
-import { createRoot } from "react-dom/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
-import { ClustererContext } from "./ClustererContext";
-import { createAlgorithm, isBuiltInConfig } from "./algorithms/createAlgorithm";
+import { Marker } from "../marker/Marker";
 
-import type { Root } from "react-dom/client";
+import { createAlgorithm, isBuiltInConfig } from "./algorithms/createAlgorithm";
+import { ClustererContext, ClustererVisibilityContext } from "./ClustererContext";
+
 import type { ClustererRegistry } from "./ClustererContext";
 import type {
   Cluster,
@@ -77,10 +71,7 @@ function getMapBounds(map: naver.maps.Map): LatLngBoundsLiteral {
   return { south: -90, north: 90, west: -180, east: 180 };
 }
 
-function padBounds(
-  bounds: LatLngBoundsLiteral,
-  padding: number
-): LatLngBoundsLiteral {
+function padBounds(bounds: LatLngBoundsLiteral, padding: number): LatLngBoundsLiteral {
   const latPad = (bounds.north - bounds.south) * padding * 0.01;
   const lngPad = (bounds.east - bounds.west) * padding * 0.01;
   return {
@@ -102,7 +93,8 @@ function padBounds(
  *    내부 registry에 위치·데이터를 등록합니다.
  * 2. `MarkerClusterer`는 지도 이벤트(`idle`, `move`, `zoom`) 발생 시
  *    현재 줌·뷰포트 기준으로 클러스터를 재계산합니다.
- * 3. 클러스터 마커는 `createRoot`를 이용해 React 컴포넌트를 HTML 아이콘으로 렌더링합니다.
+ * 3. 클러스터 마커는 `<Marker>` JSX로 렌더링되며, children으로 클러스터 아이콘이 전달됩니다.
+ * 4. 클러스터에 포함되지 않은 단독 포인트는 원래 `<Marker>` children을 그대로 표시합니다.
  *
  * ## 기본 사용법
  *
@@ -118,10 +110,11 @@ function padBounds(
  *     {points.map(p => (
  *       <Marker
  *         key={p.id}
- *         clustererItemId={p.id}
  *         position={p.position}
  *         item={p}
- *       />
+ *       >
+ *         <CustomPin />
+ *       </Marker>
  *     ))}
  *   </MarkerClusterer>
  * </NaverMap>
@@ -129,15 +122,12 @@ function padBounds(
  *
  * ## 주의 사항
  *
- * - `<Marker>`에 반드시 `clustererItemId` prop을 지정해야 합니다.
  * - `<MarkerClusterer>`는 반드시 `<NaverMap>` 내부에 위치해야 합니다.
  * - `enabled={false}`로 설정하면 클러스터링이 해제되고 각 `<Marker>`가 개별 마커로 렌더링됩니다.
  *
  * @typeParam TData - children `<Marker>`의 `item` prop 타입
  */
-export function MarkerClusterer<TData = unknown>(
-  props: MarkerClustererProps<TData>
-) {
+export function MarkerClusterer<TData = unknown>(props: MarkerClustererProps<TData>) {
   const {
     algorithm: algorithmProp,
     clusterIcon,
@@ -195,12 +185,10 @@ export function MarkerClusterer<TData = unknown>(
     };
   }, [algorithm]);
 
-  // ── Marker storage ────────────────────────────────────────────
+  // ── Computed cluster state ─────────────────────────────────────
 
-  const pointMarkersRef = useRef(new Map<string | number, naver.maps.Marker>());
-  const clusterMarkersRef = useRef(new Map<string, naver.maps.Marker>());
-  const clusterIconRootsRef = useRef(new Map<string, Root>());
-  const clusterIconContainersRef = useRef(new Map<string, HTMLDivElement>());
+  const [clusters, setClusters] = useState<readonly Cluster<TData>[]>([]);
+  const [visibleIds, setVisibleIds] = useState<ReadonlySet<string | number>>(new Set());
 
   // ── Helpers ───────────────────────────────────────────────────
 
@@ -236,22 +224,14 @@ export function MarkerClusterer<TData = unknown>(
             }
           }
         } else {
-          const nextZoom = Math.min(
-            map.getZoom() + 1,
-            options?.maxZoom ?? 21
-          );
+          const nextZoom = Math.min(map.getZoom() + 1, options?.maxZoom ?? 21);
           map.setCenter(new naver.maps.LatLng(cluster.position.lat, cluster.position.lng));
           map.setZoom(nextZoom);
         }
       },
 
-      fitBounds(
-        bounds: LatLngBoundsLiteral,
-        options?: { readonly padding?: number }
-      ) {
-        const paddedBounds = options?.padding
-          ? padBounds(bounds, options.padding)
-          : bounds;
+      fitBounds(bounds: LatLngBoundsLiteral, options?: { readonly padding?: number }) {
+        const paddedBounds = options?.padding ? padBounds(bounds, options.padding) : bounds;
 
         const latLngBounds = new naver.maps.LatLngBounds(
           new naver.maps.LatLng(paddedBounds.south, paddedBounds.west),
@@ -270,13 +250,6 @@ export function MarkerClusterer<TData = unknown>(
     onClusterClickRef.current = onClusterClick;
   }, [onClusterClick]);
 
-  // ── clusterIcon ref ───────────────────────────────────────────
-
-  const clusterIconRef = useRef(clusterIcon);
-  useEffect(() => {
-    clusterIconRef.current = clusterIcon;
-  }, [clusterIcon]);
-
   // ── Recompute ─────────────────────────────────────────────────
 
   const recompute = useCallback(() => {
@@ -286,13 +259,13 @@ export function MarkerClusterer<TData = unknown>(
     const bounds = getMapBounds(map);
     const items = Array.from(registryRef.current.values());
 
-    const { clusters, points } = algorithm.cluster(items, { zoom, bounds });
+    const { clusters: rawClusters, points } = algorithm.cluster(items, { zoom, bounds });
 
     // Optionally trim items from cluster data
     const maxItems = clusterData?.maxItemsInCluster;
     const includeItems = clusterData?.includeItems ?? true;
 
-    const processedClusters: readonly Cluster<TData>[] = clusters.map((c) => ({
+    const processedClusters: readonly Cluster<TData>[] = rawClusters.map((c) => ({
       ...c,
       items: includeItems
         ? maxItems !== undefined
@@ -301,113 +274,16 @@ export function MarkerClusterer<TData = unknown>(
         : undefined
     }));
 
-    // ── Diff: single points ───────────────────────────────────
-
-    const nextPointIds = new Set(points.map((p) => p.id));
-    const prevPointMarkers = pointMarkersRef.current;
-
-    // Remove old
-    for (const [id, marker] of prevPointMarkers) {
-      if (!nextPointIds.has(id)) {
-        marker.setMap(null);
-        prevPointMarkers.delete(id);
-      }
-    }
-
-    // Add/update
-    for (const point of points) {
-      const existing = prevPointMarkers.get(point.id);
-      if (existing) {
-        const pos = new naver.maps.LatLng(point.position.lat, point.position.lng);
-        existing.setPosition(pos);
-        if (point.markerOptions) {
-          existing.setOptions({ ...point.markerOptions } as naver.maps.MarkerOptions);
-        }
-      } else {
-        const opts: naver.maps.MarkerOptions = {
-          position: new naver.maps.LatLng(point.position.lat, point.position.lng),
-          map
-        };
-        if (point.markerOptions) {
-          Object.assign(opts, point.markerOptions);
-        }
-        const marker = new naver.maps.Marker(opts);
-        prevPointMarkers.set(point.id, marker);
-      }
-    }
-
-    // ── Diff: clusters ────────────────────────────────────────
-
-    const nextClusterIds = new Set(processedClusters.map((c) => c.id));
-    const prevClusterMarkers = clusterMarkersRef.current;
-    const prevRoots = clusterIconRootsRef.current;
-    const prevContainers = clusterIconContainersRef.current;
-
-    // Remove old clusters
-    for (const [id, marker] of prevClusterMarkers) {
-      if (!nextClusterIds.has(id)) {
-        marker.setMap(null);
-        prevClusterMarkers.delete(id);
-
-        const root = prevRoots.get(id);
-        if (root) {
-          root.unmount();
-          prevRoots.delete(id);
-        }
-        prevContainers.delete(id);
-      }
-    }
-
-    // Add/update clusters
-    for (const cluster of processedClusters) {
-      const existingMarker = prevClusterMarkers.get(cluster.id);
-      const renderer = clusterIconRef.current;
-
-      const iconNode = renderer
-        ? renderer({ cluster, count: cluster.count })
-        : DefaultClusterIcon({ count: cluster.count });
-
-      if (existingMarker) {
-        // Update position
-        existingMarker.setPosition(
-          new naver.maps.LatLng(cluster.position.lat, cluster.position.lng)
-        );
-
-        // Re-render icon
-        const root = prevRoots.get(cluster.id);
-        if (root) {
-          root.render(iconNode);
-        }
-      } else {
-        // Create container + root
-        const container = document.createElement("div");
-        container.style.cursor = "pointer";
-        const root = createRoot(container);
-        root.render(iconNode);
-
-        prevContainers.set(cluster.id, container);
-        prevRoots.set(cluster.id, root);
-
-        // Create marker
-        const marker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(cluster.position.lat, cluster.position.lng),
-          map,
-          icon: { content: container },
-          clickable: true
-        });
-
-        // Bind click
-        naver.maps.Event.addListener(marker, "click", () => {
-          onClusterClickRef.current?.({
-            cluster,
-            helpers: helpersRef.current
-          });
-        });
-
-        prevClusterMarkers.set(cluster.id, marker);
-      }
-    }
-  }, [map, sdkStatus, enabled, algorithm, clusterData?.includeItems, clusterData?.maxItemsInCluster]);
+    setClusters(processedClusters);
+    setVisibleIds(new Set(points.map((p) => p.id)));
+  }, [
+    map,
+    sdkStatus,
+    enabled,
+    algorithm,
+    clusterData?.includeItems,
+    clusterData?.maxItemsInCluster
+  ]);
 
   // ── Trigger recompute on registry change ──────────────────────
 
@@ -437,17 +313,11 @@ export function MarkerClusterer<TData = unknown>(
     };
 
     if (recomputeOn === "idle") {
-      listeners.push(
-        naver.maps.Event.addListener(map, "idle", debouncedRecompute)
-      );
+      listeners.push(naver.maps.Event.addListener(map, "idle", debouncedRecompute));
     } else if (recomputeOn === "move") {
-      listeners.push(
-        naver.maps.Event.addListener(map, "bounds_changed", debouncedRecompute)
-      );
+      listeners.push(naver.maps.Event.addListener(map, "bounds_changed", debouncedRecompute));
     } else if (recomputeOn === "zoom") {
-      listeners.push(
-        naver.maps.Event.addListener(map, "zoom_changed", debouncedRecompute)
-      );
+      listeners.push(naver.maps.Event.addListener(map, "zoom_changed", debouncedRecompute));
     }
 
     // Initial compute
@@ -463,58 +333,41 @@ export function MarkerClusterer<TData = unknown>(
     };
   }, [map, sdkStatus, enabled, behavior?.recomputeOn, behavior?.debounceMs, recompute]);
 
-  // ── Cleanup on unmount ────────────────────────────────────────
-
-  useEffect(() => {
-    return () => {
-      // Clean up point markers
-      for (const marker of pointMarkersRef.current.values()) {
-        marker.setMap(null);
-      }
-      pointMarkersRef.current.clear();
-
-      // Clean up cluster markers + roots
-      for (const marker of clusterMarkersRef.current.values()) {
-        marker.setMap(null);
-      }
-      clusterMarkersRef.current.clear();
-
-      for (const root of clusterIconRootsRef.current.values()) {
-        root.unmount();
-      }
-      clusterIconRootsRef.current.clear();
-      clusterIconContainersRef.current.clear();
-    };
-  }, []);
-
-  // ── Disable: clear everything when enabled becomes false ──────
+  // ── Disable: clear cluster state when enabled becomes false ───
 
   useEffect(() => {
     if (enabled) return;
-
-    for (const marker of pointMarkersRef.current.values()) {
-      marker.setMap(null);
-    }
-    pointMarkersRef.current.clear();
-
-    for (const marker of clusterMarkersRef.current.values()) {
-      marker.setMap(null);
-    }
-    clusterMarkersRef.current.clear();
-
-    for (const root of clusterIconRootsRef.current.values()) {
-      root.unmount();
-    }
-    clusterIconRootsRef.current.clear();
-    clusterIconContainersRef.current.clear();
+    setClusters([]);
+    setVisibleIds(new Set());
   }, [enabled]);
 
   // ── Render ────────────────────────────────────────────────────
 
   return (
-    <ClustererContext.Provider value={registry as ClustererRegistry}>
-      {children}
-    </ClustererContext.Provider>
+    <>
+      <ClustererContext.Provider value={registry as ClustererRegistry}>
+        <ClustererVisibilityContext.Provider value={visibleIds}>
+          {children}
+        </ClustererVisibilityContext.Provider>
+      </ClustererContext.Provider>
+      {enabled &&
+        clusters.map((cluster) => (
+          <Marker
+            key={cluster.id}
+            position={cluster.position}
+            clickable
+            onClick={() => {
+              onClusterClickRef.current?.({ cluster, helpers: helpersRef.current });
+            }}
+          >
+            {clusterIcon ? (
+              clusterIcon({ cluster, count: cluster.count })
+            ) : (
+              <DefaultClusterIcon count={cluster.count} />
+            )}
+          </Marker>
+        ))}
+    </>
   );
 }
 

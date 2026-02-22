@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -11,7 +12,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
-import { ClustererContext } from "../marker-clusterer/ClustererContext";
+import { ClustererContext, ClustererVisibilityContext } from "../marker-clusterer/ClustererContext";
 
 import type { ReactNode, ReactPortal } from "react";
 
@@ -338,11 +339,15 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
   function MarkerInner(props, ref): ReactPortal | null {
     const { map: contextMap, sdkStatus } = useNaverMap();
     const clustererRegistry = useContext(ClustererContext);
+    const visibleIds = useContext(ClustererVisibilityContext);
     const isInsideClusterer = clustererRegistry !== null && clustererRegistry.enabled;
+    const autoId = useId();
+    const effectiveId = props.clustererItemId ?? autoId;
+    const isHiddenByClusterer = isInsideClusterer && !visibleIds.has(effectiveId);
     const markerRef = useRef<naver.maps.Marker | null>(null);
     const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
-    const [markerDiv, setMarkerDiv] = useState<HTMLDivElement | null>(null);
+    const [markerDiv] = useState<HTMLDivElement>(() => document.createElement("div"));
     const [portalReady, setPortalReady] = useState(false);
     const hasChildren = props.children !== undefined && props.children !== null;
     const targetMap = props.map ?? contextMap;
@@ -358,8 +363,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     useEffect(() => {
       if (!clustererRegistry) return;
 
-      const id = props.clustererItemId;
-      if (id === undefined || id === null) return;
+      const id = props.clustererItemId ?? autoId;
 
       const latLng = toLatLngLiteral(props.position);
       if (!latLng) return;
@@ -374,27 +378,16 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       return () => {
         clustererRegistry.unregister(id);
       };
-    }, [clustererRegistry, props.clustererItemId, props.position, props.item, props.icon]);
+    }, [autoId, clustererRegistry, props.clustererItemId, props.position, props.item, props.icon]);
 
     // ── Normal marker mode hooks (always called, but guarded) ─
 
     useEffect(() => {
-      if (isInsideClusterer) return;
       onMarkerDestroyRef.current = props.onMarkerDestroy;
-    }, [isInsideClusterer, props.onMarkerDestroy]);
+    }, [props.onMarkerDestroy]);
 
     useEffect(() => {
-      if (isInsideClusterer) return;
-      if (typeof document === "undefined") {
-        return;
-      }
-
-      setMarkerDiv(document.createElement("div"));
-    }, [isInsideClusterer]);
-
-    useEffect(() => {
-      if (isInsideClusterer) return;
-      if (!hasChildren || !markerDiv) {
+      if (!hasChildren) {
         setPortalReady(false);
         return;
       }
@@ -414,7 +407,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       return () => {
         observer.disconnect();
       };
-    }, [isInsideClusterer, hasChildren, markerDiv]);
+    }, [hasChildren, markerDiv]);
 
     const invokeMarkerMethod = useCallback(
       <K extends keyof naver.maps.Marker>(
@@ -500,7 +493,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     );
 
     useEffect(() => {
-      if (isInsideClusterer) return;
+      if (isHiddenByClusterer) return;
       if (sdkStatus !== "ready" || !targetMap || markerRef.current) {
         return;
       }
@@ -539,10 +532,10 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
 
         propsRef.current.onMarkerError?.(normalizedError);
       }
-    }, [isInsideClusterer, hasChildren, markerDiv, portalReady, sdkStatus, targetMap]);
+    }, [isHiddenByClusterer, hasChildren, markerDiv, portalReady, sdkStatus, targetMap]);
 
     useLayoutEffect(() => {
-      if (isInsideClusterer) return;
+      if (isHiddenByClusterer) return;
       const marker = markerRef.current;
 
       if (!marker || !targetMap) {
@@ -572,7 +565,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
         cancelAnimationFrame(rafId);
       };
     }, [
-      isInsideClusterer,
+      isHiddenByClusterer,
       hasChildren,
       markerDiv,
       portalReady,
@@ -592,7 +585,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     ]);
 
     useEffect(() => {
-      if (isInsideClusterer) return;
+      if (isHiddenByClusterer) return;
       const marker = markerRef.current;
 
       if (!marker) {
@@ -607,17 +600,17 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
           markerEventListenersRef.current = [];
         }
       };
-    }, [isInsideClusterer]);
+    }, [isHiddenByClusterer]);
 
     useEffect(() => {
-      if (isInsideClusterer) return;
+      if (isHiddenByClusterer) return;
       return () => {
         teardownMarker();
       };
-    }, [isInsideClusterer, teardownMarker]);
+    }, [isHiddenByClusterer, teardownMarker]);
 
-    // If inside a clusterer, render nothing (data registered via effect above)
-    if (isInsideClusterer) {
+    // Hidden by clusterer: registered in registry but not rendered on map
+    if (isHiddenByClusterer) {
       return null;
     }
 
