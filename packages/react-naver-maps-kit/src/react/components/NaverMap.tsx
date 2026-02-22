@@ -61,6 +61,7 @@ interface NaverMapOptionProps {
 }
 
 interface NaverMapLifecycleProps {
+  children?: ReactNode;
   onMapReady?: (map: naver.maps.Map) => void;
   onMapDestroy?: () => void;
   onMapError?: (error: Error) => void;
