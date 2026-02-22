@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useCallback,
+  useContext,
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
@@ -10,6 +11,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { ClustererContext } from "../marker-clusterer/ClustererContext";
 
 import type { ReactNode, ReactPortal } from "react";
 
@@ -31,6 +33,11 @@ interface MarkerOverlayProps {
   zIndex?: MarkerOptions["zIndex"];
   collisionBehavior?: boolean;
   collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
+
+  /** Used by MarkerClusterer to identify this marker. Falls back to React key if not provided. */
+  clustererItemId?: string | number;
+  /** Data object passed to MarkerClusterer's algorithm via registry. */
+  item?: unknown;
 }
 
 interface MarkerLifecycleProps {
@@ -193,126 +200,90 @@ function toMarkerOptions(
   return options;
 }
 
-function buildMarkerEventBindings(props: MarkerProps): MarkerEventBinding[] {
+function buildMarkerEventBindings(propsRef: { current: MarkerProps }): MarkerEventBinding[] {
   return [
     {
       eventName: "click",
-      invoke: props.onClick
-        ? (event) => props.onClick?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onClick?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "dblclick",
-      invoke: props.onDblClick
-        ? (event) => props.onDblClick?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onDblClick?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "rightclick",
-      invoke: props.onRightClick
-        ? (event) => props.onRightClick?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onRightClick?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "mousedown",
-      invoke: props.onMouseDown
-        ? (event) => props.onMouseDown?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onMouseDown?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "mouseup",
-      invoke: props.onMouseUp
-        ? (event) => props.onMouseUp?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onMouseUp?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "touchstart",
-      invoke: props.onTouchStart
-        ? (event) => props.onTouchStart?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onTouchStart?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "touchend",
-      invoke: props.onTouchEnd
-        ? (event) => props.onTouchEnd?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onTouchEnd?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "dragstart",
-      invoke: props.onDragStart
-        ? (event) => props.onDragStart?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onDragStart?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "drag",
-      invoke: props.onDrag ? (event) => props.onDrag?.(event as naver.maps.PointerEvent) : undefined
+      invoke: (event) => propsRef.current.onDrag?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "dragend",
-      invoke: props.onDragEnd
-        ? (event) => props.onDragEnd?.(event as naver.maps.PointerEvent)
-        : undefined
+      invoke: (event) => propsRef.current.onDragEnd?.(event as naver.maps.PointerEvent)
     },
     {
       eventName: "clickable_changed",
-      invoke: props.onClickableChanged
-        ? (event) => props.onClickableChanged?.(event as boolean)
-        : undefined
+      invoke: (event) => propsRef.current.onClickableChanged?.(event as boolean)
     },
     {
       eventName: "cursor_changed",
-      invoke: props.onCursorChanged
-        ? (event) => props.onCursorChanged?.(event as string)
-        : undefined
+      invoke: (event) => propsRef.current.onCursorChanged?.(event as string)
     },
     {
       eventName: "draggable_changed",
-      invoke: props.onDraggableChanged
-        ? (event) => props.onDraggableChanged?.(event as boolean)
-        : undefined
+      invoke: (event) => propsRef.current.onDraggableChanged?.(event as boolean)
     },
     {
       eventName: "icon_changed",
-      invoke: props.onIconChanged
-        ? (event) =>
-            props.onIconChanged?.(
-              event as string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon
-            )
-        : undefined
+      invoke: (event) =>
+        propsRef.current.onIconChanged?.(
+          event as string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon
+        )
     },
     {
       eventName: "icon_loaded",
-      invoke: props.onIconLoaded
-        ? (event) => props.onIconLoaded?.(event as naver.maps.Marker)
-        : undefined
+      invoke: (event) => propsRef.current.onIconLoaded?.(event as naver.maps.Marker)
     },
     {
       eventName: "position_changed",
-      invoke: props.onPositionChanged
-        ? (event) => props.onPositionChanged?.(event as naver.maps.Coord)
-        : undefined
+      invoke: (event) => propsRef.current.onPositionChanged?.(event as naver.maps.Coord)
     },
     {
       eventName: "shape_changed",
-      invoke: props.onShapeChanged
-        ? (event) => props.onShapeChanged?.(event as naver.maps.MarkerShape)
-        : undefined
+      invoke: (event) => propsRef.current.onShapeChanged?.(event as naver.maps.MarkerShape)
     },
     {
       eventName: "title_changed",
-      invoke: props.onTitleChanged ? (event) => props.onTitleChanged?.(event as string) : undefined
+      invoke: (event) => propsRef.current.onTitleChanged?.(event as string)
     },
     {
       eventName: "visible_changed",
-      invoke: props.onVisibleChanged
-        ? (event) => props.onVisibleChanged?.(event as boolean)
-        : undefined
+      invoke: (event) => propsRef.current.onVisibleChanged?.(event as boolean)
     },
     {
       eventName: "zIndex_changed",
-      invoke: props.onZIndexChanged
-        ? (event) => props.onZIndexChanged?.(event as number)
-        : undefined
+      invoke: (event) => propsRef.current.onZIndexChanged?.(event as number)
     }
   ];
 }
@@ -336,9 +307,38 @@ function bindMarkerEventListeners(
     );
 }
 
+// ─── Resolve position to LatLngLiteral for registry ───────────────
+
+function toLatLngLiteral(position: MarkerOptions["position"]): { lat: number; lng: number } | null {
+  if (!position) return null;
+
+  if (typeof position === "object" && "lat" in position && "lng" in position) {
+    if (typeof position.lat === "number" && typeof position.lng === "number") {
+      return { lat: position.lat, lng: position.lng };
+    }
+    if (typeof position.lat === "function" && typeof position.lng === "function") {
+      return {
+        lat: (position as naver.maps.LatLng).lat(),
+        lng: (position as naver.maps.LatLng).lng()
+      };
+    }
+  }
+
+  if (typeof position === "object" && "x" in position && "y" in position) {
+    const p = position as naver.maps.Point;
+    if (typeof p.x === "number" && typeof p.y === "number") {
+      return { lat: p.y, lng: p.x };
+    }
+  }
+
+  return null;
+}
+
 export const Marker = forwardRef<MarkerRef, MarkerProps>(
   function MarkerInner(props, ref): ReactPortal | null {
     const { map: contextMap, sdkStatus } = useNaverMap();
+    const clustererRegistry = useContext(ClustererContext);
+    const isInsideClusterer = clustererRegistry !== null && clustererRegistry.enabled;
     const markerRef = useRef<naver.maps.Marker | null>(null);
     const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
@@ -347,19 +347,53 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     const hasChildren = props.children !== undefined && props.children !== null;
     const targetMap = props.map ?? contextMap;
 
+    // ── props를 ref로 관리 (effect 재실행 방지) ───────────────────────
+    const propsRef = useRef(props);
     useEffect(() => {
-      onMarkerDestroyRef.current = props.onMarkerDestroy;
-    }, [props.onMarkerDestroy]);
+      propsRef.current = props;
+    });
+
+    // ── Clusterer registry mode ───────────────────────────────
 
     useEffect(() => {
+      if (!clustererRegistry) return;
+
+      const id = props.clustererItemId;
+      if (id === undefined || id === null) return;
+
+      const latLng = toLatLngLiteral(props.position);
+      if (!latLng) return;
+
+      clustererRegistry.register({
+        id,
+        position: latLng,
+        data: props.item ?? null,
+        markerOptions: props.icon !== undefined ? { icon: props.icon } : undefined
+      });
+
+      return () => {
+        clustererRegistry.unregister(id);
+      };
+    }, [clustererRegistry, props.clustererItemId, props.position, props.item, props.icon]);
+
+    // ── Normal marker mode hooks (always called, but guarded) ─
+
+    useEffect(() => {
+      if (isInsideClusterer) return;
+      onMarkerDestroyRef.current = props.onMarkerDestroy;
+    }, [isInsideClusterer, props.onMarkerDestroy]);
+
+    useEffect(() => {
+      if (isInsideClusterer) return;
       if (typeof document === "undefined") {
         return;
       }
 
       setMarkerDiv(document.createElement("div"));
-    }, []);
+    }, [isInsideClusterer]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       if (!hasChildren || !markerDiv) {
         setPortalReady(false);
         return;
@@ -380,7 +414,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       return () => {
         observer.disconnect();
       };
-    }, [hasChildren, markerDiv]);
+    }, [isInsideClusterer, hasChildren, markerDiv]);
 
     const invokeMarkerMethod = useCallback(
       <K extends keyof naver.maps.Marker>(
@@ -466,6 +500,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     );
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       if (sdkStatus !== "ready" || !targetMap || markerRef.current) {
         return;
       }
@@ -475,32 +510,39 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       }
 
       try {
-        const resolvedIcon = resolveMarkerIcon(props.icon, markerDiv, hasChildren);
-        const marker = new naver.maps.Marker(toMarkerOptions(props, targetMap, resolvedIcon));
+        const resolvedIcon = resolveMarkerIcon(propsRef.current.icon, markerDiv, hasChildren);
+        const marker = new naver.maps.Marker(
+          toMarkerOptions(propsRef.current, targetMap, resolvedIcon)
+        );
 
         markerRef.current = marker;
 
-        if (props.collisionBehavior !== undefined) {
-          marker.setOptions("collisionBehavior", props.collisionBehavior);
+        if (propsRef.current.collisionBehavior !== undefined) {
+          marker.setOptions("collisionBehavior", propsRef.current.collisionBehavior);
         }
 
-        if (props.collisionBoxSize !== undefined) {
-          marker.setOptions("collisionBoxSize", props.collisionBoxSize);
+        if (propsRef.current.collisionBoxSize !== undefined) {
+          marker.setOptions("collisionBoxSize", propsRef.current.collisionBoxSize);
         }
 
-        bindMarkerEventListeners(marker, markerEventListenersRef, buildMarkerEventBindings(props));
-        props.onMarkerReady?.(marker);
+        bindMarkerEventListeners(
+          marker,
+          markerEventListenersRef,
+          buildMarkerEventBindings(propsRef)
+        );
+        propsRef.current.onMarkerReady?.(marker);
       } catch (error) {
         const normalizedError =
           error instanceof Error
             ? error
             : new Error("Failed to create naver.maps.Marker instance.");
 
-        props.onMarkerError?.(normalizedError);
+        propsRef.current.onMarkerError?.(normalizedError);
       }
-    }, [hasChildren, markerDiv, portalReady, props, sdkStatus, targetMap]);
+    }, [isInsideClusterer, hasChildren, markerDiv, portalReady, sdkStatus, targetMap]);
 
     useLayoutEffect(() => {
+      if (isInsideClusterer) return;
       const marker = markerRef.current;
 
       if (!marker || !targetMap) {
@@ -508,36 +550,56 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       }
 
       const rafId = requestAnimationFrame(() => {
+        const currentProps = propsRef.current;
         const resolvedIcon =
           hasChildren && portalReady
-            ? resolveMarkerIcon(props.icon, markerDiv, hasChildren)
-            : props.icon;
-        const nextOptions = toMarkerOptions(props, targetMap, resolvedIcon);
+            ? resolveMarkerIcon(currentProps.icon, markerDiv, hasChildren)
+            : currentProps.icon;
+        const nextOptions = toMarkerOptions(currentProps, targetMap, resolvedIcon);
 
         marker.setOptions(nextOptions);
 
-        if (props.collisionBehavior !== undefined) {
-          marker.setOptions("collisionBehavior", props.collisionBehavior);
+        if (currentProps.collisionBehavior !== undefined) {
+          marker.setOptions("collisionBehavior", currentProps.collisionBehavior);
         }
 
-        if (props.collisionBoxSize !== undefined) {
-          marker.setOptions("collisionBoxSize", props.collisionBoxSize);
+        if (currentProps.collisionBoxSize !== undefined) {
+          marker.setOptions("collisionBoxSize", currentProps.collisionBoxSize);
         }
       });
 
       return () => {
         cancelAnimationFrame(rafId);
       };
-    }, [hasChildren, markerDiv, portalReady, props, targetMap]);
+    }, [
+      isInsideClusterer,
+      hasChildren,
+      markerDiv,
+      portalReady,
+      targetMap,
+      props.position,
+      props.icon,
+      props.animation,
+      props.shape,
+      props.title,
+      props.cursor,
+      props.clickable,
+      props.draggable,
+      props.visible,
+      props.zIndex,
+      props.collisionBehavior,
+      props.collisionBoxSize
+    ]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       const marker = markerRef.current;
 
       if (!marker) {
         return;
       }
 
-      bindMarkerEventListeners(marker, markerEventListenersRef, buildMarkerEventBindings(props));
+      bindMarkerEventListeners(marker, markerEventListenersRef, buildMarkerEventBindings(propsRef));
 
       return () => {
         if (markerEventListenersRef.current.length > 0) {
@@ -545,13 +607,19 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
           markerEventListenersRef.current = [];
         }
       };
-    }, [props]);
+    }, [isInsideClusterer]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       return () => {
         teardownMarker();
       };
-    }, [teardownMarker]);
+    }, [isInsideClusterer, teardownMarker]);
+
+    // If inside a clusterer, render nothing (data registered via effect above)
+    if (isInsideClusterer) {
+      return null;
+    }
 
     if (!hasChildren || !markerDiv) {
       return null;

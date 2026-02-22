@@ -15,7 +15,9 @@
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm install && pnpm --filter react-naver-maps-kit build && pnpm --filter react-naver-maps-kit-docs build",
     "example:dev": "pnpm --filter example dev",
-    "example:build": "pnpm --filter example build"
+    "example:build": "pnpm --filter example build",
+    "playground:dev": "pnpm --filter playground dev",
+    "playground:build": "pnpm --filter playground build"
   },
   "keywords": [
     "react",
