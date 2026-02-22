@@ -558,20 +558,6 @@ export function MarkerDemo() {
 
         <div className="controls-grid" style={{ marginTop: 12 }}>
           <div className="control-item">
-            <label>스타일</label>
-            <select
-              value={markerStyle}
-              onChange={(e) => setMarkerStyle(e.target.value as MarkerStyle)}
-              disabled={multiStyleMode}
-            >
-              {MARKER_PRESETS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="control-item">
             <label>라벨</label>
             <input
               type="text"
