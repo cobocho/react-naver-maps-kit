@@ -6,23 +6,28 @@ export default defineConfig({
   description: "네이버 지도용 모던 React 툴킷",
   themeConfig: {
     nav: [
-      { text: "Introduction", link: "/" },
-      { text: "Guide", link: "/guide/getting-started" },
-      { text: "API Reference", link: "/api/provider" },
-      { text: "Troubleshooting", link: "/troubleshooting/common-issues" }
+      { text: "홈", link: "/" },
+      { text: "가이드", link: "/guide/getting-started" },
+      { text: "예제", link: "/examples/markers" },
+      { text: "API", link: "/api/provider" }
     ],
     sidebar: [
       {
-        text: "Introduction",
-        items: [{ text: "Overview", link: "/" }]
+        text: "시작하기",
+        items: [
+          { text: "개요", link: "/" },
+          { text: "설치 및 설정", link: "/guide/getting-started" },
+          { text: "핵심 개념", link: "/guide/core-concepts" }
+        ]
       },
       {
-        text: "Guide",
+        text: "예제",
         items: [
-          { text: "Getting Started", link: "/guide/getting-started" },
-          { text: "Core Composition", link: "/guide/provider-map-hook" },
-          { text: "Map Integration", link: "/guide/integration-map" },
-          { text: "Overlay Integration", link: "/guide/integration-overlay" }
+          { text: "마커 표시하기", link: "/examples/markers" },
+          { text: "정보 창 띄우기", link: "/examples/info-window" },
+          { text: "도형 그리기", link: "/examples/shapes" },
+          { text: "마커 클러스터링", link: "/examples/clustering" },
+          { text: "지도 컨트롤", link: "/examples/controls" }
         ]
       },
       {
@@ -44,8 +49,8 @@ export default defineConfig({
         ]
       },
       {
-        text: "Troubleshooting",
-        items: [{ text: "Common Issues", link: "/troubleshooting/common-issues" }]
+        text: "문제 해결",
+        items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
       }
     ],
     socialLinks: [{ icon: "github", link: "https://github.com/cobocho/react-naver-maps-kit" }]
