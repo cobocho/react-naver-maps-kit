@@ -41,7 +41,6 @@ function BasicClusterer() {
           {markers.map((m) => (
             <Marker
               key={m.id}
-              clustererItemId={m.id}
               position={{ lat: m.lat, lng: m.lng }}
               title={m.name}
             />
@@ -52,10 +51,6 @@ function BasicClusterer() {
   );
 }
 ```
-
-::: warning 중요
-`MarkerClusterer` 내부의 `Marker`에는 `clustererItemId` prop이 **필수**입니다.
-:::
 
 ## 커스텀 클러스터 아이콘
 
@@ -92,13 +87,43 @@ function CustomClusterIcon() {
           )}
         >
           {markers.map((m) => (
-            <Marker key={m.id} clustererItemId={m.id} position={{ lat: m.lat, lng: m.lng }} />
+            <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }} />
           ))}
         </MarkerClusterer>
       </NaverMap>
     </NaverMapProvider>
   );
 }
+```
+
+## 커스텀 마커 아이콘 (children)
+
+클러스터에 포함되지 않은 단독 포인트에는 `<Marker>`의 children을 커스텀 오버레이로 표시할 수 있습니다.
+
+```tsx
+<MarkerClusterer
+  clusterIcon={({ count }) => (
+    <div style={{
+      width: 44, height: 44, borderRadius: "50%",
+      background: "#FF5722", color: "white",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontWeight: "bold", boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+    }}>
+      {count}
+    </div>
+  )}
+>
+  {markers.map((m) => (
+    <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }}>
+      {/* 단독 포인트일 때 표시할 커스텀 마커 */}
+      <div style={{
+        width: 28, height: 28, borderRadius: "50%",
+        background: "#03C75A", border: "2px solid white",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.3)"
+      }} />
+    </Marker>
+  ))}
+</MarkerClusterer>
 ```
 
 ## 클러스터 클릭 이벤트
@@ -142,7 +167,6 @@ function ClustererWithClick() {
             {markers.map((m) => (
               <Marker
                 key={m.id}
-                clustererItemId={m.id}
                 position={{ lat: m.lat, lng: m.lng }}
                 item={m} // 클러스터에서 접근할 데이터
               />
@@ -228,7 +252,7 @@ function ToggleableClusterer() {
         >
           <MarkerClusterer enabled={enabled}>
             {markers.map((m) => (
-              <Marker key={m.id} clustererItemId={m.id} position={{ lat: m.lat, lng: m.lng }} />
+              <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }} />
             ))}
           </MarkerClusterer>
         </NaverMap>
@@ -277,7 +301,6 @@ function DynamicClusterer() {
             {filteredMarkers.map((m) => (
               <Marker
                 key={m.id}
-                clustererItemId={m.id}
                 position={m.position}
                 item={m}
               />
@@ -323,7 +346,7 @@ function DynamicClusterer() {
 ```tsx
 const markerElements = useMemo(
   () =>
-    markers.map((m) => <Marker key={m.id} clustererItemId={m.id} position={m.position} item={m} />),
+    markers.map((m) => <Marker key={m.id} position={m.position} item={m} />),
   [markers]
 );
 

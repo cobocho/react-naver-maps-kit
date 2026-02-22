@@ -7,7 +7,8 @@
 
 1. `<Marker>`는 `<MarkerClusterer>` 내부에서 직접 마커를 생성하지 않고 내부 registry에 위치·데이터를 등록합니다.
 2. `MarkerClusterer`는 지도 이벤트(`idle`, `move`, `zoom`) 발생 시 현재 줌·뷰포트 기준으로 클러스터를 재계산합니다.
-3. 클러스터 마커는 `createRoot`를 통해 React 컴포넌트를 HTML 아이콘으로 렌더링합니다.
+3. 클러스터 마커는 `<Marker>` JSX로 렌더링되며, `clusterIcon` prop이 children으로 전달됩니다.
+4. 클러스터에 포함되지 않은 단독 포인트는 원래 `<Marker>`의 children(커스텀 오버레이)을 그대로 지도에 표시합니다.
 
 ## 공개 타입
 
@@ -183,9 +184,7 @@ function MyMap() {
         {points.map((p) => (
           <Marker
             key={p.id}
-            clustererItemId={p.id}
             position={{ lat: p.lat, lng: p.lng }}
-            item={p}
           />
         ))}
       </MarkerClusterer>
@@ -275,6 +274,34 @@ class MyAlgorithm<TData> implements ClusterAlgorithm<TData> {
 </MarkerClusterer>
 ```
 
+### 커스텀 마커 아이콘 (children)
+
+단독 포인트에 커스텀 HTML 오버레이를 사용할 수 있습니다. 클러스터에 포함되지 않은 마커는 children을 그대로 표시합니다.
+
+```tsx
+<MarkerClusterer
+  clusterIcon={({ count }) => (
+    <div style={{ /* 클러스터 스타일 */ }}>
+      {count}
+    </div>
+  )}
+>
+  {points.map((p) => (
+    <Marker key={p.id} position={p.position}>
+      {/* 단독 포인트일 때 표시할 커스텀 마커 */}
+      <div style={{
+        width: 32,
+        height: 32,
+        borderRadius: "50%",
+        background: "#03C75A",
+        border: "2px solid white",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+      }} />
+    </Marker>
+  ))}
+</MarkerClusterer>
+```
+
 ### 클러스터링 토글 (`enabled`)
 
 ```tsx
@@ -288,7 +315,7 @@ const [clustering, setClustering] = useState(true);
   <NaverMap ...>
     <MarkerClusterer enabled={clustering}>
       {points.map((p) => (
-        <Marker key={p.id} clustererItemId={p.id} position={p.position} item={p} />
+        <Marker key={p.id} position={p.position} />
       ))}
     </MarkerClusterer>
   </NaverMap>
@@ -301,14 +328,14 @@ const [clustering, setClustering] = useState(true);
 
 `<Marker>`가 `<MarkerClusterer>` 내부에서 동작할 때 사용하는 추가 props입니다.
 
-| Prop               | Type              | Description                                                                   |
-| ------------------ | ----------------- | ----------------------------------------------------------------------------- |
-| `clustererItemId`  | `string \| number` | 마커를 식별하는 고유 ID. 클러스터러 사용 시 **필수**입니다.                  |
-| `item`             | `TData`           | 클러스터 콜백(`onClusterClick`)에서 접근할 커스텀 데이터                     |
+| Prop               | Type               | Description                                                                             |
+| ------------------ | ------------------ | --------------------------------------------------------------------------------------- |
+| `clustererItemId`  | `string \| number` | 마커를 식별하는 고유 ID. 생략하면 React `useId()`로 자동 생성됩니다.                   |
+| `item`             | `TData`            | 클러스터 콜백(`onClusterClick`)에서 접근할 커스텀 데이터                                |
 
 ## 동작 규칙
 
 - `<MarkerClusterer>`는 반드시 `<NaverMap>` 내부에 위치해야 합니다.
-- `<Marker>`에 `clustererItemId`가 없으면 registry 등록이 건너뛰어집니다.
-- `enabled={false}`로 전환하면 클러스터/포인트 마커가 정리되고 `<Marker>`가 직접 마커를 생성합니다.
-- 언마운트 시 모든 클러스터 마커의 `root.unmount()` 및 `setMap(null)`을 수행합니다.
+- `<Marker>`에 `clustererItemId`를 지정하지 않으면 `useId()`로 자동 생성된 ID가 사용됩니다.
+- 클러스터에 포함된 `<Marker>`는 지도에서 숨겨지고, 단독 포인트는 children(커스텀 오버레이)과 함께 표시됩니다.
+- `enabled={false}`로 전환하면 클러스터링이 해제되고 모든 `<Marker>`가 개별 마커로 렌더링됩니다.
