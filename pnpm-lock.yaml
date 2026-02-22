@@ -6,6 +6,37 @@ settings:
 
 importers:
 
+  packages/activity-tracker:
+    dependencies:
+      react:
+        specifier: ^19.2.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.4(react@19.2.4)
+      react-naver-maps-kit:
+        specifier: workspace:*
+        version: link:../react-naver-maps-kit
+    devDependencies:
+      '@types/navermaps':
+        specifier: ^3.9.1
+        version: 3.9.1
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.0
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.4
+        version: 4.7.0(vite@6.4.1)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1
+
   packages/docs:
     dependencies:
       react-naver-maps-kit:
