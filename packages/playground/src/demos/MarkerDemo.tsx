@@ -155,7 +155,8 @@ function CustomMarkerIcon({ style, label }: { style: MarkerStyle; label: string 
             fontWeight: 600,
             whiteSpace: "nowrap",
             boxShadow: "0 3px 8px rgba(0,0,0,0.25)",
-            border: "2px solid #fff"
+            border: "2px solid #fff",
+            width: "fit-content"
           }}
         >
           {label || "Badge"}
@@ -235,7 +236,8 @@ function CustomMarkerIcon({ style, label }: { style: MarkerStyle; label: string 
             fontWeight: 700,
             whiteSpace: "nowrap",
             boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-            position: "relative"
+            position: "relative",
+            width: "fit-content"
           }}
         >
           {label || "Label"}
