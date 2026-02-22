@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useCallback,
+  useContext,
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
@@ -10,6 +11,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { ClustererContext } from "../marker-clusterer/ClustererContext";
 
 import type { ReactNode, ReactPortal } from "react";
 
@@ -31,6 +33,11 @@ interface MarkerOverlayProps {
   zIndex?: MarkerOptions["zIndex"];
   collisionBehavior?: boolean;
   collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
+
+  /** Used by MarkerClusterer to identify this marker. Falls back to React key if not provided. */
+  clustererItemId?: string | number;
+  /** Data object passed to MarkerClusterer's algorithm via registry. */
+  item?: unknown;
 }
 
 interface MarkerLifecycleProps {
@@ -336,9 +343,37 @@ function bindMarkerEventListeners(
     );
 }
 
+// ─── Resolve position to LatLngLiteral for registry ───────────────
+
+function toLatLngLiteral(
+  position: MarkerOptions["position"]
+): { lat: number; lng: number } | null {
+  if (!position) return null;
+
+  if (typeof position === "object" && "lat" in position && "lng" in position) {
+    if (typeof position.lat === "number" && typeof position.lng === "number") {
+      return { lat: position.lat, lng: position.lng };
+    }
+    if (typeof position.lat === "function" && typeof position.lng === "function") {
+      return { lat: (position as naver.maps.LatLng).lat(), lng: (position as naver.maps.LatLng).lng() };
+    }
+  }
+
+  if (typeof position === "object" && "x" in position && "y" in position) {
+    const p = position as naver.maps.Point;
+    if (typeof p.x === "number" && typeof p.y === "number") {
+      return { lat: p.y, lng: p.x };
+    }
+  }
+
+  return null;
+}
+
 export const Marker = forwardRef<MarkerRef, MarkerProps>(
   function MarkerInner(props, ref): ReactPortal | null {
     const { map: contextMap, sdkStatus } = useNaverMap();
+    const clustererRegistry = useContext(ClustererContext);
+    const isInsideClusterer = clustererRegistry !== null && clustererRegistry.enabled;
     const markerRef = useRef<naver.maps.Marker | null>(null);
     const markerEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onMarkerDestroyRef = useRef<MarkerProps["onMarkerDestroy"]>(props.onMarkerDestroy);
@@ -347,19 +382,47 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     const hasChildren = props.children !== undefined && props.children !== null;
     const targetMap = props.map ?? contextMap;
 
-    useEffect(() => {
-      onMarkerDestroyRef.current = props.onMarkerDestroy;
-    }, [props.onMarkerDestroy]);
+    // ── Clusterer registry mode ───────────────────────────────
 
     useEffect(() => {
+      if (!clustererRegistry) return;
+
+      const id = props.clustererItemId;
+      if (id === undefined || id === null) return;
+
+      const latLng = toLatLngLiteral(props.position);
+      if (!latLng) return;
+
+      clustererRegistry.register({
+        id,
+        position: latLng,
+        data: props.item ?? null,
+        markerOptions: props.icon !== undefined ? { icon: props.icon } : undefined
+      });
+
+      return () => {
+        clustererRegistry.unregister(id);
+      };
+    }, [clustererRegistry, props.clustererItemId, props.position, props.item, props.icon]);
+
+    // ── Normal marker mode hooks (always called, but guarded) ─
+
+    useEffect(() => {
+      if (isInsideClusterer) return;
+      onMarkerDestroyRef.current = props.onMarkerDestroy;
+    }, [isInsideClusterer, props.onMarkerDestroy]);
+
+    useEffect(() => {
+      if (isInsideClusterer) return;
       if (typeof document === "undefined") {
         return;
       }
 
       setMarkerDiv(document.createElement("div"));
-    }, []);
+    }, [isInsideClusterer]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       if (!hasChildren || !markerDiv) {
         setPortalReady(false);
         return;
@@ -380,7 +443,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       return () => {
         observer.disconnect();
       };
-    }, [hasChildren, markerDiv]);
+    }, [isInsideClusterer, hasChildren, markerDiv]);
 
     const invokeMarkerMethod = useCallback(
       <K extends keyof naver.maps.Marker>(
@@ -466,6 +529,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     );
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       if (sdkStatus !== "ready" || !targetMap || markerRef.current) {
         return;
       }
@@ -498,9 +562,10 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
 
         props.onMarkerError?.(normalizedError);
       }
-    }, [hasChildren, markerDiv, portalReady, props, sdkStatus, targetMap]);
+    }, [isInsideClusterer, hasChildren, markerDiv, portalReady, props, sdkStatus, targetMap]);
 
     useLayoutEffect(() => {
+      if (isInsideClusterer) return;
       const marker = markerRef.current;
 
       if (!marker || !targetMap) {
@@ -528,9 +593,10 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
       return () => {
         cancelAnimationFrame(rafId);
       };
-    }, [hasChildren, markerDiv, portalReady, props, targetMap]);
+    }, [isInsideClusterer, hasChildren, markerDiv, portalReady, props, targetMap]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       const marker = markerRef.current;
 
       if (!marker) {
@@ -545,13 +611,19 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
           markerEventListenersRef.current = [];
         }
       };
-    }, [props]);
+    }, [isInsideClusterer, props]);
 
     useEffect(() => {
+      if (isInsideClusterer) return;
       return () => {
         teardownMarker();
       };
-    }, [teardownMarker]);
+    }, [isInsideClusterer, teardownMarker]);
+
+    // If inside a clusterer, render nothing (data registered via effect above)
+    if (isInsideClusterer) {
+      return null;
+    }
 
     if (!hasChildren || !markerDiv) {
       return null;

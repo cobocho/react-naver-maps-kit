@@ -7,6 +7,8 @@ export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScri
 export { NaverMapProvider, NaverMapContext } from "./react/provider/NaverMapProvider";
 export { NaverMap } from "./react/components/NaverMap";
 export { Marker } from "./overlays/marker/Marker";
+export { MarkerClusterer } from "./overlays/marker-clusterer/MarkerClusterer";
+export { ClustererContext } from "./overlays/marker-clusterer/ClustererContext";
 export { InfoWindow } from "./overlays/infowindow/InfoWindow";
 export { Circle } from "./overlays/circle/Circle";
 export { Ellipse } from "./overlays/ellipse/Ellipse";
@@ -24,6 +26,17 @@ export type { NaverMapProps } from "./react/components/NaverMap";
 export type { NaverMapRef } from "./react/components/NaverMap";
 export type { MarkerProps } from "./overlays/marker/Marker";
 export type { MarkerRef } from "./overlays/marker/Marker";
+export type {
+  ItemRecord,
+  Cluster,
+  AlgorithmContext,
+  ClusterAlgorithm,
+  BuiltInAlgorithmConfig,
+  ClusterIconRenderer,
+  MarkerClustererHelpers,
+  MarkerClustererProps
+} from "./overlays/marker-clusterer/types";
+export type { ClustererRegistry } from "./overlays/marker-clusterer/ClustererContext";
 export type { InfoWindowProps } from "./overlays/infowindow/InfoWindow";
 export type { InfoWindowRef } from "./overlays/infowindow/InfoWindow";
 export type { CircleProps } from "./overlays/circle/Circle";
