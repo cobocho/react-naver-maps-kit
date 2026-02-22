@@ -31,6 +31,7 @@ export default defineConfig({
           { text: "NaverMapProvider", link: "/api/provider" },
           { text: "NaverMap", link: "/api/map" },
           { text: "Marker", link: "/api/marker" },
+          { text: "MarkerClusterer", link: "/api/marker-clusterer" },
           { text: "InfoWindow", link: "/api/info-window" },
           { text: "Circle", link: "/api/circle" },
           { text: "Ellipse", link: "/api/ellipse" },
