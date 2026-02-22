@@ -19,6 +19,11 @@ interface MarkerOverlayProps {
   zIndex?: number;
   collisionBehavior?: boolean;
   collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
+
+  /** MarkerClusterer에서 마커를 식별하는 고유 ID. 생략하면 자동 생성됩니다. */
+  clustererItemId?: string | number;
+  /** onClusterClick 콜백에서 접근할 커스텀 데이터 */
+  item?: unknown;
 }
 
 interface MarkerLifecycleProps {
@@ -162,6 +167,8 @@ export interface MarkerRef {
 | `zIndex`            | `number`                                                                         | 마커 z-index                                                     |
 | `collisionBehavior` | `boolean`                                                                        | GL 환경 마커 충돌 처리 여부                                      |
 | `collisionBoxSize`  | `naver.maps.Size \| naver.maps.SizeLiteral`                                      | GL 환경 충돌 처리 박스 크기                                      |
+| `clustererItemId`   | `string \| number`                                                               | `MarkerClusterer` 사용 시 마커 식별 ID. 생략하면 자동 생성       |
+| `item`              | `unknown`                                                                        | `onClusterClick` 콜백에서 접근할 커스텀 데이터                   |
 
 ## 생명주기 프로퍼티
 
