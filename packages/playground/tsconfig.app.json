@@ -8,10 +8,9 @@
     "types": ["vite/client", "navermaps"],
     "skipLibCheck": true,
 
-    /* Bundler mode */
     "baseUrl": ".",
     "paths": {
-      "react-naver-maps-kit": ["../dist/index.d.ts"]
+      "react-naver-maps-kit": ["../react-naver-maps-kit/src/index.ts"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -20,13 +19,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
 }
