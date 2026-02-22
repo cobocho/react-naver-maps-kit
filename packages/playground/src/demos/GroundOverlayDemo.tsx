@@ -80,14 +80,6 @@ export function GroundOverlayDemo() {
           <div className="control-item">
             <input
               type="checkbox"
-              checked={visible}
-              onChange={(e) => setVisible(e.target.checked)}
-            />
-            <label>Visible</label>
-          </div>
-          <div className="control-item">
-            <input
-              type="checkbox"
               checked={clickable}
               onChange={(e) => setClickable(e.target.checked)}
             />
