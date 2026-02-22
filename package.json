@@ -5,17 +5,19 @@
   "description": "Modern React toolkit for Naver Maps - Monorepo",
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter @cobocho/react-naver-maps-kit build",
-    "dev": "pnpm --filter @cobocho/react-naver-maps-kit dev",
-    "test": "pnpm --filter @cobocho/react-naver-maps-kit test",
-    "typecheck": "pnpm --filter @cobocho/react-naver-maps-kit typecheck",
+    "build": "pnpm --filter react-naver-maps-kit build",
+    "dev": "pnpm --filter react-naver-maps-kit dev",
+    "test": "pnpm --filter react-naver-maps-kit test",
+    "typecheck": "pnpm --filter react-naver-maps-kit typecheck",
     "lint": "pnpm -r lint",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "docs:dev": "pnpm --filter docs dev",
+    "docs:dev": "pnpm --filter react-naver-maps-kit-docs dev",
     "docs:build": "pnpm install && pnpm --filter react-naver-maps-kit build && pnpm --filter react-naver-maps-kit-docs build",
     "example:dev": "pnpm --filter example dev",
-    "example:build": "pnpm --filter example build"
+    "example:build": "pnpm --filter example build",
+    "realestate:dev": "pnpm --filter real-estate-explorer dev",
+    "realestate:build": "pnpm --filter real-estate-explorer build"
   },
   "keywords": [
     "react",
