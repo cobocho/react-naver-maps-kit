@@ -407,6 +407,9 @@ function areNaverMapPropsEqual(previousProps: NaverMapProps, nextProps: NaverMap
 
   for (const key of keys) {
     if (key === "children") {
+      if (previousProps.children !== nextProps.children) {
+        return false;
+      }
       continue;
     }
 
