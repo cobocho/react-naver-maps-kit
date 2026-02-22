@@ -1,6 +1,6 @@
-export type NaverMapKitVersion = "0.0.1";
+export type NaverMapKitVersion = "1.2.0";
 
-export const version: NaverMapKitVersion = "0.0.1";
+export const version: NaverMapKitVersion = "1.2.0";
 
 export { loadNaverMapsScript } from "./core/loader/loadNaverMapsScript";
 export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScript";
@@ -16,6 +16,9 @@ export { GroundOverlay } from "./overlays/ground-overlay/GroundOverlay";
 export { Polygon } from "./overlays/polygon/Polygon";
 export { Polyline } from "./overlays/polyline/Polyline";
 export { Rectangle } from "./overlays/rectangle/Rectangle";
+export { GeoJson } from "./overlays/data/GeoJson";
+export { Gpx } from "./overlays/data/Gpx";
+export { Kmz } from "./overlays/data/Kmz";
 export { useNaverMap, useNaverMapInstance } from "./react/hooks/useNaverMap";
 export type {
   NaverMapContextValue,
@@ -51,4 +54,10 @@ export type { PolylineProps } from "./overlays/polyline/Polyline";
 export type { PolylineRef } from "./overlays/polyline/Polyline";
 export type { RectangleProps } from "./overlays/rectangle/Rectangle";
 export type { RectangleRef } from "./overlays/rectangle/Rectangle";
+export type { GeoJsonProps } from "./overlays/data/GeoJson";
+export type { GeoJsonRef } from "./overlays/data/GeoJson";
+export type { GpxProps } from "./overlays/data/Gpx";
+export type { GpxRef } from "./overlays/data/Gpx";
+export type { KmzProps } from "./overlays/data/Kmz";
+export type { KmzRef } from "./overlays/data/Kmz";
 export type { UseNaverMapOptions } from "./react/hooks/useNaverMap";
