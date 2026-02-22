@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Marker, MarkerClusterer, NaverMap } from "react-naver-maps-kit";
-import type { BuiltInAlgorithmConfig, Cluster } from "react-naver-maps-kit";
+import type { BuiltInAlgorithmConfig } from "react-naver-maps-kit";
 
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";

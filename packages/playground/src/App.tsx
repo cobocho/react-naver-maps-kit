@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type JSX, useState } from "react";
 import { Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
 import { NaverMapProvider } from "react-naver-maps-kit";
 
