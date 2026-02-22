@@ -14,7 +14,11 @@ function PriceMarkerBase({ property, isSelected, onClick }: PriceMarkerProps) {
   const displayPrice = formatPrice(property.price);
 
   return (
-    <Marker position={{ lat: property.lat, lng: property.lng }} onClick={() => onClick(property)}>
+    <Marker
+      position={{ lat: property.lat, lng: property.lng }}
+      item={property}
+      onClick={() => onClick(property)}
+    >
       <div
         style={{
           display: "flex",

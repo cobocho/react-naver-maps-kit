@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { NaverMap, NaverMapProvider, Marker } from "react-naver-maps-kit";
+import { NaverMap, NaverMapProvider, Marker, MarkerClusterer } from "react-naver-maps-kit";
 import { PriceMarker } from "./components/PriceMarker";
 import { PropertyCard } from "./components/PropertyCard";
 import { PriceFilter } from "./components/PriceFilter";
@@ -9,6 +9,33 @@ import { mockDistricts } from "./data/mockData";
 import type { Property, PriceRange } from "./types";
 
 const NCP_KEY_ID = import.meta.env.VITE_NCP_KEY_ID as string | undefined;
+
+function ClusterBadge({ count }: { count: number }) {
+  const size = count < 10 ? 40 : count < 100 ? 48 : 56;
+  const bg = count < 10 ? "#4F46E5" : count < 100 ? "#7C3AED" : "#DC2626";
+
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: bg,
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 700,
+        fontSize: size < 44 ? 13 : 15,
+        border: "3px solid #fff",
+        boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
+        cursor: "pointer"
+      }}
+    >
+      {count}
+    </div>
+  );
+}
 
 interface MapContentProps {
   priceRange: PriceRange;
@@ -40,14 +67,22 @@ function MapContent({
           style={{ width: "100%", height: "100%" }}
           onIdle={handleIdle}
         >
-          {properties.map((property) => (
-            <PriceMarker
-              key={property.id}
-              property={property}
-              isSelected={selectedProperty?.id === property.id}
-              onClick={onPropertyClick}
-            />
-          ))}
+          <MarkerClusterer
+            algorithm={{ type: "supercluster", radius: 60 }}
+            clusterIcon={({ count }) => <ClusterBadge count={count} />}
+            onClusterClick={({ cluster, helpers }) => {
+              helpers.zoomToCluster(cluster, { padding: 20 });
+            }}
+          >
+            {properties.map((property) => (
+              <PriceMarker
+                key={property.id}
+                property={property}
+                isSelected={selectedProperty?.id === property.id}
+                onClick={onPropertyClick}
+              />
+            ))}
+          </MarkerClusterer>
 
           {mockDistricts.map((district) => (
             <DistrictPolygon
