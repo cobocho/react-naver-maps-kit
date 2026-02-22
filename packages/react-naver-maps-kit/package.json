@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Modern React toolkit for Naver Maps",
   "type": "module",
   "sideEffects": false,
