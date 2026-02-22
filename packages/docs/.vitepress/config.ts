@@ -27,6 +27,7 @@ export default defineConfig({
           { text: "정보 창 띄우기", link: "/examples/info-window" },
           { text: "도형 그리기", link: "/examples/shapes" },
           { text: "마커 클러스터링", link: "/examples/clustering" },
+          { text: "데이터 레이어", link: "/examples/data-layer" },
           { text: "지도 컨트롤", link: "/examples/controls" }
         ]
       },
@@ -44,6 +45,9 @@ export default defineConfig({
           { text: "Polygon", link: "/api/polygon" },
           { text: "Polyline", link: "/api/polyline" },
           { text: "Rectangle", link: "/api/rectangle" },
+          { text: "GeoJson", link: "/api/geo-json" },
+          { text: "Gpx", link: "/api/gpx" },
+          { text: "Kmz", link: "/api/kmz" },
           { text: "Hooks", link: "/api/hooks" },
           { text: "loadNaverMapsScript", link: "/api/load-script" }
         ]
