@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-naver-maps-kit": "workspace:*"
+    "react-naver-maps-kit": "workspace:*",
+    "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
     "@types/navermaps": "^3.9.1",
