@@ -56,6 +56,7 @@ export interface GroundOverlayRef {
   getUrl: GroundOverlayMethod<"getUrl">;
   setMap: GroundOverlayMethod<"setMap">;
   setOpacity: GroundOverlayMethod<"setOpacity">;
+  setUrl: (url: string) => void | undefined;
 }
 
 function toGroundOverlayOptions(
@@ -246,7 +247,16 @@ export const GroundOverlay = forwardRef<GroundOverlayRef, GroundOverlayProps>(
         getProjection: (...args) => invokeGroundOverlayMethod("getProjection", ...args),
         getUrl: (...args) => invokeGroundOverlayMethod("getUrl", ...args),
         setMap: (...args) => invokeGroundOverlayMethod("setMap", ...args),
-        setOpacity: (...args) => invokeGroundOverlayMethod("setOpacity", ...args)
+        setOpacity: (...args) => invokeGroundOverlayMethod("setOpacity", ...args),
+        setUrl: (url: string) => {
+          const groundOverlay = groundOverlayRef.current;
+          if (!groundOverlay) return undefined;
+          // setUrl exists in the official API but may not be in TypeScript types
+          const overlay = groundOverlay as naver.maps.GroundOverlay & {
+            setUrl?: (url: string) => void;
+          };
+          overlay.setUrl?.(url);
+        }
       }),
       [invokeGroundOverlayMethod]
     );

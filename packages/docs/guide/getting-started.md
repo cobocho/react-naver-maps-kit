@@ -28,6 +28,33 @@ yarn add react-naver-maps-kit
 - `react >= 18`
 - `react-dom >= 18`
 
+### TypeScript 지원
+
+이 라이브러리는 TypeScript로 작성되어 타입 정의가 포함되어 있습니다. 추가로 네이버 지도 SDK의 타입 정의가 필요한 경우 공식 타입 패키지를 설치하세요:
+
+```bash
+# pnpm
+pnpm add -D @types/navermaps
+
+# npm
+npm install -D @types/navermaps
+
+# yarn
+yarn add -D @types/navermaps
+```
+
+설치 후 `naver.maps` 네임스페이스의 모든 타입을 사용할 수 있습니다:
+
+```tsx
+import type { NaverMapRef, MarkerRef } from "react-naver-maps-kit";
+
+// 네이버 지도 SDK 타입 사용
+const handleMapReady = (map: naver.maps.Map) => {
+  const center = map.getCenter();
+  console.log(`지도 중심: ${center.lat()}, ${center.lng()}`);
+};
+```
+
 ## 2단계: API 키 발급
 
 1. [네이버 클라우드 플랫폼](https://www.ncloud.com/)에 로그인
@@ -90,14 +117,24 @@ export default App;
 
 ### Provider 옵션
 
-| Prop         | 기본값  | 설명                                      |
-| ------------ | ------- | ----------------------------------------- |
-| `ncpKeyId`   | -       | NCP API Key ID                            |
-| `submodules` | `[]`    | 추가 서브모듈 (`geocoder`, `panorama` 등) |
-| `timeoutMs`  | `10000` | SDK 로딩 타임아웃 (ms)                    |
-| `autoLoad`   | `true`  | 마운트 시 자동 로딩 여부                  |
-| `onReady`    | -       | SDK 로딩 완료 콜백                        |
-| `onError`    | -       | 에러 발생 콜백                            |
+| Prop         | 기본값  | 설명                                                                     |
+| ------------ | ------- | ------------------------------------------------------------------------ |
+| `ncpKeyId`   | -       | NCP API Key ID                                                           |
+| `submodules` | `[]`    | 추가 서브모듈 (`geocoder`, `panorama`, `drawing`, `visualization`, `gl`) |
+| `timeoutMs`  | `10000` | SDK 로딩 타임아웃 (ms)                                                   |
+| `autoLoad`   | `true`  | 마운트 시 자동 로딩 여부                                                 |
+| `onReady`    | -       | SDK 로딩 완료 콜백                                                       |
+| `onError`    | -       | 에러 발생 콜백                                                           |
+
+::: tip 서브모듈 가이드
+서브모듈 사용법은 각 가이드를 참조하세요:
+
+- [Geocoder](/guide/submodules/geocoder) - 주소 검색, 좌표 변환
+- [Panorama](/guide/submodules/panorama) - 거리뷰, 항공뷰
+- [Drawing](/guide/submodules/drawing) - 그리기 도구
+- [Visualization](/guide/submodules/visualization) - 열지도, 점지도
+- [GL](/guide/submodules/gl) - WebGL 벡터 지도
+  :::
 
 ## 5단계: 지도 렌더링
 
@@ -200,6 +237,7 @@ function App() {
 ## 다음 단계
 
 - [핵심 개념](/guide/core-concepts) - Provider, Map, Hook 동작 원리 이해하기
+- [서브모듈](/guide/submodules/geocoder) - Geocoder, Panorama, Drawing, Visualization, GL 모듈 사용법
 - [마커 예제](/examples/markers) - 다양한 마커 사용법
 - [API Reference](/api/provider) - 전체 API 문서
 

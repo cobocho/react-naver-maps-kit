@@ -93,6 +93,7 @@ export type GroundOverlayProps = GroundOverlayOptionProps &
 | `getUrl`        | `(...args: Parameters<naver.maps.GroundOverlay["getUrl"]>) => ReturnType<naver.maps.GroundOverlay["getUrl"]> \| undefined`               | 이미지 URL 조회                      |
 | `setMap`        | `(...args: Parameters<naver.maps.GroundOverlay["setMap"]>) => ReturnType<naver.maps.GroundOverlay["setMap"]> \| undefined`               | map 바인딩/해제                      |
 | `setOpacity`    | `(...args: Parameters<naver.maps.GroundOverlay["setOpacity"]>) => ReturnType<naver.maps.GroundOverlay["setOpacity"]> \| undefined`       | opacity 설정                         |
+| `setUrl`        | `(url: string) => void \| undefined`                                                                                                     | 이미지 URL 설정                      |
 
 ## 동작 규칙
 
