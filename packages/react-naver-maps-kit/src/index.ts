@@ -50,6 +50,16 @@ export type {
   DotMapOptionProps
 } from "./submodules/visualization";
 
+export { DrawingManager } from "./submodules/drawing";
+export type {
+  DrawingManagerProps,
+  DrawingManagerRef,
+  DrawingManagerOptionProps,
+  DrawingManagerEventProps,
+  DrawingControlOptions,
+  DrawingControlPointOptions
+} from "./submodules/drawing";
+
 export type {
   NaverMapContextValue,
   NaverMapProviderProps,
