@@ -30,7 +30,39 @@ yarn add react-naver-maps-kit
 
 ### TypeScript 지원
 
-이 라이브러리는 TypeScript로 작성되어 **완전한 타입 정의가 포함**되어 있습니다. 별도의 타입 패키지 설치 없이 바로 사용할 수 있습니다.
+이 라이브러리는 TypeScript로 작성되어 **완전한 타입 정의가 포함**되어 있습니다. `naver.maps` 전역 타입을 사용하려면 `@types/navermaps`를 설치하고 tsconfig를 설정해야 합니다.
+
+#### 1. 타입 패키지 설치
+
+```bash
+# pnpm
+pnpm add -D @types/navermaps
+
+# npm
+npm install -D @types/navermaps
+
+# yarn
+yarn add -D @types/navermaps
+```
+
+#### 2. tsconfig.json 설정
+
+`compilerOptions`에 `types` 배열을 추가하여 `navermaps` 타입을 명시적으로 로드합니다:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["vite/client", "navermaps"],
+    // ... 기타 설정
+  }
+}
+```
+
+::: warning types 설정이 필요한 이유
+`moduleResolution: "bundler"` 같은 최신 모듈 해석 방식에서는 `@types/*` 패키지가 자동으로 포함되지 않을 수 있습니다. `types` 배열에 `"navermaps"`를 명시적으로 추가해야 `naver` 전역 타입이 인식됩니다.
+:::
+
+#### 3. 타입 사용 예시
 
 ```tsx
 import type { NaverMapRef, MarkerRef } from "react-naver-maps-kit";
@@ -42,8 +74,8 @@ const handleMapReady = (map: naver.maps.Map) => {
 };
 ```
 
-::: tip 타입 자동 적용
-`react-naver-maps-kit`을 import하면 `naver.maps` 네임스페이스의 타입이 자동으로 확장됩니다. `@types/navermaps` 패키지를 별도로 설치할 필요가 없습니다.
+::: tip 확장 타입 자동 적용
+`react-naver-maps-kit`은 `@types/navermaps`에 누락된 일부 타입을 확장합니다. 라이브러리를 import하면 `map.isReady`, `HeatMap.addData()` 등의 확장 타입이 자동으로 적용됩니다.
 :::
 
 ## 2단계: API 키 발급

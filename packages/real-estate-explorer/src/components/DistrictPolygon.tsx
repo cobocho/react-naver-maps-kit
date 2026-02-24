@@ -13,9 +13,13 @@ function DistrictPolygonBase({ district, isVisible }: DistrictPolygonProps) {
   const fillColor = district.type === "school" ? "#3B82F6" : "#10B981";
   const strokeColor = district.type === "school" ? "#1D4ED8" : "#059669";
 
+  const paths = district.paths.map(
+    (p) => new naver.maps.LatLng(p.lat, p.lng)
+  );
+
   return (
     <Polygon
-      paths={district.paths}
+      paths={[paths]}
       fillColor={fillColor}
       fillOpacity={0.15}
       strokeColor={strokeColor}
