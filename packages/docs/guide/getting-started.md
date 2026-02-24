@@ -30,20 +30,7 @@ yarn add react-naver-maps-kit
 
 ### TypeScript 지원
 
-이 라이브러리는 TypeScript로 작성되어 타입 정의가 포함되어 있습니다. 추가로 네이버 지도 SDK의 타입 정의가 필요한 경우 공식 타입 패키지를 설치하세요:
-
-```bash
-# pnpm
-pnpm add -D @types/navermaps
-
-# npm
-npm install -D @types/navermaps
-
-# yarn
-yarn add -D @types/navermaps
-```
-
-설치 후 `naver.maps` 네임스페이스의 모든 타입을 사용할 수 있습니다:
+이 라이브러리는 TypeScript로 작성되어 **완전한 타입 정의가 포함**되어 있습니다. 별도의 타입 패키지 설치 없이 바로 사용할 수 있습니다.
 
 ```tsx
 import type { NaverMapRef, MarkerRef } from "react-naver-maps-kit";
@@ -54,6 +41,10 @@ const handleMapReady = (map: naver.maps.Map) => {
   console.log(`지도 중심: ${center.lat()}, ${center.lng()}`);
 };
 ```
+
+::: tip 타입 자동 적용
+`react-naver-maps-kit`을 import하면 `naver.maps` 네임스페이스의 타입이 자동으로 확장됩니다. `@types/navermaps` 패키지를 별도로 설치할 필요가 없습니다.
+:::
 
 ## 2단계: API 키 발급
 
