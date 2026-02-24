@@ -18,7 +18,17 @@
 ## 설치
 
 ```bash
+# npm
 npm install react-naver-maps-kit
+
+# yarn
+yarn add react-naver-maps-kit
+
+# pnpm
+pnpm add react-naver-maps-kit
+
+# bun
+bun add react-naver-maps-kit
 ```
 
 ## 사용법
