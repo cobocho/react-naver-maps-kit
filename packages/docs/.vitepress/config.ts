@@ -53,6 +53,16 @@ export default defineConfig({
         ]
       },
       {
+        text: "서브모듈",
+        items: [
+          { text: "Panorama", link: "/guide/submodules/panorama" },
+          { text: "Visualization", link: "/guide/submodules/visualization" },
+          { text: "Geocoder", link: "/guide/submodules/geocoder" },
+          { text: "Drawing", link: "/guide/submodules/drawing" },
+          { text: "GL", link: "/guide/submodules/gl" }
+        ]
+      },
+      {
         text: "문제 해결",
         items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
       }
