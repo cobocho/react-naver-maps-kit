@@ -1,335 +1,143 @@
+<div align="center">
+
+<img src="https://github.com/user-attachments/assets/c2bd5bd6-eb67-4728-9806-1639c1445154" alt="react-naver-maps-kit" width="120" />
+
 # react-naver-maps-kit
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![npm version](https://img.shields.io/npm/v/react-naver-maps-kit.svg)](https://www.npmjs.com/package/react-naver-maps-kit)
+[NAVER Maps JavaScript API v3](https://navermaps.github.io/maps.js.ncp/docs/index.html)를 React에 맞게 포팅한 라이브러리입니다.
 
-🌐 **문서**: [https://react-naver-maps-kit.pages.dev](https://react-naver-maps-kit.pages.dev)
+[![npm](https://img.shields.io/npm/v/react-naver-maps-kit.svg?style=flat-square)](https://www.npmjs.com/package/react-naver-maps-kit)
+[![license](https://img.shields.io/npm/l/react-naver-maps-kit.svg?style=flat-square)](https://github.com/cobocho/react-naver-maps-kit/blob/main/LICENSE)
+[![docs](https://img.shields.io/badge/docs-available-brightgreen?style=flat-square)](https://react-naver-maps-kit.pages.dev)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/react-naver-maps-kit?style=flat-square)](https://bundlephobia.com/package/react-naver-maps-kit)
 
-네이버 지도 SDK를 React에서 안전하고 직관적으로 사용할 수 있는 모던 툴킷입니다.
+[공식 문서](https://react-naver-maps-kit.pages.dev) | [Playground](https://react-naver-maps-kit-playground.pages.dev)
 
-## 특징
-
-- **선언형 API**: React props로 지도와 오버레이를 선언형으로 제어
-- **완전한 TypeScript 지원**: 네이버 지도 SDK 타입 정의 포함
-- **안전한 생명주기 관리**: 지도 및 오버레이 생성/업데이트/정리 자동 처리
-- **Context 기반 상태 관리**: SDK 로딩 상태, 에러, 지도 인스턴스를 컨텍스트로 관리
-- **Custom React Hooks**: Provider 안전 가드가 포함된 편리한 훅 제공
-- **오버레이 컴포넌트**: Marker, InfoWindow, Circle, Polygon 등 다양한 오버레이 지원
+</div>
 
 ## 설치
 
 ```bash
-# pnpm
-pnpm add react-naver-maps-kit
-
-# npm
 npm install react-naver-maps-kit
-
-# yarn
-yarn add react-naver-maps-kit
 ```
 
-### Peer Dependencies
+## 사용법
 
-- `react >= 18`
-- `react-dom >= 18`
+이 라이브러리를 사용하기 위해서는 [네이버 클라우드 플랫폼](https://www.ncloud.com/)에서 Maps API 키를 발급받아야 합니다.
 
-## 빠른 시작
-
-### 1. API 키 발급
-
-[네이버 클라우드 플랫폼](https://www.ncloud.com/)에서 Maps API 서비스를 신청하고 API 키를 발급받으세요.
-
-### 2. 기본 사용법
+### 기본 사용법
 
 ```tsx
-import { NaverMap, NaverMapProvider } from "react-naver-maps-kit";
+import { NaverMapProvider, NaverMap, Marker } from 'react-naver-maps-kit';
 
 function App() {
   return (
-    <NaverMapProvider ncpKeyId={import.meta.env.VITE_NCP_KEY_ID}>
+    <NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID">
       <NaverMap
-        center={{ lat: 37.3595704, lng: 127.105399 }}
-        zoom={10}
-        style={{ width: "100%", height: "400px" }}
-      />
-    </NaverMapProvider>
-  );
-}
-```
-
-### 3. 마커 추가하기
-
-```tsx
-import { NaverMap, NaverMapProvider, Marker } from "react-naver-maps-kit";
-
-function MapWithMarker() {
-  return (
-    <NaverMapProvider ncpKeyId={import.meta.env.VITE_NCP_KEY_ID}>
-      <NaverMap
-        center={{ lat: 37.3595704, lng: 127.105399 }}
-        zoom={12}
-        style={{ width: "100%", height: "400px" }}
+        defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
+        defaultZoom={15}
+        style={{ width: '100%', height: '400px' }}
       >
-        <Marker
-          position={{ lat: 37.3595704, lng: 127.105399 }}
-          title="네이버 그린팩토리"
-          onClick={(e) => console.log("Marker clicked!", e)}
-        />
+        <Marker position={{ lat: 37.3595704, lng: 127.105399 }} />
       </NaverMap>
     </NaverMapProvider>
   );
 }
 ```
 
-### 4. 커스텀 마커 (React 컴포넌트)
+### 커스텀 마커
+
+React 컴포넌트를 마커로 사용할 수 있습니다.
 
 ```tsx
-import { NaverMap, NaverMapProvider, Marker } from "react-naver-maps-kit";
+<Marker position={{ lat: 37.3595704, lng: 127.105399 }}>
+  <div style={{ padding: '8px 16px', background: '#03C75A', color: 'white', borderRadius: '20px' }}>
+    네이버 그린팩토리
+  </div>
+</Marker>
+```
 
-function CustomMarker() {
-  return (
-    <Marker position={{ lat: 37.3595704, lng: 127.105399 }}>
-      <div
-        style={{
-          padding: "8px 16px",
-          background: "#03C75A",
-          color: "white",
-          borderRadius: "20px",
-          fontWeight: "bold",
-          whiteSpace: "nowrap"
-        }}
-      >
-        네이버
-      </div>
-    </Marker>
-  );
+## 컴포넌트
+
+### 지도
+
+| 컴포넌트 | 설명 |
+|----------|------|
+| `NaverMapProvider` | SDK 로딩 및 인증 관리 |
+| `NaverMap` | 지도 컨테이너 |
+| `Panorama` | 거리뷰 (`panorama` 서브모듈 필요) |
+
+### 오버레이
+
+| 컴포넌트 | 설명 |
+|----------|------|
+| `Marker` | 마커 (커스텀 콘텐츠 지원) |
+| `InfoWindow` | 정보창 |
+| `Polyline` | 선 |
+| `Polygon` | 다각형 |
+| `Circle` | 원 |
+| `Ellipse` | 타원 |
+| `Rectangle` | 사각형 |
+| `GroundOverlay` | 이미지 오버레이 |
+
+### 서브모듈
+
+필요한 서브모듈만 선택적으로 로드할 수 있습니다.
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_KEY" submodules={['panorama', 'visualization']}>
+  {/* ... */}
+</NaverMapProvider>
+```
+
+| 서브모듈 | 컴포넌트 |
+|----------|----------|
+| `panorama` | `Panorama`, `FlightSpot` |
+| `visualization` | `HeatMap`, `DotMap` |
+| `drawing` | `DrawingManager` |
+| `geocoder` | Geocoding 유틸리티 |
+
+## Hooks
+
+```tsx
+import { useNaverMap, useMap } from 'react-naver-maps-kit';
+
+// SDK 상태 접근
+const { sdkStatus, sdkError } = useNaverMap();
+
+// 지도 인스턴스 접근 (NaverMap 내부에서)
+const map = useMap();
+```
+
+## TypeScript
+
+`naver` 전역 타입을 사용하려면 `@types/navermaps`를 설치하고 `tsconfig.json`을 설정하세요.
+
+```bash
+npm install -D @types/navermaps
+```
+
+```json
+{
+  "compilerOptions": {
+    "types": ["navermaps"]
+  }
 }
-```
-
-## API 개요
-
-### Provider
-
-#### `NaverMapProvider`
-
-SDK 로딩과 상태를 관리하는 최상위 컴포넌트입니다.
-
-```tsx
-interface NaverMapProviderProps {
-  children: ReactNode;
-  ncpKeyId?: string; // 권장: NCP API Key ID
-  ncpClientId?: string; // 레거시: NCP Client ID
-  govClientId?: string; // 공공기관용 Client ID
-  finClientId?: string; // 금융기관용 Client ID
-  submodules?: Array<"geocoder" | "panorama" | "drawing" | "visualization">;
-  timeoutMs?: number; // 로딩 타임아웃 (기본: 10000ms)
-  nonce?: string; // CSP nonce
-  autoLoad?: boolean; // 자동 로딩 (기본: true)
-  onReady?: () => void; // SDK 로딩 완료 콜백
-  onError?: (error: Error) => void; // 에러 콜백
-}
-```
-
-### Components
-
-#### `NaverMap`
-
-지도를 렌더링하는 메인 컴포넌트입니다.
-
-```tsx
-interface NaverMapProps {
-  // 지도 옵션
-  center?: naver.maps.Coord | naver.maps.CoordLiteral;
-  defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
-  zoom?: number;
-  defaultZoom?: number;
-  mapTypeId?: string;
-  minZoom?: number;
-  maxZoom?: number;
-  bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
-  maxBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
-
-  // 컨트롤 옵션
-  zoomControl?: boolean;
-  zoomControlOptions?: naver.maps.ZoomControlOptions;
-  mapTypeControl?: boolean;
-  mapTypeControlOptions?: naver.maps.MapTypeControlOptions;
-  scaleControl?: boolean;
-  logoControl?: boolean;
-
-  // 인터랙션 옵션
-  draggable?: boolean;
-  scrollWheel?: boolean;
-  keyboardShortcuts?: boolean;
-  disableDoubleClickZoom?: boolean;
-  pinchZoom?: boolean;
-
-  // 생명주기 콜백
-  onMapReady?: (map: naver.maps.Map) => void;
-  onMapDestroy?: () => void;
-  onMapError?: (error: Error) => void;
-
-  // 이벤트 핸들러
-  onClick?: (pointerEvent: naver.maps.PointerEvent) => void;
-  onCenterChanged?: (center: naver.maps.Coord) => void;
-  onZoomChanged?: (zoom: number) => void;
-  onBoundsChanged?: (bounds: naver.maps.Bounds) => void;
-  // ... 더 많은 이벤트 지원
-}
-```
-
-#### Overlay Components
-
-모든 오버레이 컴포넌트는 `NaverMap` 내부에서 사용해야 합니다.
-
-| 컴포넌트        | 설명                   |
-| --------------- | ---------------------- |
-| `Marker`        | 지도 위 마커 표시      |
-| `InfoWindow`    | 정보 창 표시           |
-| `Circle`        | 원형 오버레이          |
-| `Ellipse`       | 타원형 오버레이        |
-| `Rectangle`     | 사각형 오버레이        |
-| `Polygon`       | 다각형 오버레이        |
-| `Polyline`      | 선형 오버레이          |
-| `GroundOverlay` | 지상 오버레이 (이미지) |
-
-```tsx
-// 오버레이 예시
-<NaverMap center={{ lat: 37.5665, lng: 126.978 }} zoom={12}>
-  <Marker position={{ lat: 37.5665, lng: 126.978 }} />
-  <Circle
-    center={{ lat: 37.5665, lng: 126.978 }}
-    radius={1000}
-    strokeColor="#03C75A"
-    fillColor="#03C75A"
-    fillOpacity={0.3}
-  />
-  <Polygon
-    paths={[
-      { lat: 37.56, lng: 126.97 },
-      { lat: 37.57, lng: 126.98 },
-      { lat: 37.58, lng: 126.97 }
-    ]}
-    fillColor="#FF0000"
-  />
-</NaverMap>
-```
-
-### Hooks
-
-#### `useNaverMap`
-
-Provider 컨텍스트에 접근하기 위한 훅입니다.
-
-```tsx
-import { useNaverMap } from "react-naver-maps-kit";
-
-function MyComponent() {
-  const { sdkStatus, sdkError, map, reloadSdk } = useNaverMap();
-
-  if (sdkStatus === "loading") return <div>로딩 중...</div>;
-  if (sdkStatus === "error") return <div>에러: {sdkError?.message}</div>;
-
-  return <div>지도 준비 완료!</div>;
-}
-```
-
-#### `useNaverMapInstance`
-
-지도 인스턴스에 직접 접근하기 위한 훅입니다.
-
-```tsx
-import { useNaverMapInstance } from "react-naver-maps-kit";
-
-function MapController() {
-  const map = useNaverMapInstance();
-
-  const handlePanTo = () => {
-    map?.panTo(new naver.maps.LatLng(37.5665, 126.978));
-  };
-
-  return <button onClick={handlePanTo}>서울시청으로 이동</button>;
-}
-```
-
-### Utilities
-
-#### `loadNaverMapsScript`
-
-SDK를 수동으로 로딩하기 위한 유틸리티 함수입니다.
-
-```tsx
-import { loadNaverMapsScript } from "react-naver-maps-kit";
-
-// 수동 로딩
-await loadNaverMapsScript({
-  ncpKeyId: "YOUR_KEY",
-  submodules: ["geocoder"],
-  timeoutMs: 15000
-});
-```
-
-## Ref API
-
-모든 컴포넌트는 `ref`를 통해 네이버 지도 SDK 인스턴스 메서드에 접근할 수 있습니다.
-
-```tsx
-import { useRef } from "react";
-import { NaverMap, Marker, type NaverMapRef, type MarkerRef } from "react-naver-maps-kit";
-
-function MapWithRef() {
-  const mapRef = useRef<NaverMapRef>(null);
-  const markerRef = useRef<MarkerRef>(null);
-
-  const handleGetCenter = () => {
-    const center = mapRef.current?.getCenter();
-    console.log("Center:", center);
-  };
-
-  const handleMoveMarker = () => {
-    markerRef.current?.setPosition({ lat: 37.5, lng: 127.0 });
-  };
-
-  return (
-    <NaverMap ref={mapRef} center={{ lat: 37.3595704, lng: 127.105399 }} zoom={10}>
-      <Marker ref={markerRef} position={{ lat: 37.3595704, lng: 127.105399 }} />
-    </NaverMap>
-  );
-}
-```
-
-## Controlled vs Uncontrolled
-
-`center`/`defaultCenter`, `zoom`/`defaultZoom`을 통해 제어 모드를 선택할 수 있습니다.
-
-```tsx
-// Controlled: React 상태로 관리
-<NaverMap
-  center={center}
-  zoom={zoom}
-  onCenterChanged={setCenter}
-  onZoomChanged={setZoom}
-/>
-
-// Uncontrolled: 내부 상태로 관리
-<NaverMap
-  defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
-  defaultZoom={10}
-/>
 ```
 
 ## 문서
 
-📖 **전체 문서**: [https://react-naver-maps-kit.pages.dev](https://react-naver-maps-kit.pages.dev)
+자세한 사용법은 [공식 문서](https://react-naver-maps-kit.pages.dev)를 참고하세요.
 
 - [시작하기](https://react-naver-maps-kit.pages.dev/guide/getting-started)
-- [Provider & Hook](https://react-naver-maps-kit.pages.dev/guide/provider-map-hook)
 - [지도 통합](https://react-naver-maps-kit.pages.dev/guide/integration-map)
-- [오버레이 통합](https://react-naver-maps-kit.pages.dev/guide/integration-overlay)
+- [오버레이 가이드](https://react-naver-maps-kit.pages.dev/guide/integration-overlay)
 - [API Reference](https://react-naver-maps-kit.pages.dev/api/provider)
-- [문제 해결](https://react-naver-maps-kit.pages.dev/troubleshooting/common-issues)
 
 ## 라이선스
 
-MIT License
+MIT © 2026 [cobocho](https://github.com/cobocho)
+
+---
+
+> **Disclaimer**: 이 라이브러리는 NAVER의 공식 라이브러리가 아닙니다. NAVER Maps API의 서드파티 React 바인딩입니다.
