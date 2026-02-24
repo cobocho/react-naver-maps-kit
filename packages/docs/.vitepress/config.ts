@@ -6,7 +6,7 @@ export default defineConfig({
   description: "네이버 지도를 React처럼 사용하세요",
   
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: 'https://github.com/user-attachments/assets/c2bd5bd6-eb67-4728-9806-1639c1445154' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
     ['meta', { name: 'theme-color', content: '#03C75A' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'react-naver-maps-kit' }],
@@ -15,7 +15,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: 'https://github.com/user-attachments/assets/c2bd5bd6-eb67-4728-9806-1639c1445154',
+    logo: '/logo.png',
     
     nav: [
       { text: "가이드", link: "/guide/getting-started" },
