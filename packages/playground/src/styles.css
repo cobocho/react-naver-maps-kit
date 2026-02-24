@@ -336,3 +336,23 @@ body {
   background: var(--accent-light);
   color: var(--accent);
 }
+
+/* ─── Embed layout ──────────────────────────────────── */
+
+.embed-layout {
+  padding: 16px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.embed-layout .map-container {
+  height: calc(100vh - 32px);
+}
+
+.embed-layout .demo-title {
+  display: none;
+}
+
+.embed-layout .demo-description {
+  display: none;
+}

@@ -2,6 +2,14 @@
 
 `GeoJson`, `Gpx`, `Kmz` 컴포넌트로 다양한 지리 데이터 파일을 지도에 표시하는 방법을 설명합니다.
 
+## 라이브 데모
+
+### GeoJSON
+<DemoEmbed demo="geojson" height="400px" />
+
+### GPX
+<DemoEmbed demo="gpx" height="400px" />
+
 ## GeoJSON 렌더링
 
 GeoJSON 데이터를 선언적으로 렌더링합니다:

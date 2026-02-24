@@ -2,6 +2,17 @@
 
 `Circle`, `Polygon`, `Polyline` 등 도형 오버레이로 지도에 영역을 표시하는 방법을 설명합니다.
 
+## 라이브 데모
+
+### Circle
+<DemoEmbed demo="circle" height="400px" />
+
+### Polygon
+<DemoEmbed demo="polygon" height="400px" />
+
+### Polyline
+<DemoEmbed demo="polyline" height="400px" />
+
 ## 원형 (Circle)
 
 특정 위치를 중심으로 반경을 표시합니다:
