@@ -144,6 +144,6 @@ export interface GeoJsonRef {
 
 - `data` prop이 변경되면 이전 GeoJSON Feature를 자동으로 제거하고 새 데이터를 추가합니다.
 - 컴포넌트 언마운트 시 이벤트 리스너 정리 후 `setMap(null)`을 호출합니다.
-- `NaverMapProvider` 컨텍스트의 map 인스턴스를 사용합니다.
+- `map` prop을 지정하지 않으면 가장 가까운 `NaverMap` 또는 `Panorama`의 인스턴스를 자동으로 사용합니다.
 - `data` prop의 참조가 동일하면 업데이트를 건너뜁니다. 데이터를 갱신하려면 새 객체를 전달하세요.
 - 명령적 제어가 필요하면 ref를 통해 `getInstance()`로 내부 `naver.maps.Data` 인스턴스에 직접 접근할 수 있습니다.

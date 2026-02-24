@@ -242,3 +242,4 @@ export interface MarkerRef {
 - `children`이 있으면 HTML 아이콘(`content`)으로 렌더링합니다.
 - `icon`과 `children`이 동시에 전달되면 `children` 콘텐츠를 우선 사용하고 `icon`의 `anchor`/`size`를 반영합니다.
 - 언마운트 시 마커 리스너 정리 및 `setMap(null)`을 수행합니다.
+- `map` prop을 지정하지 않으면 가장 가까운 `NaverMap` 또는 `Panorama`의 인스턴스를 자동으로 사용합니다.
