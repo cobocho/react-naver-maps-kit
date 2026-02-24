@@ -356,3 +356,22 @@ body {
 .embed-layout .demo-description {
   display: none;
 }
+
+/* ─── Project layout ──────────────────────────────────── */
+
+.project-content {
+  padding: 0;
+}
+
+.project-content > div {
+  height: 100%;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  color: var(--fg-muted);
+}

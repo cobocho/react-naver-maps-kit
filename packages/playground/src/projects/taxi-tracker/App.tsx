@@ -1,15 +1,14 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { NaverMap, NaverMapProvider } from "react-naver-maps-kit";
+import { NaverMap } from "react-naver-maps-kit";
 import { TaxiMarker } from "./components/TaxiMarker";
 import { TaxiDetailPanel } from "./components/TaxiDetailPanel";
 import { ControlPanel } from "./components/ControlPanel";
 import { useTaxiSimulation } from "./hooks/useTaxiSimulation";
 import type { Taxi } from "./types";
 
-const NCP_KEY_ID = import.meta.env.VITE_NCP_KEY_ID as string | undefined;
 const UPDATE_INTERVAL = 1000;
 
-function TaxiTracker() {
+export default function TaxiTracker() {
   const [isRealtimeEnabled, setIsRealtimeEnabled] = useState(true);
   const [selectedTaxi, setSelectedTaxi] = useState<Taxi | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -71,65 +70,54 @@ function TaxiTracker() {
     }
   }, [isFollowing, selectedTaxi?.position]);
 
-  if (!NCP_KEY_ID) {
-    return (
-      <div style={styles.errorContainer}>
-        <h2>API 키가 설정되지 않았습니다</h2>
-        <p>.env 파일에 VITE_NCP_KEY_ID를 설정해주세요.</p>
-      </div>
-    );
-  }
-
   return (
-    <NaverMapProvider ncpKeyId={NCP_KEY_ID}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>🚕 실시간 택시 추적</h1>
-          <button onClick={reset} style={styles.resetButton}>
-            초기화
-          </button>
-        </div>
-
-        <div style={styles.mapContainer}>
-          <NaverMap
-            center={{ lat: 37.5665, lng: 126.978 }}
-            zoom={15}
-            style={{ width: "100%", height: "100%" }}
-            mapTypeId={mapTypeId as naver.maps.MapTypeId}
-            onMapReady={handleMapReady}
-          >
-            {taxis.map((taxi) => (
-              <TaxiMarker
-                key={taxi.id}
-                taxi={taxi}
-                isSelected={selectedTaxi?.id === taxi.id}
-                onClick={handleTaxiClick}
-              />
-            ))}
-          </NaverMap>
-
-          <ControlPanel
-            isRealtimeEnabled={isRealtimeEnabled}
-            onRealtimeToggle={handleRealtimeToggle}
-            updateInterval={UPDATE_INTERVAL}
-            lastUpdate={lastUpdate}
-            mapTypeId={mapTypeId}
-            onMapTypeChange={handleMapTypeChange}
-            onMyLocationClick={handleMyLocationClick}
-            taxiCount={taxis.length}
-          />
-
-          {selectedTaxi && (
-            <TaxiDetailPanel
-              taxi={selectedTaxi}
-              onClose={handleClosePanel}
-              onFollowToggle={handleFollowToggle}
-              isFollowing={isFollowing}
-            />
-          )}
-        </div>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={styles.title}>🚕 실시간 택시 추적</h1>
+        <button onClick={reset} style={styles.resetButton}>
+          초기화
+        </button>
       </div>
-    </NaverMapProvider>
+
+      <div style={styles.mapContainer}>
+        <NaverMap
+          center={{ lat: 37.5665, lng: 126.978 }}
+          zoom={15}
+          style={{ width: "100%", height: "100%" }}
+          mapTypeId={mapTypeId as naver.maps.MapTypeId}
+          onMapReady={handleMapReady}
+        >
+          {taxis.map((taxi) => (
+            <TaxiMarker
+              key={taxi.id}
+              taxi={taxi}
+              isSelected={selectedTaxi?.id === taxi.id}
+              onClick={handleTaxiClick}
+            />
+          ))}
+        </NaverMap>
+
+        <ControlPanel
+          isRealtimeEnabled={isRealtimeEnabled}
+          onRealtimeToggle={handleRealtimeToggle}
+          updateInterval={UPDATE_INTERVAL}
+          lastUpdate={lastUpdate}
+          mapTypeId={mapTypeId}
+          onMapTypeChange={handleMapTypeChange}
+          onMyLocationClick={handleMyLocationClick}
+          taxiCount={taxis.length}
+        />
+
+        {selectedTaxi && (
+          <TaxiDetailPanel
+            taxi={selectedTaxi}
+            onClose={handleClosePanel}
+            onFollowToggle={handleFollowToggle}
+            isFollowing={isFollowing}
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -137,7 +125,7 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     display: "flex",
     flexDirection: "column",
-    height: "100vh",
+    height: "100%",
     background: "#F3F4F6"
   },
   header: {
@@ -166,15 +154,5 @@ const styles: Record<string, React.CSSProperties> = {
   mapContainer: {
     flex: 1,
     position: "relative"
-  },
-  errorContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    color: "#6B7280"
   }
 };
-
-export default TaxiTracker;

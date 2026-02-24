@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { NaverMap, NaverMapProvider, Marker, MarkerClusterer } from "react-naver-maps-kit";
+import { NaverMap, Marker, MarkerClusterer } from "react-naver-maps-kit";
 import { PriceMarker } from "./components/PriceMarker";
 import { PropertyCard } from "./components/PropertyCard";
 import { PriceFilter } from "./components/PriceFilter";
@@ -7,8 +7,6 @@ import { DistrictPolygon } from "./components/DistrictPolygon";
 import { usePropertySearch } from "./hooks/usePropertySearch";
 import { mockDistricts } from "./data/mockData";
 import type { Property, PriceRange } from "./types";
-
-const NCP_KEY_ID = import.meta.env.VITE_NCP_KEY_ID as string | undefined;
 
 function ClusterBadge({ count }: { count: number }) {
   const size = count < 10 ? 40 : count < 100 ? 48 : 56;
@@ -140,7 +138,7 @@ function MapContent({
   );
 }
 
-function RealEstateExplorer() {
+export default function RealEstateExplorer() {
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 999999 });
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [showDistricts, setShowDistricts] = useState(false);
@@ -150,56 +148,45 @@ function RealEstateExplorer() {
     setSelectedProperty(property);
   }, []);
 
-  if (!NCP_KEY_ID) {
-    return (
-      <div style={styles.errorContainer}>
-        <h2>API 키가 설정되지 않았습니다</h2>
-        <p>.env 파일에 VITE_NCP_KEY_ID를 설정해주세요.</p>
-      </div>
-    );
-  }
-
   return (
-    <NaverMapProvider ncpKeyId={NCP_KEY_ID}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>🏢 부동산 매물 탐색</h1>
-          <div style={styles.controls}>
-            <PriceFilter value={priceRange} onChange={setPriceRange} />
-            <div style={styles.toggleGroup}>
-              <button
-                onClick={() => setShowDistricts(!showDistricts)}
-                style={{
-                  ...styles.toggleButton,
-                  background: showDistricts ? "#10B981" : "#E5E7EB",
-                  color: showDistricts ? "#fff" : "#374151"
-                }}
-              >
-                행정구역
-              </button>
-              <button
-                onClick={() => setShowSchoolDistricts(!showSchoolDistricts)}
-                style={{
-                  ...styles.toggleButton,
-                  background: showSchoolDistricts ? "#3B82F6" : "#E5E7EB",
-                  color: showSchoolDistricts ? "#fff" : "#374151"
-                }}
-              >
-                학군
-              </button>
-            </div>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={styles.title}>🏢 부동산 매물 탐색</h1>
+        <div style={styles.controls}>
+          <PriceFilter value={priceRange} onChange={setPriceRange} />
+          <div style={styles.toggleGroup}>
+            <button
+              onClick={() => setShowDistricts(!showDistricts)}
+              style={{
+                ...styles.toggleButton,
+                background: showDistricts ? "#10B981" : "#E5E7EB",
+                color: showDistricts ? "#fff" : "#374151"
+              }}
+            >
+              행정구역
+            </button>
+            <button
+              onClick={() => setShowSchoolDistricts(!showSchoolDistricts)}
+              style={{
+                ...styles.toggleButton,
+                background: showSchoolDistricts ? "#3B82F6" : "#E5E7EB",
+                color: showSchoolDistricts ? "#fff" : "#374151"
+              }}
+            >
+              학군
+            </button>
           </div>
         </div>
-
-        <MapContent
-          priceRange={priceRange}
-          selectedProperty={selectedProperty}
-          onPropertyClick={handlePropertyClick}
-          showDistricts={showDistricts}
-          showSchoolDistricts={showSchoolDistricts}
-        />
       </div>
-    </NaverMapProvider>
+
+      <MapContent
+        priceRange={priceRange}
+        selectedProperty={selectedProperty}
+        onPropertyClick={handlePropertyClick}
+        showDistricts={showDistricts}
+        showSchoolDistricts={showSchoolDistricts}
+      />
+    </div>
   );
 }
 
@@ -207,7 +194,7 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     display: "flex",
     flexDirection: "column",
-    height: "100vh",
+    height: "100%",
     background: "#F9FAFB"
   },
   header: {
@@ -305,18 +292,8 @@ const styles: Record<string, React.CSSProperties> = {
     height: "200px",
     color: "#6B7280"
   },
-  errorContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    color: "#6B7280"
-  },
   errorText: {
     color: "#EF4444",
     fontSize: "13px"
   }
 };
-
-export default RealEstateExplorer;

@@ -1,34 +1,75 @@
 import { useRef, useState } from "react";
-import { renderToString } from "react-dom/server";
 import { Panorama, FlightSpot, NaverMap, Marker, type PanoramaRef } from "react-naver-maps-kit";
 
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";
 
-const DEFAULT_POS = { lat: 37.3595704, lng: 127.105399 };
+const DEFAULT_POS = { lat: 37.358, lng: 127.103 };
 
-const CameraIcon = () => (
-  <svg
-    width="40"
-    height="40"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}
-  >
-    <circle cx="12" cy="12" r="11" fill="#03C75A" />
-    <path
-      d="M7 9.5C7 8.67 7.67 8 8.5 8H9.5L10.5 7H13.5L14.5 8H15.5C16.33 8 17 8.67 17 9.5V15C17 15.83 16.33 16.5 15.5 16.5H8.5C7.67 16.5 7 15.83 7 15V9.5Z"
-      fill="white"
-    />
-    <circle cx="12" cy="12" r="2.5" fill="#03C75A" />
-  </svg>
+const ViewCone = ({ pan, fov }: { pan: number; fov: number }) => {
+  const size = 120;
+  const coneLength = 50;
+  const halfFov = fov / 2;
+  
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const x1 = size / 2 + Math.sin(toRad(-halfFov)) * coneLength;
+  const y1 = size / 2 - Math.cos(toRad(-halfFov)) * coneLength;
+  const x2 = size / 2 + Math.sin(toRad(halfFov)) * coneLength;
+  const y2 = size / 2 - Math.cos(toRad(halfFov)) * coneLength;
+
+  const largeArc = fov > 180 ? 1 : 0;
+  const pathD = `M ${size / 2} ${size / 2} L ${x1} ${y1} A ${coneLength} ${coneLength} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: `translate(-50%, -50%) rotate(${pan}deg)`,
+        pointerEvents: "none",
+        transition: "transform 0.1s ease-out"
+      }}
+    >
+      <path d={pathD} fill="rgba(59, 130, 246, 0.25)" stroke="#3B82F6" strokeWidth="2" />
+    </svg>
+  );
+};
+
+const CameraIcon = ({ pan, fov, showCone }: { pan?: number; fov?: number; showCone?: boolean }) => (
+  <div style={{ position: "relative", width: 40, height: 40 }}>
+    {showCone && pan !== undefined && fov !== undefined && (
+      <ViewCone pan={pan} fov={fov} />
+    )}
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ 
+        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+        position: "relative",
+        zIndex: 1
+      }}
+    >
+      <circle cx="12" cy="12" r="11" fill="#1F2937" />
+      <path
+        d="M7 9.5C7 8.67 7.67 8 8.5 8H9.5L10.5 7H13.5L14.5 8H15.5C16.33 8 17 8.67 17 9.5V15C17 15.83 16.33 16.5 15.5 16.5H8.5C7.67 16.5 7 15.83 7 15V9.5Z"
+        fill="white"
+      />
+      <circle cx="12" cy="12" r="2.5" fill="#1F2937" />
+    </svg>
+  </div>
 );
 
 const SAMPLE_MARKERS = [
   { id: 1, position: { lat: 37.3595704, lng: 127.105399 }, title: "네이버 본사" },
-  { id: 2, position: { lat: 37.36, lng: 127.1048 }, title: "정자역" },
-  { id: 3, position: { lat: 37.359, lng: 127.106 }, title: "카페" }
+  { id: 2, position: { lat: 37.362, lng: 127.108 }, title: "정자역" },
+  { id: 3, position: { lat: 37.355, lng: 127.1 }, title: "카페" }
 ];
 
 export function PanoramaDemo() {
@@ -38,6 +79,7 @@ export function PanoramaDemo() {
   const [position, setPosition] = useState(DEFAULT_POS);
   const [showFlightSpot, setShowFlightSpot] = useState(true);
   const [showMarkers, setShowMarkers] = useState(true);
+  const [showViewCone, setShowViewCone] = useState(true);
   const [aroundControl, setAroundControl] = useState(true);
   const [pov, setPov] = useState({ pan: 0, tilt: 0, fov: 100 });
 
@@ -81,12 +123,12 @@ export function PanoramaDemo() {
             <Marker
               position={position}
               draggable={true}
-              icon={{
-                content: `<div style="cursor: grab;">${renderToString(<CameraIcon />)}</div>`,
-                anchor: { x: 20, y: 20 }
-              }}
               onDragEnd={handleCameraDragEnd}
-            />
+            >
+              <div style={{ cursor: "grab" }}>
+                <CameraIcon pan={pov.pan} fov={pov.fov} showCone={showViewCone} />
+              </div>
+            </Marker>
             {showMarkers &&
               SAMPLE_MARKERS.map((marker) => (
                 <Marker
@@ -186,6 +228,14 @@ export function PanoramaDemo() {
               onChange={(e) => setShowMarkers(e.target.checked)}
             />
             <label>마커 표시</label>
+          </div>
+          <div className="control-item">
+            <input
+              type="checkbox"
+              checked={showViewCone}
+              onChange={(e) => setShowViewCone(e.target.checked)}
+            />
+            <label>시야 범위 표시</label>
           </div>
           <div className="control-item">
             <input

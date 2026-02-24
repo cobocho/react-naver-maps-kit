@@ -1,5 +1,5 @@
-import { type JSX, useState } from "react";
-import { Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
+import { type JSX, useState, lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
 import { NaverMapProvider } from "react-naver-maps-kit";
 
 import { NaverMapDemo } from "./demos/NaverMapDemo.tsx";
@@ -18,6 +18,11 @@ import { KmzDemo } from "./demos/KmzDemo.tsx";
 import { PanoramaDemo } from "./demos/PanoramaDemo.tsx";
 import { VisualizationDemo } from "./demos/VisualizationDemo.tsx";
 import { DrawingDemo } from "./demos/DrawingDemo.tsx";
+
+const ActivityTracker = lazy(() => import("./projects/activity-tracker/App.tsx"));
+const TaxiTracker = lazy(() => import("./projects/taxi-tracker/App.tsx"));
+const RealEstateExplorer = lazy(() => import("./projects/real-estate-explorer/App.tsx"));
+const CommercialAreaAnalysis = lazy(() => import("./projects/commercial-area-analysis/App.tsx"));
 
 type DemoEntry = { id: string; label: string; component: () => JSX.Element };
 type SectionEntry = { section: string };
@@ -47,6 +52,13 @@ const DEMOS: SidebarItem[] = [
   { id: "drawing", label: "Drawing", component: DrawingDemo }
 ];
 
+const PROJECTS = [
+  { id: "activity-tracker", label: "운동 기록 트래커", component: ActivityTracker },
+  { id: "taxi-tracker", label: "실시간 택시 추적", component: TaxiTracker },
+  { id: "real-estate-explorer", label: "부동산 매물 탐색", component: RealEstateExplorer },
+  { id: "commercial-area-analysis", label: "상권 분석 지도", component: CommercialAreaAnalysis }
+];
+
 function isDemoEntry(item: SidebarItem): item is DemoEntry {
   return "id" in item;
 }
@@ -54,6 +66,11 @@ function isDemoEntry(item: SidebarItem): item is DemoEntry {
 function getDemoComponent(id: string) {
   const entry = DEMOS.find((d): d is DemoEntry => isDemoEntry(d) && d.id === id);
   return entry?.component ?? NaverMapDemo;
+}
+
+function getProjectComponent(id: string) {
+  const entry = PROJECTS.find((p) => p.id === id);
+  return entry?.component ?? ActivityTracker;
 }
 
 function SetupScreen({ onSetup }: { onSetup: (key: string) => void }) {
@@ -92,17 +109,22 @@ function SetupScreen({ onSetup }: { onSetup: (key: string) => void }) {
 
 function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { demoId } = useParams<{ demoId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
+
+  const isProjectsSection = location.pathname.startsWith("/projects");
 
   return (
     <nav className="sidebar">
       <div className="sidebar-title">Playground</div>
+      
       {DEMOS.map((item, i) => {
         if (isDemoEntry(item)) {
           return (
             <button
               key={item.id}
-              className={`sidebar-btn ${demoId === item.id ? "active" : ""}`}
+              className={`sidebar-btn ${!isProjectsSection && demoId === item.id ? "active" : ""}`}
               onClick={() => navigate(`/demo/${item.id}`)}
             >
               {item.label}
@@ -115,6 +137,17 @@ function Sidebar() {
           </div>
         );
       })}
+
+      <div className="sidebar-section">Projects</div>
+      {PROJECTS.map((project) => (
+        <button
+          key={project.id}
+          className={`sidebar-btn ${isProjectsSection && projectId === project.id ? "active" : ""}`}
+          onClick={() => navigate(`/projects/${project.id}`)}
+        >
+          {project.label}
+        </button>
+      ))}
     </nav>
   );
 }
@@ -128,6 +161,22 @@ function DemoLayout() {
       <Sidebar />
       <main className="main-content">
         <DemoComponent />
+      </main>
+    </div>
+  );
+}
+
+function ProjectLayout() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const ProjectComponent = getProjectComponent(projectId ?? "activity-tracker");
+
+  return (
+    <div className="app-layout">
+      <Sidebar />
+      <main className="main-content project-content">
+        <Suspense fallback={<div className="loading">로딩 중...</div>}>
+          <ProjectComponent />
+        </Suspense>
       </main>
     </div>
   );
@@ -158,6 +207,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/demo/navermap" replace />} />
         <Route path="/demo/:demoId" element={<DemoLayout />} />
+        <Route path="/projects/:projectId" element={<ProjectLayout />} />
         <Route path="/embed/:demoId" element={<EmbedLayout />} />
         <Route path="*" element={<Navigate to="/demo/navermap" replace />} />
       </Routes>
