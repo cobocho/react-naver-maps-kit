@@ -2,10 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 
 import { useMap } from "../../react/context/MapInstanceContext";
 
 export interface DotMapOptionProps {
-  data:
-    | naver.maps.LatLng[]
-    | naver.maps.PointArrayLiteral[]
-    | Array<{ lat: number; lng: number }>;
+  data: naver.maps.LatLng[] | naver.maps.PointArrayLiteral[] | Array<{ lat: number; lng: number }>;
   opacity?: number;
   radius?: number;
   strokeWeight?: number;
@@ -47,7 +44,9 @@ export const DotMap = forwardRef<DotMapRef, DotMapProps>(function DotMap(
   onDotMapReadyRef.current = onDotMapReady;
 
   const normalizeData = useCallback(
-    (inputData: DotMapOptionProps["data"]): naver.maps.LatLng[] | naver.maps.PointArrayLiteral[] => {
+    (
+      inputData: DotMapOptionProps["data"]
+    ): naver.maps.LatLng[] | naver.maps.PointArrayLiteral[] => {
       if (!inputData || inputData.length === 0) return [] as naver.maps.LatLng[];
 
       const first = inputData[0];

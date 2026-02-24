@@ -16,12 +16,12 @@ export interface DrawingManagerOptionProps {
   drawingControlOptions?: DrawingControlOptions;
   drawingMode?: naver.maps.drawing.DrawingMode;
   controlPointOptions?: DrawingControlPointOptions;
-  rectangleOptions?: naver.maps.RectangleOptions;
-  ellipseOptions?: naver.maps.EllipseOptions;
-  polylineOptions?: naver.maps.PolylineOptions;
-  arrowlineOptions?: naver.maps.PolylineOptions;
-  polygonOptions?: naver.maps.PolygonOptions;
-  markerOptions?: naver.maps.MarkerOptions;
+  rectangleOptions?: Partial<naver.maps.RectangleOptions>;
+  ellipseOptions?: Partial<naver.maps.EllipseOptions>;
+  polylineOptions?: Partial<naver.maps.PolylineOptions>;
+  arrowlineOptions?: Partial<naver.maps.PolylineOptions>;
+  polygonOptions?: Partial<naver.maps.PolygonOptions>;
+  markerOptions?: Partial<naver.maps.MarkerOptions>;
 }
 
 export interface DrawingManagerEventProps {

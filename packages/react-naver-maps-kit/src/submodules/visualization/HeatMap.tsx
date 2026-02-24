@@ -121,7 +121,7 @@ export const HeatMap = forwardRef<HeatMapRef, HeatMapProps>(function HeatMap(
 
     const createHeatMap = () => {
       if (heatMapRef.current) return;
-      
+
       const normalizedData = normalizeData(data);
 
       heatMap = new naver.maps.visualization.HeatMap({
