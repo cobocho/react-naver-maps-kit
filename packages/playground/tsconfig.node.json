@@ -11,7 +11,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "strict": true,
-    "erasableSyntaxOnly": true
+    "erasableSyntaxOnly": true,
+    "types": ["node"]
   },
   "include": ["vite.config.ts"]
 }

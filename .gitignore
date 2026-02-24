@@ -4,3 +4,4 @@ dist/
 *.log
 pnpm-debug.log*
 packages/docs/.env
+.pnpm-store/
