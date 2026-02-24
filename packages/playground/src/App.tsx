@@ -133,6 +133,17 @@ function DemoLayout() {
   );
 }
 
+function EmbedLayout() {
+  const { demoId } = useParams<{ demoId: string }>();
+  const DemoComponent = getDemoComponent(demoId ?? "navermap");
+
+  return (
+    <div className="embed-layout">
+      <DemoComponent />
+    </div>
+  );
+}
+
 function App() {
   const [ncpKeyId, setNcpKeyId] = useState(() =>
     String(import.meta.env.VITE_NCP_KEY_ID ?? import.meta.env.VITE_NCP_CLIENT_ID ?? "").trim()
@@ -147,6 +158,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/demo/navermap" replace />} />
         <Route path="/demo/:demoId" element={<DemoLayout />} />
+        <Route path="/embed/:demoId" element={<EmbedLayout />} />
         <Route path="*" element={<Navigate to="/demo/navermap" replace />} />
       </Routes>
     </NaverMapProvider>

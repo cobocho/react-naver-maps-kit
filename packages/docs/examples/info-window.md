@@ -2,6 +2,10 @@
 
 `InfoWindow` 컴포넌트로 지도 위에 정보 팝업을 표시하는 방법을 설명합니다.
 
+## 라이브 데모
+
+<DemoEmbed demo="infowindow" height="450px" />
+
 ## 기본 InfoWindow
 
 ```tsx

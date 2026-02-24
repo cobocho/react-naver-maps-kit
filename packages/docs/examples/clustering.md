@@ -2,6 +2,10 @@
 
 수십, 수백 개의 마커를 효율적으로 표시하기 위해 `MarkerClusterer`를 사용하는 방법을 설명합니다.
 
+## 라이브 데모
+
+<DemoEmbed demo="clusterer" height="500px" />
+
 ## 왜 클러스터링이 필요한가요?
 
 마커가 많을 때 발생하는 문제들:

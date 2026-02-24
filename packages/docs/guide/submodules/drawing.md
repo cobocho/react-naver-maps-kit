@@ -2,6 +2,10 @@
 
 Drawing 서브모듈은 사용자가 지도에 사각형, 타원, 폴리라인, 화살표가 있는 폴리라인, 폴리곤, 마커를 그릴 수 있는 그래픽 인터페이스를 제공합니다.
 
+## 라이브 데모
+
+<DemoEmbed demo="drawing" height="550px" />
+
 ## 설치 및 설정
 
 Drawing 서브모듈을 사용하려면 `NaverMapProvider`에 `submodules` prop을 설정해야 합니다.

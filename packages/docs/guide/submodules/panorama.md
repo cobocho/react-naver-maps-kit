@@ -2,6 +2,10 @@
 
 Panorama 서브모듈은 거리뷰(Street View)와 항공뷰(Aerial View)를 제공합니다.
 
+## 라이브 데모
+
+<DemoEmbed demo="panorama" height="500px" />
+
 ## 개요
 
 Panorama 모듈은 다음 기능을 제공합니다:

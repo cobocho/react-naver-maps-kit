@@ -2,6 +2,10 @@
 
 Visualization 서브모듈은 지리 데이터를 시각화하는 도구를 제공합니다.
 
+## 라이브 데모
+
+<DemoEmbed demo="visualization" height="550px" />
+
 ## 개요
 
 Visualization 모듈은 다음 기능을 제공합니다:
