@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 
 import { unzipSync } from "fflate";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type StyleOptions = naver.maps.StyleOptions;
@@ -147,7 +148,10 @@ function extractKmlFromKmz(arrayBuffer: ArrayBuffer): Document {
 }
 
 export const Kmz = forwardRef<KmzRef, KmzProps>(function KmzInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+  
   const dataRef = useRef<naver.maps.Data | null>(null);
   const dataEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onDataDestroyRef = useRef<KmzProps["onDataDestroy"]>(props.onDataDestroy);

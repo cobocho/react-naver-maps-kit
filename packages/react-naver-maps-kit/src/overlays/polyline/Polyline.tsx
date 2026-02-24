@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type PolylineOptions = naver.maps.PolylineOptions;
@@ -328,7 +329,10 @@ function buildPolylineEventBindings(props: PolylineProps) {
 }
 
 export const Polyline = forwardRef<PolylineRef, PolylineProps>(function PolylineInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+  
   const polylineRef = useRef<naver.maps.Polyline | null>(null);
   const polylineEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onPolylineDestroyRef = useRef<PolylineProps["onPolylineDestroy"]>(props.onPolylineDestroy);

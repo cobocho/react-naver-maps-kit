@@ -13,14 +13,19 @@ type BrowserWindow = Window & {
 
 export type NaverMapSdkStatus = "idle" | "loading" | "ready" | "error";
 
+export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+
 export interface NaverMapContextValue {
   sdkStatus: NaverMapSdkStatus;
   sdkError: Error | null;
-  map: naver.maps.Map | null;
-  setMap: (map: naver.maps.Map | null) => void;
   reloadSdk: () => Promise<void>;
   retrySdk: () => Promise<void>;
   clearSdkError: () => void;
+  submodules: Submodule[];
+  /** @deprecated Use useMapInstance() hook instead. Will be removed in future version. */
+  map: naver.maps.Map | null;
+  /** @deprecated Use MapInstanceContext instead. Will be removed in future version. */
+  setMap: (map: naver.maps.Map | null) => void;
 }
 
 export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
@@ -170,9 +175,10 @@ export function NaverMapProvider({
       setMap,
       reloadSdk,
       retrySdk: reloadSdk,
-      clearSdkError
+      clearSdkError,
+      submodules: submodules ?? []
     }),
-    [clearSdkError, map, reloadSdk, sdkError, sdkStatus]
+    [clearSdkError, map, reloadSdk, sdkError, sdkStatus, submodules]
   );
 
   return <NaverMapContext.Provider value={value}>{children}</NaverMapContext.Provider>;

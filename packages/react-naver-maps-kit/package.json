@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps-kit",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Modern React toolkit for Naver Maps",
   "type": "module",
   "sideEffects": false,
@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm clean && rolldown -c && tsc -p tsconfig.build.json",
+    "build": "pnpm clean && rolldown -c && tsc -p tsconfig.build.json && cp src/types/naver-maps-extensions.d.ts dist/ && echo '/// <reference path=\"./naver-maps-extensions.d.ts\" />' | cat - dist/index.d.ts > temp && mv temp dist/index.d.ts",
     "dev": "rolldown -c --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

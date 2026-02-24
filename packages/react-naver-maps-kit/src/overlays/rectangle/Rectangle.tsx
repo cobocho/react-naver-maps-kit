@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type RectangleOptions = naver.maps.RectangleOptions;
@@ -296,7 +297,10 @@ function buildRectangleEventBindings(props: RectangleProps) {
 
 export const Rectangle = forwardRef<RectangleRef, RectangleProps>(
   function RectangleInner(props, ref) {
-    const { map: contextMap, sdkStatus } = useNaverMap();
+    const { sdkStatus } = useNaverMap();
+    const mapInstanceContext = useMapInstance();
+    const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+    
     const rectangleRef = useRef<naver.maps.Rectangle | null>(null);
     const rectangleEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onRectangleDestroyRef = useRef<RectangleProps["onRectangleDestroy"]>(

@@ -99,6 +99,7 @@ export function MarkerClustererDemo() {
         <NaverMap
           defaultCenter={SEOUL_CENTER}
           defaultZoom={12}
+          overlayZoomEffect="all"
           style={{ width: "100%", height: 500 }}
         >
           <MarkerClusterer

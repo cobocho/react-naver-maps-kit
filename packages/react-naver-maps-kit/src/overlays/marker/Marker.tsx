@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { ClustererContext, ClustererVisibilityContext } from "../marker-clusterer/ClustererContext";
 
 import type { ReactNode, ReactPortal } from "react";
@@ -337,7 +338,10 @@ function toLatLngLiteral(position: MarkerOptions["position"]): { lat: number; ln
 
 export const Marker = forwardRef<MarkerRef, MarkerProps>(
   function MarkerInner(props, ref): ReactPortal | null {
-    const { map: contextMap, sdkStatus } = useNaverMap();
+    const { sdkStatus } = useNaverMap();
+    const mapInstanceContext = useMapInstance();
+    const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+    
     const clustererRegistry = useContext(ClustererContext);
     const visibleIds = useContext(ClustererVisibilityContext);
     const isInsideClusterer = clustererRegistry !== null && clustererRegistry.enabled;

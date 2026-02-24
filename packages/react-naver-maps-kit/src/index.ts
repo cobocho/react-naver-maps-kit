@@ -1,6 +1,8 @@
-export type NaverMapKitVersion = "1.2.0";
+/// <reference path="./types/naver-maps-extensions.d.ts" />
 
-export const version: NaverMapKitVersion = "1.2.0";
+export type NaverMapKitVersion = "1.3.0";
+
+export const version: NaverMapKitVersion = "1.3.0";
 
 export { loadNaverMapsScript } from "./core/loader/loadNaverMapsScript";
 export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScript";
@@ -20,10 +22,51 @@ export { GeoJson } from "./overlays/data/GeoJson";
 export { Gpx } from "./overlays/data/Gpx";
 export { Kmz } from "./overlays/data/Kmz";
 export { useNaverMap, useNaverMapInstance } from "./react/hooks/useNaverMap";
+export {
+  MapInstanceContext,
+  useMapInstance,
+  useMapInstanceRequired,
+  useMap,
+  usePanoramaInstance
+} from "./react/context/MapInstanceContext";
+
+export {
+  Panorama,
+  FlightSpot,
+  AroundControl,
+  PanoramaContext,
+  usePanorama
+} from "./submodules/panorama";
+export type { PanoramaProps, PanoramaRef } from "./submodules/panorama";
+export type { FlightSpotProps, FlightSpotRef } from "./submodules/panorama";
+export type { AroundControlProps, AroundControlRef } from "./submodules/panorama";
+export type { PanoramaContextValue } from "./submodules/panorama";
+
+export { HeatMap, DotMap } from "./submodules/visualization";
+export type {
+  HeatMapProps,
+  HeatMapRef,
+  HeatMapOptionProps,
+  DotMapProps,
+  DotMapRef,
+  DotMapOptionProps
+} from "./submodules/visualization";
+
+export { DrawingManager } from "./submodules/drawing";
+export type {
+  DrawingManagerProps,
+  DrawingManagerRef,
+  DrawingManagerOptionProps,
+  DrawingManagerEventProps,
+  DrawingControlOptions,
+  DrawingControlPointOptions
+} from "./submodules/drawing";
+
 export type {
   NaverMapContextValue,
   NaverMapProviderProps,
-  NaverMapSdkStatus
+  NaverMapSdkStatus,
+  Submodule
 } from "./react/provider/NaverMapProvider";
 export type { NaverMapProps } from "./react/components/NaverMap";
 export type { NaverMapRef } from "./react/components/NaverMap";
@@ -61,3 +104,4 @@ export type { GpxRef } from "./overlays/data/Gpx";
 export type { KmzProps } from "./overlays/data/Kmz";
 export type { KmzRef } from "./overlays/data/Kmz";
 export type { UseNaverMapOptions } from "./react/hooks/useNaverMap";
+export type { MapInstanceContextValue } from "./react/context/MapInstanceContext";

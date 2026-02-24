@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type GroundOverlayOptions = naver.maps.GroundOverlayOptions;
@@ -56,6 +57,7 @@ export interface GroundOverlayRef {
   getUrl: GroundOverlayMethod<"getUrl">;
   setMap: GroundOverlayMethod<"setMap">;
   setOpacity: GroundOverlayMethod<"setOpacity">;
+  setUrl: (url: string) => void | undefined;
 }
 
 function toGroundOverlayOptions(
@@ -176,7 +178,10 @@ function buildGroundOverlayEventBindings(props: GroundOverlayProps) {
 
 export const GroundOverlay = forwardRef<GroundOverlayRef, GroundOverlayProps>(
   function GroundOverlayInner(props, ref) {
-    const { map: contextMap, sdkStatus } = useNaverMap();
+    const { sdkStatus } = useNaverMap();
+    const mapInstanceContext = useMapInstance();
+    const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+    
     const groundOverlayRef = useRef<naver.maps.GroundOverlay | null>(null);
     const groundOverlayEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onGroundOverlayDestroyRef = useRef<GroundOverlayProps["onGroundOverlayDestroy"]>(
@@ -246,7 +251,16 @@ export const GroundOverlay = forwardRef<GroundOverlayRef, GroundOverlayProps>(
         getProjection: (...args) => invokeGroundOverlayMethod("getProjection", ...args),
         getUrl: (...args) => invokeGroundOverlayMethod("getUrl", ...args),
         setMap: (...args) => invokeGroundOverlayMethod("setMap", ...args),
-        setOpacity: (...args) => invokeGroundOverlayMethod("setOpacity", ...args)
+        setOpacity: (...args) => invokeGroundOverlayMethod("setOpacity", ...args),
+        setUrl: (url: string) => {
+          const groundOverlay = groundOverlayRef.current;
+          if (!groundOverlay) return undefined;
+          // setUrl exists in the official API but may not be in TypeScript types
+          const overlay = groundOverlay as naver.maps.GroundOverlay & {
+            setUrl?: (url: string) => void;
+          };
+          overlay.setUrl?.(url);
+        }
       }),
       [invokeGroundOverlayMethod]
     );
