@@ -1,5 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { useNaverMap } from "../../react/hooks/useNaverMap";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
@@ -307,7 +308,10 @@ function buildCircleEventBindings(props: CircleProps) {
 }
 
 export const Circle = forwardRef<CircleRef, CircleProps>(function CircleInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+
   const circleRef = useRef<naver.maps.Circle | null>(null);
   const circleEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onCircleDestroyRef = useRef<CircleProps["onCircleDestroy"]>(props.onCircleDestroy);

@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { NaverMapContext } from "../provider/NaverMapProvider";
+import { MapInstanceContext, type MapInstanceContextValue } from "../context/MapInstanceContext";
 
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
@@ -442,6 +443,7 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
 
   // ─── mapReady state: children 렌더 트리거 ───
   const [mapReady, setMapReady] = useState(false);
+  const [localMapInstance, setLocalMapInstance] = useState<naver.maps.Map | null>(null);
 
   // ─── 콜백/이벤트 핸들러를 ref로 관리 (effect 재실행 방지) ───
   const propsRef = useRef(props);
@@ -653,6 +655,7 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     mapRef.current = mapInstance;
     appliedOptionsRef.current = initOptions;
     setMap(mapInstance);
+    setLocalMapInstance(mapInstance);
     setMapReady(true);
     propsRef.current.onMapReady?.(mapInstance);
 
@@ -693,6 +696,7 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
       mapRef.current = null;
       appliedOptionsRef.current = {};
       setMap(null);
+      setLocalMapInstance(null);
       setMapReady(false);
       propsRef.current.onMapDestroy?.();
     };
@@ -754,6 +758,16 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     appliedOptionsRef.current = mapOptions;
   }, [mapOptions, isControlledCenter, isControlledZoom]);
 
+  // ─── MapInstanceContext value ───
+  const mapInstanceContextValue = useMemo<MapInstanceContextValue>(
+    () => ({
+      instance: localMapInstance,
+      setInstance: setLocalMapInstance as (instance: naver.maps.Map | naver.maps.Panorama | null) => void,
+      type: "map"
+    }),
+    [localMapInstance]
+  );
+
   // ─── 렌더 ───
   if (sdkStatus === "error") {
     return <>{props.fallback ?? <div {...divProps}>지도를 불러올 수 없습니다.</div>}</>;
@@ -764,9 +778,11 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
   }
 
   return (
-    <div ref={containerRef} {...divProps}>
-      {mapReady ? props.children : null}
-    </div>
+    <MapInstanceContext.Provider value={mapInstanceContextValue}>
+      <div ref={containerRef} {...divProps}>
+        {mapReady ? props.children : null}
+      </div>
+    </MapInstanceContext.Provider>
   );
 });
 

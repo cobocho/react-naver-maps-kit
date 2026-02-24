@@ -1,20 +1,25 @@
 # NaverMapProvider
 
-SDK 로딩 상태와 지도 인스턴스를 React Context로 제공하는 루트 컴포넌트입니다.
+SDK 로딩 상태를 React Context로 제공하는 루트 컴포넌트입니다.
 
 ## 타입 정의
 
 ```ts
 export type NaverMapSdkStatus = "idle" | "loading" | "ready" | "error";
 
+export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+
 export interface NaverMapContextValue {
   sdkStatus: NaverMapSdkStatus;
   sdkError: Error | null;
-  map: naver.maps.Map | null;
-  setMap: (map: naver.maps.Map | null) => void;
   reloadSdk: () => Promise<void>;
   retrySdk: () => Promise<void>;
   clearSdkError: () => void;
+  submodules: Submodule[];
+  /** @deprecated Use useMapInstance() hook instead. Will be removed in future version. */
+  map: naver.maps.Map | null;
+  /** @deprecated Use MapInstanceContext instead. Will be removed in future version. */
+  setMap: (map: naver.maps.Map | null) => void;
 }
 
 export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
@@ -36,8 +41,11 @@ export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
   - SDK 로딩 완료 후 호출됩니다.
 - `onError?: (error: Error) => void`
   - SDK 로딩 실패 또는 인증 실패 시 호출됩니다.
+- `submodules?: Submodule[]`
+  - 로드할 서브모듈 목록입니다.
+  - `"geocoder"`, `"panorama"`, `"drawing"`, `"visualization"` 중 선택합니다.
 - `LoadNaverMapsScriptOptions`
-  - `ncpKeyId`, `submodules`, `timeoutMs`, `nonce` 등 로더 옵션을 그대로 전달합니다.
+  - `ncpKeyId`, `timeoutMs`, `nonce` 등 로더 옵션을 그대로 전달합니다.
 
 ## Context 값 상세
 
@@ -45,13 +53,28 @@ export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
   - `idle | loading | ready | error` 상태 머신입니다.
 - `sdkError`
   - 마지막 SDK 에러를 보관합니다.
-- `map`
-  - 현재 `NaverMap`이 등록한 `naver.maps.Map` 인스턴스입니다.
-- `setMap(map | null)`
-  - 내부적으로 `NaverMap`이 지도 인스턴스를 등록/해제할 때 사용합니다.
 - `reloadSdk()`
   - SDK 로딩을 수동으로 다시 실행합니다.
 - `retrySdk()`
   - `reloadSdk`의 별칭입니다.
 - `clearSdkError()`
   - 에러 상태를 지우고 필요 시 상태를 `idle`로 되돌립니다.
+- `submodules`
+  - 로드된 서브모듈 목록입니다.
+- `map` _(deprecated)_
+  - 하위 호환성을 위해 유지됩니다. `useMapInstance()` 훅 사용을 권장합니다.
+- `setMap` _(deprecated)_
+  - 하위 호환성을 위해 유지됩니다. `MapInstanceContext` 사용을 권장합니다.
+
+## 아키텍처
+
+`NaverMapProvider`는 SDK 로딩과 인증만 담당합니다. 지도/파노라마 인스턴스는 각각 `NaverMap`, `Panorama` 컴포넌트가 `MapInstanceContext.Provider`로 제공합니다.
+
+```
+NaverMapProvider (SDK 로딩/인증)
+├── NaverMap (MapInstanceContext.Provider)
+│   ├── Marker (useMapInstance로 map 인스턴스 사용)
+│   └── Polyline
+└── Panorama (MapInstanceContext.Provider)
+    └── Marker (useMapInstance로 panorama 인스턴스 사용)
+```

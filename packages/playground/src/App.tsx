@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type JSX, useState } from "react";
 import { Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
 import { NaverMapProvider } from "react-naver-maps-kit";
 
@@ -12,6 +12,12 @@ import { RectangleDemo } from "./demos/RectangleDemo.tsx";
 import { EllipseDemo } from "./demos/EllipseDemo.tsx";
 import { GroundOverlayDemo } from "./demos/GroundOverlayDemo.tsx";
 import { MarkerClustererDemo } from "./demos/MarkerClustererDemo.tsx";
+import { GeoJsonDemo } from "./demos/GeoJsonDemo.tsx";
+import { GpxDemo } from "./demos/GpxDemo.tsx";
+import { KmzDemo } from "./demos/KmzDemo.tsx";
+import { PanoramaDemo } from "./demos/PanoramaDemo.tsx";
+import { VisualizationDemo } from "./demos/VisualizationDemo.tsx";
+import { DrawingDemo } from "./demos/DrawingDemo.tsx";
 
 type DemoEntry = { id: string; label: string; component: () => JSX.Element };
 type SectionEntry = { section: string };
@@ -29,8 +35,16 @@ const DEMOS: SidebarItem[] = [
   { id: "polyline", label: "Polyline", component: PolylineDemo },
   { id: "rectangle", label: "Rectangle", component: RectangleDemo },
   { id: "groundoverlay", label: "GroundOverlay", component: GroundOverlayDemo },
+  { section: "Data" },
+  { id: "geojson", label: "GeoJson", component: GeoJsonDemo },
+  { id: "gpx", label: "Gpx", component: GpxDemo },
+  { id: "kmz", label: "Kmz", component: KmzDemo },
   { section: "Clustering" },
-  { id: "clusterer", label: "MarkerClusterer", component: MarkerClustererDemo }
+  { id: "clusterer", label: "MarkerClusterer", component: MarkerClustererDemo },
+  { section: "Submodules" },
+  { id: "panorama", label: "Panorama", component: PanoramaDemo },
+  { id: "visualization", label: "Visualization", component: VisualizationDemo },
+  { id: "drawing", label: "Drawing", component: DrawingDemo }
 ];
 
 function isDemoEntry(item: SidebarItem): item is DemoEntry {
@@ -129,7 +143,7 @@ function App() {
   }
 
   return (
-    <NaverMapProvider ncpKeyId={ncpKeyId}>
+    <NaverMapProvider ncpKeyId={ncpKeyId} submodules={["panorama", "visualization", "drawing"]}>
       <Routes>
         <Route path="/" element={<Navigate to="/demo/navermap" replace />} />
         <Route path="/demo/:demoId" element={<DemoLayout />} />

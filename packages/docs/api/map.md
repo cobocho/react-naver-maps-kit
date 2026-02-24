@@ -10,7 +10,9 @@ interface NaverMapOptionProps {
   baseTileOpacity?: number;
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
+  defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
   zoom?: number;
+  defaultZoom?: number;
   disableDoubleClickZoom?: boolean;
   disableDoubleTapZoom?: boolean;
   disableKineticPan?: boolean;
@@ -48,11 +50,13 @@ interface NaverMapOptionProps {
 }
 
 interface NaverMapLifecycleProps {
+  children?: React.ReactNode;
   onMapReady?: (map: naver.maps.Map) => void;
   onMapDestroy?: () => void;
   onMapError?: (error: Error) => void;
   retryOnError?: boolean;
   retryDelayMs?: number;
+  fallback?: React.ReactNode;
 }
 
 interface NaverMapEventProps {
@@ -214,8 +218,10 @@ export interface NaverMapRef {
 | `background`              | `string`                                        | 지도 배경 색상/이미지 URL      |
 | `baseTileOpacity`         | `number`                                        | 기본 타일 레이어 불투명도(0~1) |
 | `bounds`                  | `naver.maps.Bounds \| naver.maps.BoundsLiteral` | 초기 표시 경계                 |
-| `center`                  | `naver.maps.Coord \| naver.maps.CoordLiteral`   | 지도 중심 좌표                 |
-| `zoom`                    | `number`                                        | 지도 줌 레벨                   |
+| `center`                  | `naver.maps.Coord \| naver.maps.CoordLiteral`   | 지도 중심 좌표 (controlled)    |
+| `defaultCenter`           | `naver.maps.Coord \| naver.maps.CoordLiteral`   | 초기 중심 좌표 (uncontrolled)  |
+| `zoom`                    | `number`                                        | 지도 줌 레벨 (controlled)      |
+| `defaultZoom`             | `number`                                        | 초기 줌 레벨 (uncontrolled)    |
 | `disableDoubleClickZoom`  | `boolean`                                       | 더블클릭 확대 비활성화         |
 | `disableDoubleTapZoom`    | `boolean`                                       | 더블탭 확대 비활성화           |
 | `disableKineticPan`       | `boolean`                                       | 관성 스크롤 비활성화           |
@@ -253,13 +259,15 @@ export interface NaverMapRef {
 
 ## 생명주기 및 오류 처리 프로퍼티
 
-| Prop           | Type                            | Description                  |
-| -------------- | ------------------------------- | ---------------------------- |
-| `onMapReady`   | `(map: naver.maps.Map) => void` | 지도 인스턴스 생성 완료 콜백 |
-| `onMapDestroy` | `() => void`                    | 지도 인스턴스 정리 완료 콜백 |
-| `onMapError`   | `(error: Error) => void`        | 생성/업데이트 실패 콜백      |
-| `retryOnError` | `boolean`                       | 에러 시 SDK 재시도 여부      |
-| `retryDelayMs` | `number`                        | 재시도 지연(ms)              |
+| Prop           | Type                            | Description                     |
+| -------------- | ------------------------------- | ------------------------------- |
+| `children`     | `React.ReactNode`               | 지도 내부에 렌더링할 자식 요소  |
+| `onMapReady`   | `(map: naver.maps.Map) => void` | 지도 인스턴스 생성 완료 콜백    |
+| `onMapDestroy` | `() => void`                    | 지도 인스턴스 정리 완료 콜백    |
+| `onMapError`   | `(error: Error) => void`        | 생성/업데이트 실패 콜백         |
+| `retryOnError` | `boolean`                       | 에러 시 SDK 재시도 여부         |
+| `retryDelayMs` | `number`                        | 재시도 지연(ms)                 |
+| `fallback`     | `React.ReactNode`               | SDK 로딩/에러 시 표시할 대체 UI |
 
 ## 지도 이벤트 프로퍼티
 
@@ -378,3 +386,6 @@ function RefExample() {
 - 변경된 옵션만 diff 계산 후 반영합니다.
 - `center`, `zoom`, `mapTypeId`는 imperative API로 정확히 적용합니다.
 - 언마운트 시 이벤트 리스너 정리, destroy 호출, 컨테이너 초기화까지 수행합니다.
+- `defaultCenter`/`defaultZoom`은 uncontrolled 모드로, 초기값만 설정하고 이후 내부 상태로 관리합니다.
+- `center`/`zoom`은 controlled 모드로, React 상태와 동기화합니다.
+- `fallback`은 SDK 로딩 중(`loading`) 또는 에러 발생 시(`error`) 표시됩니다.

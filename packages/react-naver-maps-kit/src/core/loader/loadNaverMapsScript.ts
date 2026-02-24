@@ -46,39 +46,58 @@ function getClientKey(options: LoadNaverMapsScriptOptions): { param: string; val
   );
 }
 
-function isNaverMapsReady(): boolean {
+function isNaverMapsReady(submodules?: Array<Submodule>): boolean {
   if (typeof window === "undefined") {
     return false;
   }
 
   const browserWindow = window as BrowserWindow;
+  const maps = browserWindow.naver?.maps as Record<string, unknown> | undefined;
 
-  return Boolean(browserWindow.naver?.maps);
+  if (!maps) {
+    return false;
+  }
+
+  if (submodules && submodules.length > 0) {
+    const submoduleMap: Record<Submodule, string> = {
+      panorama: "Panorama",
+      geocoder: "Service",
+      drawing: "drawing",
+      visualization: "visualization"
+    };
+
+    for (const submodule of submodules) {
+      const key = submoduleMap[submodule];
+      if (!maps[key]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 function createScriptUrl(options: LoadNaverMapsScriptOptions): string {
   const clientKey = getClientKey(options);
-  const params = new URLSearchParams();
-
-  params.set(clientKey.param, clientKey.value);
+  const queryParts: string[] = [`${clientKey.param}=${encodeURIComponent(clientKey.value)}`];
 
   if (options.submodules && options.submodules.length > 0) {
-    params.set("submodules", options.submodules.join(","));
+    queryParts.push(`submodules=${options.submodules.join(",")}`);
   }
 
-  return `${NAVER_MAPS_SCRIPT_BASE_URL}?${params.toString()}`;
+  return `${NAVER_MAPS_SCRIPT_BASE_URL}?${queryParts.join("&")}`;
 }
 
-function waitForNaverMapsReady(timeoutMs: number): Promise<void> {
+function waitForNaverMapsReady(timeoutMs: number, submodules?: Array<Submodule>): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (isNaverMapsReady()) {
+    if (isNaverMapsReady(submodules)) {
       resolve();
       return;
     }
 
     const startedAt = Date.now();
     const intervalId = setInterval(() => {
-      if (isNaverMapsReady()) {
+      if (isNaverMapsReady(submodules)) {
         clearInterval(intervalId);
         resolve();
         return;
@@ -116,7 +135,7 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
     return Promise.reject(new Error("loadNaverMapsScript can only run in a browser environment."));
   }
 
-  if (isNaverMapsReady()) {
+  if (isNaverMapsReady(options.submodules)) {
     return Promise.resolve();
   }
 
@@ -144,7 +163,7 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
       };
 
       const handleReady = () => {
-        waitForNaverMapsReady(timeoutMs)
+        waitForNaverMapsReady(timeoutMs, options.submodules)
           .then(() => {
             cleanup();
             resolve();
@@ -209,7 +228,7 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
     const onLoad = () => {
       script.dataset.reactNaverMapsKitLoaded = "true";
 
-      waitForNaverMapsReady(timeoutMs)
+      waitForNaverMapsReady(timeoutMs, options.submodules)
         .then(() => {
           cleanup();
           resolve();

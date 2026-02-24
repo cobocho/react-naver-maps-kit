@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Marker, MarkerClusterer, NaverMap } from "react-naver-maps-kit";
-import type { BuiltInAlgorithmConfig, Cluster } from "react-naver-maps-kit";
+import type { BuiltInAlgorithmConfig } from "react-naver-maps-kit";
 
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";
@@ -99,6 +99,7 @@ export function MarkerClustererDemo() {
         <NaverMap
           defaultCenter={SEOUL_CENTER}
           defaultZoom={12}
+          overlayZoomEffect="all"
           style={{ width: "100%", height: 500 }}
         >
           <MarkerClusterer
@@ -126,7 +127,7 @@ export function MarkerClustererDemo() {
                     background: "red",
                     borderRadius: "50%",
                     border: "2px solid #fff",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)"ㅇ
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
                   }}
                 />
               </Marker>

@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { createPortal } from "react-dom";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 
 import type { ReactNode, ReactPortal } from "react";
 
@@ -297,7 +298,10 @@ function setInfoWindowOptionByKey(
 
 export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
   function InfoWindowInner(props, ref): ReactPortal | null {
-    const { map, sdkStatus } = useNaverMap();
+    const { sdkStatus } = useNaverMap();
+    const mapInstanceContext = useMapInstance();
+    const map = mapInstanceContext?.instance as naver.maps.Map | null;
+    
     const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
     const infoWindowEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onInfoWindowDestroyRef = useRef<InfoWindowProps["onInfoWindowDestroy"]>(

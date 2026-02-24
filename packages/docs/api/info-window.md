@@ -179,3 +179,4 @@ export interface InfoWindowRef {
 - `children`이 있으면 `content` 대신 React 콘텐츠를 우선 사용합니다.
 - `visible`이 `true`일 때 `anchor` 또는 `position` 기준으로 열립니다.
 - 언마운트 시 리스너 정리 후 `close()`와 `setMap(null)`을 수행합니다.
+- `map` prop을 지정하지 않으면 가장 가까운 `NaverMap` 또는 `Panorama`의 인스턴스를 자동으로 사용합니다.
