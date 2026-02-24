@@ -1,6 +1,8 @@
-export type NaverMapKitVersion = "1.2.0";
+/// <reference path="./types/naver-maps-extensions.d.ts" />
 
-export const version: NaverMapKitVersion = "1.2.0";
+export type NaverMapKitVersion = "1.3.0";
+
+export const version: NaverMapKitVersion = "1.3.0";
 
 export { loadNaverMapsScript } from "./core/loader/loadNaverMapsScript";
 export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScript";
