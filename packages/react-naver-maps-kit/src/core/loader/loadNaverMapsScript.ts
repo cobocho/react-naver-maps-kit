@@ -79,15 +79,13 @@ function isNaverMapsReady(submodules?: Array<Submodule>): boolean {
 
 function createScriptUrl(options: LoadNaverMapsScriptOptions): string {
   const clientKey = getClientKey(options);
-  const params = new URLSearchParams();
-
-  params.set(clientKey.param, clientKey.value);
+  const queryParts: string[] = [`${clientKey.param}=${encodeURIComponent(clientKey.value)}`];
 
   if (options.submodules && options.submodules.length > 0) {
-    params.set("submodules", options.submodules.join(","));
+    queryParts.push(`submodules=${options.submodules.join(",")}`);
   }
 
-  return `${NAVER_MAPS_SCRIPT_BASE_URL}?${params.toString()}`;
+  return `${NAVER_MAPS_SCRIPT_BASE_URL}?${queryParts.join("&")}`;
 }
 
 function waitForNaverMapsReady(timeoutMs: number, submodules?: Array<Submodule>): Promise<void> {
