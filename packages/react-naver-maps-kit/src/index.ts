@@ -40,6 +40,16 @@ export type { FlightSpotProps, FlightSpotRef } from "./submodules/panorama";
 export type { AroundControlProps, AroundControlRef } from "./submodules/panorama";
 export type { PanoramaContextValue } from "./submodules/panorama";
 
+export { HeatMap, DotMap } from "./submodules/visualization";
+export type {
+  HeatMapProps,
+  HeatMapRef,
+  HeatMapOptionProps,
+  DotMapProps,
+  DotMapRef,
+  DotMapOptionProps
+} from "./submodules/visualization";
+
 export type {
   NaverMapContextValue,
   NaverMapProviderProps,
