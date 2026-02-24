@@ -57,9 +57,7 @@ export default defineConfig({
         items: [
           { text: "Panorama", link: "/guide/submodules/panorama" },
           { text: "Visualization", link: "/guide/submodules/visualization" },
-          { text: "Geocoder", link: "/guide/submodules/geocoder" },
-          { text: "Drawing", link: "/guide/submodules/drawing" },
-          { text: "GL", link: "/guide/submodules/gl" }
+          { text: "Drawing", link: "/guide/submodules/drawing" }
         ]
       },
       {
