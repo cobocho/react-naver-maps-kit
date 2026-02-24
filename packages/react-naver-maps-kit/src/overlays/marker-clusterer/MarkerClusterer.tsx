@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { Marker } from "../marker/Marker";
 
 import { createAlgorithm, isBuiltInConfig } from "./algorithms/createAlgorithm";
@@ -138,7 +139,9 @@ export function MarkerClusterer<TData = unknown>(props: MarkerClustererProps<TDa
     children
   } = props;
 
-  const { map, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const map = mapInstanceContext?.instance as naver.maps.Map | null;
 
   // ── Registry ──────────────────────────────────────────────────
 

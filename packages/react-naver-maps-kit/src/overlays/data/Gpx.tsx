@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type StyleOptions = naver.maps.StyleOptions;
@@ -131,7 +132,10 @@ function parseXml(xmlString: string): Document {
 }
 
 export const Gpx = forwardRef<GpxRef, GpxProps>(function GpxInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+  
   const dataRef = useRef<naver.maps.Data | null>(null);
   const dataEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onDataDestroyRef = useRef<GpxProps["onDataDestroy"]>(props.onDataDestroy);

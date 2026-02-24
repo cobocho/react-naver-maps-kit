@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type PolygonOptions = naver.maps.PolygonOptions;
@@ -321,7 +322,10 @@ function buildPolygonEventBindings(props: PolygonProps) {
 }
 
 export const Polygon = forwardRef<PolygonRef, PolygonProps>(function PolygonInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+  
   const polygonRef = useRef<naver.maps.Polygon | null>(null);
   const polygonEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onPolygonDestroyRef = useRef<PolygonProps["onPolygonDestroy"]>(props.onPolygonDestroy);

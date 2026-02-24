@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type GroundOverlayOptions = naver.maps.GroundOverlayOptions;
@@ -177,7 +178,10 @@ function buildGroundOverlayEventBindings(props: GroundOverlayProps) {
 
 export const GroundOverlay = forwardRef<GroundOverlayRef, GroundOverlayProps>(
   function GroundOverlayInner(props, ref) {
-    const { map: contextMap, sdkStatus } = useNaverMap();
+    const { sdkStatus } = useNaverMap();
+    const mapInstanceContext = useMapInstance();
+    const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+    
     const groundOverlayRef = useRef<naver.maps.GroundOverlay | null>(null);
     const groundOverlayEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onGroundOverlayDestroyRef = useRef<GroundOverlayProps["onGroundOverlayDestroy"]>(

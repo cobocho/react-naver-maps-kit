@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { useNaverMap } from "../../react/hooks/useNaverMap";
+import { useMapInstance } from "../../react/context/MapInstanceContext";
 import { bindOverlayEventListeners, removeOverlayEventListeners } from "../shared/overlayUtils";
 
 type EllipseOptions = naver.maps.EllipseOptions;
@@ -292,7 +293,10 @@ function buildEllipseEventBindings(props: EllipseProps) {
 }
 
 export const Ellipse = forwardRef<EllipseRef, EllipseProps>(function EllipseInner(props, ref) {
-  const { map: contextMap, sdkStatus } = useNaverMap();
+  const { sdkStatus } = useNaverMap();
+  const mapInstanceContext = useMapInstance();
+  const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
+  
   const ellipseRef = useRef<naver.maps.Ellipse | null>(null);
   const ellipseEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onEllipseDestroyRef = useRef<EllipseProps["onEllipseDestroy"]>(props.onEllipseDestroy);
