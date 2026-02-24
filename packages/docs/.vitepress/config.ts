@@ -5,7 +5,12 @@ export default defineConfig({
   title: "React Naver Maps KIT",
   description: "네이버 지도를 React처럼 사용하세요",
   
+  sitemap: {
+    hostname: 'https://react-naver-maps-kit.pages.dev'
+  },
+
   head: [
+    ['meta', { name: 'google-site-verification', content: 'K4M9J0rfWktT9Hf766NXdXfYHRg27p8pvrC3vKdpUOA' }],
     ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
     ['meta', { name: 'theme-color', content: '#03C75A' }],
     ['meta', { property: 'og:type', content: 'website' }],
