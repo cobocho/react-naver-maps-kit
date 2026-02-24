@@ -7,6 +7,10 @@
     "build:lib": "pnpm --filter react-naver-maps-kit build",
     "build:docs": "pnpm build:lib && pnpm --filter react-naver-maps-kit-docs build",
     "build:playground": "pnpm build:lib && pnpm --filter playground build",
+    "build:activity-tracker": "pnpm build:lib && pnpm --filter activity-tracker build",
+    "build:taxi-tracker": "pnpm build:lib && pnpm --filter taxi-tracker build",
+    "build:real-estate-explorer": "pnpm build:lib && pnpm --filter real-estate-explorer build",
+    "build:commercial-area-analysis": "pnpm build:lib && pnpm --filter commercial-area-analysis build",
     "dev": "pnpm --filter playground dev",
     "dev:docs": "pnpm --filter react-naver-maps-kit-docs dev"
   },
