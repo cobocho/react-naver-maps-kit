@@ -4,4 +4,7 @@ dist/
 *.log
 pnpm-debug.log*
 packages/docs/.env
+packages/react-naver-maps-kit/e2e/app/.env.e2e
+packages/react-naver-maps-kit/playwright-report/
+packages/react-naver-maps-kit/test-results/
 .pnpm-store/
