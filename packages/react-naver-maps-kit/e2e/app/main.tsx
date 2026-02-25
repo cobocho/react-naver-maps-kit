@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 
 import { mapRoutes } from "./pages/MapTestApp";
+import { markerRoutes } from "./pages/MarkerTestApp";
 
 const routes: Record<string, React.FC> = {
   ...mapRoutes,
+  ...markerRoutes,
 };
 
 function App() {
