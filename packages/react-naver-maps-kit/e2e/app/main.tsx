@@ -3,11 +3,13 @@ import ReactDOM from "react-dom/client";
 
 import { mapRoutes } from "./pages/MapTestApp";
 import { markerRoutes } from "./pages/MarkerTestApp";
+import { infoWindowRoutes } from "./pages/InfoWindowTestApp";
 import "./styles.css";
 
 const routes: Record<string, React.FC> = {
   ...mapRoutes,
   ...markerRoutes,
+  ...infoWindowRoutes,
 };
 
 function App() {
