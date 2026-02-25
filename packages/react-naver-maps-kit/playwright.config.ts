@@ -8,16 +8,19 @@ export default defineConfig({
   workers: process.env.CI ? 4 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:9000",
     trace: "on-first-retry",
     headless: !!process.env.CI
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command:
-      "pnpm run build && pnpm exec vite --config e2e/app/vite.config.ts --port 5173 --mode e2e",
-    url: "http://localhost:5173",
+      "pnpm run build && pnpm exec vite --config e2e/app/vite.config.ts --port 9000 --mode e2e",
+    url: "http://localhost:9000",
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000
+    timeout: 60_000,
+    env: {
+      VITE_NAVER_MAP_CLIENT_ID: env?.VITE_NAVER_MAP_CLIENT_ID || ""
+    }
   }
 });
