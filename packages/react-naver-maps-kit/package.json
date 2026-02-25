@@ -27,7 +27,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "e2e:marker": "playwright test marker.spec.ts",
     "e2e:ci": "CI=1 playwright test",
     "e2e:install": "playwright install chromium",
     "lint": "eslint . --max-warnings=0",
