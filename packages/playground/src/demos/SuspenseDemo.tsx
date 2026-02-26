@@ -31,7 +31,7 @@ export function SuspenseDemo() {
   const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
   const { entries, log, clear } = useEventLog();
 
-  const [resetKey, setResetKey] = useState(0);
+  const [_, setResetKey] = useState(0);
 
   const loadingFallbackStyle = {
     width: "100%",
