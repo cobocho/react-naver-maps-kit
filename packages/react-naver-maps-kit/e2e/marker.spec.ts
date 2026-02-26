@@ -171,6 +171,76 @@ test.describe("3. 옵션 prop 반영", () => {
 
     await expect(page.getByTestId("opt-zindex")).toHaveText("999");
   });
+
+  test("cursor 변경 → ref.getCursor() 반영", async ({ page }) => {
+    await page.getByTestId("change-cursor").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("read-options").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("opt-cursor")).toHaveText("crosshair");
+  });
+
+  test("icon 변경 → ref.getIcon() 반영", async ({ page }) => {
+    await page.getByTestId("change-icon").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("read-options").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("opt-icon-kind")).toHaveText("icon-b");
+  });
+
+  test("shape 변경 → ref.getShape() 반영", async ({ page }) => {
+    await page.getByTestId("change-shape").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("read-options").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("opt-shape-kind")).toHaveText("poly:8");
+  });
+
+  test("title/visible/zIndex/cursor/icon/shape 변경 이벤트가 발생한다", async ({ page }) => {
+    const titleBefore = Number(await page.getByTestId("evt-title-changed").textContent());
+    const visibleBefore = Number(await page.getByTestId("evt-visible-changed").textContent());
+    const zIndexBefore = Number(await page.getByTestId("evt-zindex-changed").textContent());
+    const cursorBefore = Number(await page.getByTestId("evt-cursor-changed").textContent());
+    const iconBefore = Number(await page.getByTestId("evt-icon-changed").textContent());
+    const shapeBefore = Number(await page.getByTestId("evt-shape-changed").textContent());
+
+    await page.getByTestId("change-title").click();
+    await page.getByTestId("toggle-visible").click();
+    await page.getByTestId("change-zindex").click();
+    await page.getByTestId("change-cursor").click();
+    await page.getByTestId("change-icon").click();
+    await page.getByTestId("change-shape").click();
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-title-changed").textContent()))
+      .toBeGreaterThan(titleBefore);
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-visible-changed").textContent()))
+      .toBeGreaterThan(visibleBefore);
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-zindex-changed").textContent()))
+      .toBeGreaterThan(zIndexBefore);
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-cursor-changed").textContent()))
+      .toBeGreaterThan(cursorBefore);
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-icon-changed").textContent()))
+      .toBeGreaterThan(iconBefore);
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-shape-changed").textContent()))
+      .toBeGreaterThan(shapeBefore);
+  });
 });
 
 /* ─── 4. 이벤트 흐름 ─── */
@@ -178,10 +248,9 @@ test.describe("3. 옵션 prop 반영", () => {
 test.describe("4. 이벤트 흐름", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/marker/events");
-    await expect(page.getByTestId("map-ready")).toHaveText("true", { timeout: MAP_LOAD_TIMEOUT });
     // 마커 DOM이 렌더될 때까지 대기
     await expect(page.getByTestId("marker-element")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
-    await page.waitForTimeout(1000);
+    await expect(page.getByTestId("map-ready")).toHaveText("true");
     await page.getByTestId("clear-log").click();
     await page.waitForTimeout(500);
   });
@@ -198,6 +267,55 @@ test.describe("4. 이벤트 흐름", () => {
     const log: string[] = JSON.parse(logText!);
 
     expect(log).toContain("click");
+  });
+
+  test("마커 더블클릭/우클릭 이벤트가 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-dblclick").click();
+    await page.getByTestId("trigger-rightclick").click();
+    await page.waitForTimeout(500);
+
+    const logText = await page.getByTestId("event-log").textContent();
+    const log: string[] = JSON.parse(logText!);
+
+    expect(log).toContain("dblclick");
+    expect(log).toContain("rightclick");
+  });
+
+  test("마커 mousedown → mouseup 순서가 보장된다", async ({ page }) => {
+    const markerEl = page.getByTestId("marker-element");
+    const box = await markerEl.boundingBox();
+    expect(box).not.toBeNull();
+
+    const cx = box!.x + box!.width / 2;
+    const cy = box!.y + box!.height / 2;
+
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.waitForTimeout(100);
+    await page.mouse.up();
+    await page.waitForTimeout(800);
+
+    const logText = await page.getByTestId("event-log").textContent();
+    const log: string[] = JSON.parse(logText!);
+
+    expect(log).toContain("mousedown");
+    expect(log).toContain("mouseup");
+
+    const downIdx = log.indexOf("mousedown");
+    const upIdx = log.indexOf("mouseup");
+    expect(downIdx).toBeLessThan(upIdx);
+  });
+
+  test("마커 touchstart/touchend 이벤트가 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-touchstart").click();
+    await page.getByTestId("trigger-touchend").click();
+    await page.waitForTimeout(500);
+
+    const logText = await page.getByTestId("event-log").textContent();
+    const log: string[] = JSON.parse(logText!);
+
+    expect(log).toContain("touchstart");
+    expect(log).toContain("touchend");
   });
 
   test("마커 드래그 → onDragStart → onDragEnd 순서 보장", async ({ page }) => {
@@ -298,6 +416,55 @@ test.describe("5. Ref 기반 imperative 동작", () => {
     await expect(page.getByTestId("ref-draggable")).toHaveText("true");
   });
 
+  test("ref.setClickable/setTitle/setCursor/setZIndex 반영", async ({ page }) => {
+    await page.getByTestId("ref-set-clickable").click();
+    await page.getByTestId("ref-set-title").click();
+    await page.getByTestId("ref-set-cursor").click();
+    await page.getByTestId("ref-set-zindex").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("ref-read-state").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("ref-clickable")).toHaveText("true");
+    await expect(page.getByTestId("ref-title")).toHaveText("ref-title");
+    await expect(page.getByTestId("ref-cursor")).toHaveText("crosshair");
+    await expect(page.getByTestId("ref-zindex")).toHaveText("777");
+  });
+
+  test("ref.setIcon/setShape 반영", async ({ page }) => {
+    await page.getByTestId("ref-set-icon").click();
+    await page.getByTestId("ref-set-shape").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("ref-read-state").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("ref-icon-kind")).toHaveText("icon-b");
+    await expect(page.getByTestId("ref-shape-kind")).toHaveText("poly:8");
+  });
+
+  test("ref.setOptions로 title/cursor를 동시 변경", async ({ page }) => {
+    await page.getByTestId("ref-set-options").click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("ref-read-state").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("ref-title")).toHaveText("options-title");
+    await expect(page.getByTestId("ref-cursor")).toHaveText("pointer");
+  });
+
+  test("ref.getMap/getElement/getDrawingRect/getOptions 값을 읽을 수 있다", async ({ page }) => {
+    await page.getByTestId("ref-read-state").click();
+    await page.waitForTimeout(500);
+
+    await expect(page.getByTestId("ref-map-bound")).toHaveText("true");
+    await expect(page.getByTestId("ref-element-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-drawing-rect-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-options-exists")).toHaveText("true");
+  });
+
   test("ref 초기 상태값이 props와 일치", async ({ page }) => {
     await page.getByTestId("ref-read-state").click();
     await page.waitForTimeout(500);
@@ -311,6 +478,8 @@ test.describe("5. Ref 기반 imperative 동작", () => {
 
     await expect(page.getByTestId("ref-visible")).toHaveText("true");
     await expect(page.getByTestId("ref-draggable")).toHaveText("false");
+    await expect(page.getByTestId("ref-clickable")).toHaveText("false");
+    await expect(page.getByTestId("ref-title")).toHaveText("초기 타이틀");
   });
 });
 
