@@ -1,32 +1,32 @@
-## Related Issue
+## 관련 이슈
 
 - Closes #
 
-## What Changed
+## 변경 요약
 
 -
 
-## Why
+## 변경 범위
+
+- [ ] 라이브러리 코드
+- [ ] 문서/예제
+- [ ] 테스트(e2e/unit)
+- [ ] CI/빌드
+
+## 검증
+
+- [ ] `pnpm check:lib`
+- [ ] 관련 테스트 실행
+
+## Breaking Changes
+
+- [ ] 없음
+- [ ] 있음 (아래에 영향/마이그레이션 작성)
+
+## 마이그레이션(브레이킹인 경우)
 
 -
 
-## Scope Check
-
-- [ ] Changes are limited to this issue's scope
-- [ ] No unrelated refactoring included
-
-## Validation
-
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm build`
-
-## Breaking Change
-
-- [ ] No
-- [ ] Yes (describe below)
-
-## Notes
+## 참고 사항
 
 -
