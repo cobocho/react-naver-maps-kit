@@ -302,7 +302,8 @@ test.describe("4. Ref 기반 imperative 동작", () => {
     await page.getByTestId("ref-read-state").click();
 
     const beforeUrl = (await page.getByTestId("ref-url").textContent()) ?? "";
-    const setUrlSupported = (await page.getByTestId("ref-seturl-supported").textContent()) === "true";
+    const setUrlSupported =
+      (await page.getByTestId("ref-seturl-supported").textContent()) === "true";
 
     await page.getByTestId("ref-set-url-2").click();
     await page.getByTestId("ref-read-state").click();
@@ -391,7 +392,9 @@ test.describe("5. 복수 GroundOverlay / 동적 추가·제거", () => {
     await expect(page.getByTestId("ground-overlay-count")).toHaveText("2");
 
     await expect
-      .poll(async () => Number(await page.getByTestId("ground-overlay-destroy-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("ground-overlay-destroy-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
   });
 

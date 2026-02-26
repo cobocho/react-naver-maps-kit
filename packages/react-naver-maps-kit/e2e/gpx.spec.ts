@@ -16,9 +16,13 @@ test.describe("1. basic", () => {
     await expect(page.getByTestId("map-ready")).toHaveText("true", { timeout: MAP_LOAD_TIMEOUT });
   });
 
-  test("GPX-01: 기본 URL 로드 시 data ready/features added 후 feature를 조회할 수 있다", async ({ page }) => {
+  test("GPX-01: 기본 URL 로드 시 data ready/features added 후 feature를 조회할 수 있다", async ({
+    page
+  }) => {
     await expect.poll(async () => readNumber(page, "data-ready-count")).toBeGreaterThanOrEqual(1);
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThanOrEqual(1);
 
     await page.getByTestId("read-state").click();
 
@@ -58,10 +62,14 @@ test.describe("2. url switch", () => {
     await page.getByTestId("set-url-b").click();
 
     await expect(page.getByTestId("url-state")).toHaveText("/gpx-b.gpx");
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThan(beforeAddedCount);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThan(beforeAddedCount);
 
     await page.getByTestId("read-state").click();
-    await expect.poll(async () => readNumber(page, "geojson-feature-count")).not.toBe(beforeGeoCount);
+    await expect
+      .poll(async () => readNumber(page, "geojson-feature-count"))
+      .not.toBe(beforeGeoCount);
   });
 
   test("GPX-05: URL 전환 과정에서 정상 케이스는 error가 증가하지 않는다", async ({ page }) => {
@@ -154,7 +162,9 @@ test.describe("4. ref", () => {
     await expect.poll(async () => readNumber(page, "feature-count")).toBeLessThan(before);
   });
 
-  test("GPX-12: ref.overrideStyle/revertStyle 호출 후에도 Data 인스턴스는 정상 상태다", async ({ page }) => {
+  test("GPX-12: ref.overrideStyle/revertStyle 호출 후에도 Data 인스턴스는 정상 상태다", async ({
+    page
+  }) => {
     await page.getByTestId("ref-override-first").click();
     await page.getByTestId("ref-revert-first").click();
     await page.getByTestId("ref-read-state").click();
@@ -192,7 +202,9 @@ test.describe("5. lifecycle", () => {
     await page.getByTestId("toggle-gpx").click();
 
     await expect(page.getByTestId("show-gpx")).toHaveText("true");
-    await expect.poll(async () => readNumber(page, "data-ready-count")).toBeGreaterThan(beforeReady);
+    await expect
+      .poll(async () => readNumber(page, "data-ready-count"))
+      .toBeGreaterThan(beforeReady);
   });
 });
 
@@ -210,7 +222,9 @@ test.describe("6. error", () => {
 
     await page.getByTestId("set-url-network-error").click();
 
-    await expect.poll(async () => readNumber(page, "error-count")).toBeGreaterThan(beforeErrorCount);
+    await expect
+      .poll(async () => readNumber(page, "error-count"))
+      .toBeGreaterThan(beforeErrorCount);
     await expect(page.getByTestId("last-error")).toContainText("Failed to fetch");
   });
 
@@ -219,7 +233,9 @@ test.describe("6. error", () => {
 
     await page.getByTestId("set-url-invalid-xml").click();
 
-    await expect.poll(async () => readNumber(page, "error-count")).toBeGreaterThan(beforeErrorCount);
+    await expect
+      .poll(async () => readNumber(page, "error-count"))
+      .toBeGreaterThan(beforeErrorCount);
     await expect(page.getByTestId("last-error")).toContainText("XML parse error");
   });
 
@@ -232,6 +248,8 @@ test.describe("6. error", () => {
     await page.getByTestId("set-url-valid-b").click();
     await expect(page.getByTestId("url-state")).toHaveText("/gpx-b.gpx");
 
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThan(beforeFeaturesAdded);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThan(beforeFeaturesAdded);
   });
 });

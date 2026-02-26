@@ -118,7 +118,7 @@ function Sidebar() {
   return (
     <nav className="sidebar">
       <div className="sidebar-title">Playground</div>
-      
+
       {DEMOS.map((item, i) => {
         if (isDemoEntry(item)) {
           return (

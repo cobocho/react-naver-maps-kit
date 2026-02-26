@@ -139,14 +139,18 @@ function BasicPage() {
 
   const readState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
   }, []);
 
   return (
     <ScenarioLayout
-      buttons={<button data-testid="read-state" onClick={readState}>상태 읽기</button>}
+      buttons={
+        <button data-testid="read-state" onClick={readState}>
+          상태 읽기
+        </button>
+      }
       logs={
         <>
           <CommonLogs
@@ -209,7 +213,7 @@ function VisibilityPage() {
 
   const readState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
   }, []);
@@ -221,7 +225,9 @@ function VisibilityPage() {
           <button data-testid="toggle-visible" onClick={() => setVisible((v) => !v)}>
             visible 토글
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -291,11 +297,14 @@ function MarkerLinkPage() {
   const [positionLog, setPositionLog] = useState("");
   const [centerLog, setCenterLog] = useState("");
 
-  const selectedPlace = useMemo(() => PLACES.find((p) => p.id === selectedId) ?? null, [selectedId]);
+  const selectedPlace = useMemo(
+    () => PLACES.find((p) => p.id === selectedId) ?? null,
+    [selectedId]
+  );
 
   const readState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
   }, []);
@@ -304,13 +313,21 @@ function MarkerLinkPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="select-1" onClick={() => setSelectedId(1)}>1번 선택</button>
-          <button data-testid="select-2" onClick={() => setSelectedId(2)}>2번 선택</button>
-          <button data-testid="select-3" onClick={() => setSelectedId(3)}>3번 선택</button>
+          <button data-testid="select-1" onClick={() => setSelectedId(1)}>
+            1번 선택
+          </button>
+          <button data-testid="select-2" onClick={() => setSelectedId(2)}>
+            2번 선택
+          </button>
+          <button data-testid="select-3" onClick={() => setSelectedId(3)}>
+            3번 선택
+          </button>
           <button data-testid="toggle-anchor-info" onClick={() => setShowAnchorInfo((v) => !v)}>
             anchor info 토글
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -340,8 +357,23 @@ function MarkerLinkPage() {
             onMapReady={() => setMapReady(true)}
           >
             {PLACES.map((place) => (
-              <Marker key={place.id} position={place.position} onClick={() => setSelectedId(place.id)}>
-                <div data-testid={`place-marker-${place.id}`} style={{ width: 20, height: 20, background: "#0ea5e9", color: "white", textAlign: "center", lineHeight: "20px", borderRadius: "50%" }}>
+              <Marker
+                key={place.id}
+                position={place.position}
+                onClick={() => setSelectedId(place.id)}
+              >
+                <div
+                  data-testid={`place-marker-${place.id}`}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    background: "#0ea5e9",
+                    color: "white",
+                    textAlign: "center",
+                    lineHeight: "20px",
+                    borderRadius: "50%"
+                  }}
+                >
                   {place.id}
                 </div>
               </Marker>
@@ -352,7 +384,18 @@ function MarkerLinkPage() {
               position={{ lat: DEFAULT_CENTER.lat + 0.01, lng: DEFAULT_CENTER.lng + 0.01 }}
               onClick={() => setShowAnchorInfo((v) => !v)}
             >
-              <div data-testid="anchor-marker" style={{ width: 22, height: 22, background: "#f97316", color: "white", textAlign: "center", lineHeight: "22px", borderRadius: "50%" }}>
+              <div
+                data-testid="anchor-marker"
+                style={{
+                  width: 22,
+                  height: 22,
+                  background: "#f97316",
+                  color: "white",
+                  textAlign: "center",
+                  lineHeight: "22px",
+                  borderRadius: "50%"
+                }}
+              >
                 A
               </div>
             </Marker>
@@ -411,7 +454,7 @@ function RefPage() {
 
   const syncState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
     setZIndexLog(String(infoRef.current?.getZIndex() ?? ""));
@@ -509,7 +552,9 @@ function RefPage() {
           >
             open
           </button>
-          <button data-testid="read-state" onClick={syncState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={syncState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -580,7 +625,7 @@ function LifecyclePage() {
 
   const readState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
   }, []);
@@ -592,7 +637,9 @@ function LifecyclePage() {
           <button data-testid="toggle-infowindow" onClick={() => setShowInfo((v) => !v)}>
             infowindow mount 토글
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -694,7 +741,9 @@ function OptionsPage() {
 
   const readState = useCallback(() => {
     const contentValue = infoRef.current?.getContent();
-    setContentLog(typeof contentValue === "string" ? contentValue : contentValue?.textContent ?? "");
+    setContentLog(
+      typeof contentValue === "string" ? contentValue : (contentValue?.textContent ?? "")
+    );
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
 
@@ -727,20 +776,54 @@ function OptionsPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="set-max-width-320" onClick={() => setMaxWidth(320)}>maxWidth 320</button>
-          <button data-testid="set-border-width-4" onClick={() => setBorderWidth(4)}>borderWidth 4</button>
-          <button data-testid="toggle-anchor-skew" onClick={() => setAnchorSkew((v) => !v)}>anchorSkew 토글</button>
-          <button data-testid="set-anchor-color-red" onClick={() => setAnchorColor("#ff0000")}>anchorColor red</button>
-          <button data-testid="set-anchor-size-large" onClick={() => setAnchorSize({ width: 28, height: 16 })}>anchorSize large</button>
-          <button data-testid="set-background-dark" onClick={() => setBackgroundColor("#111111")}>bg dark</button>
-          <button data-testid="set-border-color-blue" onClick={() => setBorderColor("#1d4ed8")}>border blue</button>
-          <button data-testid="toggle-disable-anchor" onClick={() => setDisableAnchor((v) => !v)}>disableAnchor 토글</button>
-          <button data-testid="toggle-disable-autopan" onClick={() => setDisableAutoPan((v) => !v)}>disableAutoPan 토글</button>
-          <button data-testid="set-pixel-offset-30" onClick={() => setPixelOffset({ x: 30, y: -30 })}>pixelOffset 30</button>
-          <button data-testid="move-position-2" onClick={() => setPosition(MARKER_POS_2)}>위치2 이동</button>
-          <button data-testid="set-content-2" onClick={() => setContent("option-content-2")}>content2 설정</button>
-          <button data-testid="set-zindex-777" onClick={() => setZIndex(777)}>zIndex 777</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="set-max-width-320" onClick={() => setMaxWidth(320)}>
+            maxWidth 320
+          </button>
+          <button data-testid="set-border-width-4" onClick={() => setBorderWidth(4)}>
+            borderWidth 4
+          </button>
+          <button data-testid="toggle-anchor-skew" onClick={() => setAnchorSkew((v) => !v)}>
+            anchorSkew 토글
+          </button>
+          <button data-testid="set-anchor-color-red" onClick={() => setAnchorColor("#ff0000")}>
+            anchorColor red
+          </button>
+          <button
+            data-testid="set-anchor-size-large"
+            onClick={() => setAnchorSize({ width: 28, height: 16 })}
+          >
+            anchorSize large
+          </button>
+          <button data-testid="set-background-dark" onClick={() => setBackgroundColor("#111111")}>
+            bg dark
+          </button>
+          <button data-testid="set-border-color-blue" onClick={() => setBorderColor("#1d4ed8")}>
+            border blue
+          </button>
+          <button data-testid="toggle-disable-anchor" onClick={() => setDisableAnchor((v) => !v)}>
+            disableAnchor 토글
+          </button>
+          <button data-testid="toggle-disable-autopan" onClick={() => setDisableAutoPan((v) => !v)}>
+            disableAutoPan 토글
+          </button>
+          <button
+            data-testid="set-pixel-offset-30"
+            onClick={() => setPixelOffset({ x: 30, y: -30 })}
+          >
+            pixelOffset 30
+          </button>
+          <button data-testid="move-position-2" onClick={() => setPosition(MARKER_POS_2)}>
+            위치2 이동
+          </button>
+          <button data-testid="set-content-2" onClick={() => setContent("option-content-2")}>
+            content2 설정
+          </button>
+          <button data-testid="set-zindex-777" onClick={() => setZIndex(777)}>
+            zIndex 777
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -760,7 +843,9 @@ function OptionsPage() {
           <span data-testid="evt-zindex-changed-count">{zIndexChangedCount}</span>
           <span data-testid="evt-anchor-color-changed-count">{anchorColorChangedCount}</span>
           <span data-testid="evt-anchor-size-changed-count">{anchorSizeChangedCount}</span>
-          <span data-testid="evt-background-color-changed-count">{backgroundColorChangedCount}</span>
+          <span data-testid="evt-background-color-changed-count">
+            {backgroundColorChangedCount}
+          </span>
           <span data-testid="evt-border-color-changed-count">{borderColorChangedCount}</span>
           <span data-testid="evt-disable-anchor-changed-count">{disableAnchorChangedCount}</span>
           <span data-testid="evt-disable-autopan-changed-count">{disableAutoPanChangedCount}</span>
@@ -849,7 +934,7 @@ function AutoPanPage() {
 
   const readState = useCallback(() => {
     const content = infoRef.current?.getContent();
-    setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
+    setContentLog(typeof content === "string" ? content : (content?.textContent ?? ""));
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
   }, []);
@@ -862,14 +947,33 @@ function AutoPanPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="open-info" onClick={() => setVisible(true)}>open</button>
-          <button data-testid="close-info" onClick={() => setVisible(false)}>close</button>
-          <button data-testid="disable-autopan-true" onClick={() => setDisableAutoPan(true)}>disableAutoPan=true</button>
-          <button data-testid="disable-autopan-false" onClick={() => setDisableAutoPan(false)}>disableAutoPan=false</button>
-          <button data-testid="set-padding-20" onClick={() => setAutoPanPadding({ x: 20, y: 20 })}>padding 20</button>
-          <button data-testid="set-padding-140" onClick={() => setAutoPanPadding({ x: 140, y: 140 })}>padding 140</button>
-          <button data-testid="reset-center" onClick={resetCenter}>center reset</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="open-info" onClick={() => setVisible(true)}>
+            open
+          </button>
+          <button data-testid="close-info" onClick={() => setVisible(false)}>
+            close
+          </button>
+          <button data-testid="disable-autopan-true" onClick={() => setDisableAutoPan(true)}>
+            disableAutoPan=true
+          </button>
+          <button data-testid="disable-autopan-false" onClick={() => setDisableAutoPan(false)}>
+            disableAutoPan=false
+          </button>
+          <button data-testid="set-padding-20" onClick={() => setAutoPanPadding({ x: 20, y: 20 })}>
+            padding 20
+          </button>
+          <button
+            data-testid="set-padding-140"
+            onClick={() => setAutoPanPadding({ x: 140, y: 140 })}
+          >
+            padding 140
+          </button>
+          <button data-testid="reset-center" onClick={resetCenter}>
+            center reset
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={

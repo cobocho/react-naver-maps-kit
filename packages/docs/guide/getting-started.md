@@ -52,7 +52,7 @@ yarn add -D @types/navermaps
 ```json
 {
   "compilerOptions": {
-    "types": ["vite/client", "navermaps"],
+    "types": ["vite/client", "navermaps"]
     // ... 기타 설정
   }
 }

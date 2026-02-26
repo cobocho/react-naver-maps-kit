@@ -19,29 +19,33 @@ function omitUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return result as Partial<T>;
 }
 
-export function createAlgorithm<TData>(
-  config: BuiltInAlgorithmConfig
-): ClusterAlgorithm<TData> {
+export function createAlgorithm<TData>(config: BuiltInAlgorithmConfig): ClusterAlgorithm<TData> {
   switch (config.type) {
     case "grid":
-      return new GridAlgorithm<TData>(omitUndefined({
-        gridSize: config.gridSize,
-        minClusterSize: config.minClusterSize,
-        maxZoom: config.maxZoom
-      }));
+      return new GridAlgorithm<TData>(
+        omitUndefined({
+          gridSize: config.gridSize,
+          minClusterSize: config.minClusterSize,
+          maxZoom: config.maxZoom
+        })
+      );
     case "radius":
-      return new RadiusAlgorithm<TData>(omitUndefined({
-        radius: config.radius,
-        minClusterSize: config.minClusterSize,
-        maxZoom: config.maxZoom
-      }));
+      return new RadiusAlgorithm<TData>(
+        omitUndefined({
+          radius: config.radius,
+          minClusterSize: config.minClusterSize,
+          maxZoom: config.maxZoom
+        })
+      );
     case "supercluster":
-      return new SuperclusterAlgorithm<TData>(omitUndefined({
-        radius: config.radius,
-        minZoom: config.minZoom,
-        maxZoom: config.maxZoom,
-        extent: config.extent,
-        nodeSize: config.nodeSize
-      }));
+      return new SuperclusterAlgorithm<TData>(
+        omitUndefined({
+          radius: config.radius,
+          minZoom: config.minZoom,
+          maxZoom: config.maxZoom,
+          extent: config.extent,
+          nodeSize: config.nodeSize
+        })
+      );
   }
 }

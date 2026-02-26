@@ -325,7 +325,7 @@ export const Polygon = forwardRef<PolygonRef, PolygonProps>(function PolygonInne
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const polygonRef = useRef<naver.maps.Polygon | null>(null);
   const polygonEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onPolygonDestroyRef = useRef<PolygonProps["onPolygonDestroy"]>(props.onPolygonDestroy);

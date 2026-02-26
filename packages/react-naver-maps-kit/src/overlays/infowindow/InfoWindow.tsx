@@ -301,7 +301,7 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
     const { sdkStatus } = useNaverMap();
     const mapInstanceContext = useMapInstance();
     const map = mapInstanceContext?.instance as naver.maps.Map | null;
-    
+
     const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
     const infoWindowEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const lastOpenAnchorRef = useRef<InfoWindowAnchor | undefined>(undefined);
@@ -481,7 +481,6 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
       if (props.position) {
         infoWindow.setPosition(props.position);
       }
-
     }, [
       childrenContainer,
       hasChildren,

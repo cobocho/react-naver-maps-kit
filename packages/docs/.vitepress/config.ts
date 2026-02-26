@@ -4,38 +4,47 @@ export default defineConfig({
   lang: "ko-KR",
   title: "React Naver Maps KIT",
   description: "네이버 지도를 React처럼 사용하세요",
-  
+
   sitemap: {
-    hostname: 'https://react-naver-maps-kit.pages.dev'
+    hostname: "https://react-naver-maps-kit.pages.dev"
   },
 
   head: [
-    ['meta', { name: 'google-site-verification', content: 'K4M9J0rfWktT9Hf766NXdXfYHRg27p8pvrC3vKdpUOA' }],
-    ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
-    ['meta', { name: 'theme-color', content: '#03C75A' }],
-    ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'react-naver-maps-kit' }],
-    ['meta', { property: 'og:description', content: '네이버 지도를 React처럼 사용하세요' }],
-    ['meta', { property: 'og:image', content: 'https://github.com/user-attachments/assets/c2bd5bd6-eb67-4728-9806-1639c1445154' }],
+    [
+      "meta",
+      { name: "google-site-verification", content: "K4M9J0rfWktT9Hf766NXdXfYHRg27p8pvrC3vKdpUOA" }
+    ],
+    ["link", { rel: "icon", type: "image/png", href: "/favicon.png" }],
+    ["meta", { name: "theme-color", content: "#03C75A" }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:title", content: "react-naver-maps-kit" }],
+    ["meta", { property: "og:description", content: "네이버 지도를 React처럼 사용하세요" }],
+    [
+      "meta",
+      {
+        property: "og:image",
+        content: "https://github.com/user-attachments/assets/c2bd5bd6-eb67-4728-9806-1639c1445154"
+      }
+    ]
   ],
 
   themeConfig: {
-    logo: '/logo.png',
-    
+    logo: "/logo.png",
+
     nav: [
       { text: "가이드", link: "/guide/getting-started" },
       { text: "API", link: "/api/provider" },
-      { 
-        text: "v1.3.0", 
+      {
+        text: "v1.3.0",
         items: [
-          { text: 'Changelog', link: 'https://github.com/cobocho/react-naver-maps-kit/releases' },
-          { text: 'npm', link: 'https://www.npmjs.com/package/react-naver-maps-kit' }
+          { text: "Changelog", link: "https://github.com/cobocho/react-naver-maps-kit/releases" },
+          { text: "npm", link: "https://www.npmjs.com/package/react-naver-maps-kit" }
         ]
       }
     ],
 
     sidebar: {
-      '/guide/': [
+      "/guide/": [
         {
           text: "시작하기",
           items: [
@@ -65,20 +74,34 @@ export default defineConfig({
         {
           text: "예시 프로젝트",
           items: [
-            { text: "🏃 운동 기록 트래커", link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker", target: "_blank" },
-            { text: "🚕 실시간 택시 추적", link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker", target: "_blank" },
-            { text: "🏠 부동산 매물 탐색", link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer", target: "_blank" },
-            { text: "📊 상권 분석 지도", link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis", target: "_blank" }
+            {
+              text: "🏃 운동 기록 트래커",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🚕 실시간 택시 추적",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🏠 부동산 매물 탐색",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer",
+              target: "_blank"
+            },
+            {
+              text: "📊 상권 분석 지도",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis",
+              target: "_blank"
+            }
           ]
         },
         {
           text: "문제 해결",
-          items: [
-            { text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }
-          ]
+          items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
         }
       ],
-      '/examples/': [
+      "/examples/": [
         {
           text: "시작하기",
           items: [
@@ -108,20 +131,34 @@ export default defineConfig({
         {
           text: "예시 프로젝트",
           items: [
-            { text: "🏃 운동 기록 트래커", link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker", target: "_blank" },
-            { text: "🚕 실시간 택시 추적", link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker", target: "_blank" },
-            { text: "🏠 부동산 매물 탐색", link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer", target: "_blank" },
-            { text: "📊 상권 분석 지도", link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis", target: "_blank" }
+            {
+              text: "🏃 운동 기록 트래커",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🚕 실시간 택시 추적",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🏠 부동산 매물 탐색",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer",
+              target: "_blank"
+            },
+            {
+              text: "📊 상권 분석 지도",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis",
+              target: "_blank"
+            }
           ]
         },
         {
           text: "문제 해결",
-          items: [
-            { text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }
-          ]
+          items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
         }
       ],
-      '/api/': [
+      "/api/": [
         {
           text: "Provider & Hook",
           items: [
@@ -132,9 +169,7 @@ export default defineConfig({
         },
         {
           text: "지도",
-          items: [
-            { text: "NaverMap", link: "/api/map" }
-          ]
+          items: [{ text: "NaverMap", link: "/api/map" }]
         },
         {
           text: "오버레이",
@@ -169,7 +204,7 @@ export default defineConfig({
           ]
         }
       ],
-      '/troubleshooting/': [
+      "/troubleshooting/": [
         {
           text: "시작하기",
           items: [
@@ -199,17 +234,31 @@ export default defineConfig({
         {
           text: "예시 프로젝트",
           items: [
-            { text: "🏃 운동 기록 트래커", link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker", target: "_blank" },
-            { text: "🚕 실시간 택시 추적", link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker", target: "_blank" },
-            { text: "🏠 부동산 매물 탐색", link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer", target: "_blank" },
-            { text: "📊 상권 분석 지도", link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis", target: "_blank" }
+            {
+              text: "🏃 운동 기록 트래커",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🚕 실시간 택시 추적",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker",
+              target: "_blank"
+            },
+            {
+              text: "🏠 부동산 매물 탐색",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer",
+              target: "_blank"
+            },
+            {
+              text: "📊 상권 분석 지도",
+              link: "https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis",
+              target: "_blank"
+            }
           ]
         },
         {
           text: "문제 해결",
-          items: [
-            { text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }
-          ]
+          items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
         }
       ]
     },
@@ -220,24 +269,24 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2026 cobocho'
+      message: "Released under the MIT License.",
+      copyright: "Copyright © 2026 cobocho"
     },
 
     search: {
-      provider: 'local',
+      provider: "local",
       options: {
         translations: {
           button: {
-            buttonText: '검색',
-            buttonAriaLabel: '검색'
+            buttonText: "검색",
+            buttonAriaLabel: "검색"
           },
           modal: {
-            noResultsText: '결과를 찾을 수 없습니다',
-            resetButtonTitle: '검색어 지우기',
+            noResultsText: "결과를 찾을 수 없습니다",
+            resetButtonTitle: "검색어 지우기",
             footer: {
-              selectText: '선택',
-              navigateText: '이동'
+              selectText: "선택",
+              navigateText: "이동"
             }
           }
         }
@@ -245,21 +294,21 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/cobocho/react-naver-maps-kit/edit/main/packages/docs/:path',
-      text: '이 페이지 수정하기'
+      pattern: "https://github.com/cobocho/react-naver-maps-kit/edit/main/packages/docs/:path",
+      text: "이 페이지 수정하기"
     },
 
     lastUpdated: {
-      text: '마지막 수정'
+      text: "마지막 수정"
     },
 
     outline: {
-      label: '목차'
+      label: "목차"
     },
 
     docFooter: {
-      prev: '이전',
-      next: '다음'
+      prev: "이전",
+      next: "다음"
     }
   }
 });

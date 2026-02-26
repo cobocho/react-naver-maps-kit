@@ -138,7 +138,9 @@ test.describe("InfoWindow ref 제어", () => {
     await expect(page.getByTestId("ref-content")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
 
     await page.getByTestId("ref-set-content").click();
-    await expect(page.getByText("updated-by-ref-content")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
+    await expect(page.getByText("updated-by-ref-content")).toBeVisible({
+      timeout: MAP_LOAD_TIMEOUT
+    });
 
     await page.getByTestId("ref-close").click();
     await expect(page.getByTestId("visible-state")).toHaveText("false");
@@ -159,8 +161,7 @@ test.describe("InfoWindow ref 제어", () => {
         const positionText = await page.getByTestId("info-position").textContent();
         const pos = parseLatLng(positionText);
         return (
-          Math.abs(pos.lat - MARKER_POS_2.lat) < 0.01 &&
-          Math.abs(pos.lng - MARKER_POS_2.lng) < 0.01
+          Math.abs(pos.lat - MARKER_POS_2.lat) < 0.01 && Math.abs(pos.lng - MARKER_POS_2.lng) < 0.01
         );
       })
       .toBe(true);
@@ -258,7 +259,9 @@ test.describe("InfoWindow 옵션/이벤트", () => {
     expect(pos.lng).toBeCloseTo(MARKER_POS_2.lng, 2);
   });
 
-  test("IW-10: content/zIndex 변경 시 onContentChanged/onZIndexChanged 이벤트", async ({ page }) => {
+  test("IW-10: content/zIndex 변경 시 onContentChanged/onZIndexChanged 이벤트", async ({
+    page
+  }) => {
     await page.getByTestId("set-content-2").click();
     await page.getByTestId("set-zindex-777").click();
     await page.getByTestId("read-state").click();
@@ -286,25 +289,39 @@ test.describe("InfoWindow 옵션/이벤트", () => {
     await page.getByTestId("set-pixel-offset-30").click();
 
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-anchor-color-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-anchor-color-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-anchor-size-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-anchor-size-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-background-color-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-background-color-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-border-color-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-border-color-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-disable-anchor-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-disable-anchor-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-disable-autopan-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-disable-autopan-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-pixel-offset-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-pixel-offset-changed-count").textContent())
+      )
       .toBeGreaterThanOrEqual(1);
   });
 

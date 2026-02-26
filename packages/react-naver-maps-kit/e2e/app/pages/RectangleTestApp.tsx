@@ -196,7 +196,9 @@ function BoundsOptionsPage() {
     const strokeLineCapValue = rectangleRef.current?.getOptions("strokeLineCap");
     const strokeLineJoinValue = rectangleRef.current?.getOptions("strokeLineJoin");
 
-    setOptBounds(toBoundsText(rectangleRef.current?.getBounds() as naver.maps.LatLngBounds | undefined));
+    setOptBounds(
+      toBoundsText(rectangleRef.current?.getBounds() as naver.maps.LatLngBounds | undefined)
+    );
     setOptVisible(String(rectangleRef.current?.getVisible()));
     setOptClickable(String(rectangleRef.current?.getClickable()));
     setOptZIndex(String(rectangleRef.current?.getZIndex()));
@@ -444,19 +446,45 @@ function EventsPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-click" onClick={() => triggerEvent("click")}>click</button>
-          <button data-testid="trigger-dblclick" onClick={() => triggerEvent("dblclick")}>dblclick</button>
-          <button data-testid="trigger-rightclick" onClick={() => triggerEvent("rightclick")}>rightclick</button>
-          <button data-testid="trigger-mousedown" onClick={() => triggerEvent("mousedown")}>mousedown</button>
-          <button data-testid="trigger-mousemove" onClick={() => triggerEvent("mousemove")}>mousemove</button>
-          <button data-testid="trigger-mouseup" onClick={() => triggerEvent("mouseup")}>mouseup</button>
-          <button data-testid="trigger-mouseover" onClick={() => triggerEvent("mouseover")}>mouseover</button>
-          <button data-testid="trigger-mouseout" onClick={() => triggerEvent("mouseout")}>mouseout</button>
-          <button data-testid="trigger-touchstart" onClick={() => triggerEvent("touchstart")}>touchstart</button>
-          <button data-testid="trigger-touchmove" onClick={() => triggerEvent("touchmove")}>touchmove</button>
-          <button data-testid="trigger-touchend" onClick={() => triggerEvent("touchend")}>touchend</button>
-          <button data-testid="trigger-map-changed" onClick={() => triggerEvent("map_changed")}>map_changed</button>
-          <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+          <button data-testid="trigger-click" onClick={() => triggerEvent("click")}>
+            click
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerEvent("dblclick")}>
+            dblclick
+          </button>
+          <button data-testid="trigger-rightclick" onClick={() => triggerEvent("rightclick")}>
+            rightclick
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerEvent("mousedown")}>
+            mousedown
+          </button>
+          <button data-testid="trigger-mousemove" onClick={() => triggerEvent("mousemove")}>
+            mousemove
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerEvent("mouseup")}>
+            mouseup
+          </button>
+          <button data-testid="trigger-mouseover" onClick={() => triggerEvent("mouseover")}>
+            mouseover
+          </button>
+          <button data-testid="trigger-mouseout" onClick={() => triggerEvent("mouseout")}>
+            mouseout
+          </button>
+          <button data-testid="trigger-touchstart" onClick={() => triggerEvent("touchstart")}>
+            touchstart
+          </button>
+          <button data-testid="trigger-touchmove" onClick={() => triggerEvent("touchmove")}>
+            touchmove
+          </button>
+          <button data-testid="trigger-touchend" onClick={() => triggerEvent("touchend")}>
+            touchend
+          </button>
+          <button data-testid="trigger-map-changed" onClick={() => triggerEvent("map_changed")}>
+            map_changed
+          </button>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
         </>
       }
       logs={
@@ -530,7 +558,9 @@ function RefPage() {
     const styles = (rectangleRef.current?.getStyles() ?? {}) as Record<string, unknown>;
     const drawingRect = rectangleRef.current?.getDrawingRect();
 
-    setRefBounds(toBoundsText(rectangleRef.current?.getBounds() as naver.maps.LatLngBounds | undefined));
+    setRefBounds(
+      toBoundsText(rectangleRef.current?.getBounds() as naver.maps.LatLngBounds | undefined)
+    );
     setRefClickable(String(rectangleRef.current?.getClickable()));
     setRefVisible(String(rectangleRef.current?.getVisible()));
     setRefZIndex(String(rectangleRef.current?.getZIndex()));
@@ -559,22 +589,40 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-set-bounds-2" onClick={() => rectangleRef.current?.setBounds(RECTANGLE_BOUNDS_2)}>
+          <button
+            data-testid="ref-set-bounds-2"
+            onClick={() => rectangleRef.current?.setBounds(RECTANGLE_BOUNDS_2)}
+          >
             setBounds 2
           </button>
-          <button data-testid="ref-set-clickable-true" onClick={() => rectangleRef.current?.setClickable(true)}>
+          <button
+            data-testid="ref-set-clickable-true"
+            onClick={() => rectangleRef.current?.setClickable(true)}
+          >
             clickable true
           </button>
-          <button data-testid="ref-set-clickable-false" onClick={() => rectangleRef.current?.setClickable(false)}>
+          <button
+            data-testid="ref-set-clickable-false"
+            onClick={() => rectangleRef.current?.setClickable(false)}
+          >
             clickable false
           </button>
-          <button data-testid="ref-set-visible-false" onClick={() => rectangleRef.current?.setVisible(false)}>
+          <button
+            data-testid="ref-set-visible-false"
+            onClick={() => rectangleRef.current?.setVisible(false)}
+          >
             visible false
           </button>
-          <button data-testid="ref-set-visible-true" onClick={() => rectangleRef.current?.setVisible(true)}>
+          <button
+            data-testid="ref-set-visible-true"
+            onClick={() => rectangleRef.current?.setVisible(true)}
+          >
             visible true
           </button>
-          <button data-testid="ref-set-zindex-555" onClick={() => rectangleRef.current?.setZIndex(555)}>
+          <button
+            data-testid="ref-set-zindex-555"
+            onClick={() => rectangleRef.current?.setZIndex(555)}
+          >
             zIndex 555
           </button>
           <button
@@ -715,9 +763,7 @@ function MultiplePage() {
 
   const toggleFirstVisible = useCallback(() => {
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === 1 ? { ...item, visible: !item.visible } : item
-      )
+      prev.map((item) => (item.id === 1 ? { ...item, visible: !item.visible } : item))
     );
   }, []);
 
@@ -729,10 +775,18 @@ function MultiplePage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="add-rectangle" onClick={addRectangle}>rectangle 추가</button>
-          <button data-testid="remove-last-rectangle" onClick={removeLast}>마지막 제거</button>
-          <button data-testid="toggle-first-visible" onClick={toggleFirstVisible}>첫 rectangle visible 토글</button>
-          <button data-testid="set-second-zindex" onClick={setSecondZIndex}>둘째 zIndex 555</button>
+          <button data-testid="add-rectangle" onClick={addRectangle}>
+            rectangle 추가
+          </button>
+          <button data-testid="remove-last-rectangle" onClick={removeLast}>
+            마지막 제거
+          </button>
+          <button data-testid="toggle-first-visible" onClick={toggleFirstVisible}>
+            첫 rectangle visible 토글
+          </button>
+          <button data-testid="set-second-zindex" onClick={setSecondZIndex}>
+            둘째 zIndex 555
+          </button>
         </>
       }
       logs={

@@ -20,10 +20,7 @@ function toWorldPixel(lat: number, lng: number, zoom: number): { x: number; y: n
   return { x, y };
 }
 
-function pixelDistance(
-  a: { x: number; y: number },
-  b: { x: number; y: number }
-): number {
+function pixelDistance(a: { x: number; y: number }, b: { x: number; y: number }): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);

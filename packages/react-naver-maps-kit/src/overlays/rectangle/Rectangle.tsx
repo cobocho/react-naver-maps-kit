@@ -300,7 +300,7 @@ export const Rectangle = forwardRef<RectangleRef, RectangleProps>(
     const { sdkStatus } = useNaverMap();
     const mapInstanceContext = useMapInstance();
     const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-    
+
     const rectangleRef = useRef<naver.maps.Rectangle | null>(null);
     const rectangleEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onRectangleDestroyRef = useRef<RectangleProps["onRectangleDestroy"]>(

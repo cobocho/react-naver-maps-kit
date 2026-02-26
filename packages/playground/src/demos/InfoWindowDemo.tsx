@@ -23,16 +23,23 @@ export function InfoWindowDemo() {
       </p>
 
       <div className="map-container">
-        <NaverMap defaultCenter={DEFAULT_POS} defaultZoom={14} style={{ width: "100%", height: 500 }}>
-          <Marker position={DEFAULT_POS} onClick={() => {
-            setVisible((v) => !v);
-            log("marker click → toggle InfoWindow");
-          }} />
+        <NaverMap
+          defaultCenter={DEFAULT_POS}
+          defaultZoom={14}
+          style={{ width: "100%", height: 500 }}
+        >
+          <Marker
+            position={DEFAULT_POS}
+            onClick={() => {
+              setVisible((v) => !v);
+              log("marker click → toggle InfoWindow");
+            }}
+          />
 
           <InfoWindow
             position={{
               lat: DEFAULT_POS.lat + 0.002,
-              lng: DEFAULT_POS.lng,
+              lng: DEFAULT_POS.lng
             }}
             visible={visible}
             maxWidth={maxWidth}
@@ -48,7 +55,14 @@ export function InfoWindowDemo() {
                   React 컴포넌트를 InfoWindow children으로 렌더링합니다.
                 </p>
                 <button
-                  style={{ marginTop: 8, padding: "4px 12px", fontSize: 12, borderRadius: 4, border: "1px solid #ddd", cursor: "pointer" }}
+                  style={{
+                    marginTop: 8,
+                    padding: "4px 12px",
+                    fontSize: 12,
+                    borderRadius: 4,
+                    border: "1px solid #ddd",
+                    cursor: "pointer"
+                  }}
                   onClick={() => log("InfoWindow button clicked")}
                 >
                   Click me
@@ -68,24 +82,48 @@ export function InfoWindowDemo() {
         <div className="controls-title">Controls</div>
         <div className="controls-grid">
           <div className="control-item">
-            <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={visible}
+              onChange={(e) => setVisible(e.target.checked)}
+            />
             <label>Visible</label>
           </div>
           <div className="control-item">
-            <input type="checkbox" checked={useRichContent} onChange={(e) => setUseRichContent(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={useRichContent}
+              onChange={(e) => setUseRichContent(e.target.checked)}
+            />
             <label>Rich Content</label>
           </div>
           <div className="control-item">
-            <input type="checkbox" checked={anchorSkew} onChange={(e) => setAnchorSkew(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={anchorSkew}
+              onChange={(e) => setAnchorSkew(e.target.checked)}
+            />
             <label>Anchor Skew</label>
           </div>
           <div className="control-item">
             <label>MaxWidth</label>
-            <input type="number" min={100} max={600} value={maxWidth} onChange={(e) => setMaxWidth(Number(e.target.value))} />
+            <input
+              type="number"
+              min={100}
+              max={600}
+              value={maxWidth}
+              onChange={(e) => setMaxWidth(Number(e.target.value))}
+            />
           </div>
           <div className="control-item">
             <label>BorderWidth</label>
-            <input type="number" min={0} max={10} value={borderWidth} onChange={(e) => setBorderWidth(Number(e.target.value))} />
+            <input
+              type="number"
+              min={0}
+              max={10}
+              value={borderWidth}
+              onChange={(e) => setBorderWidth(Number(e.target.value))}
+            />
           </div>
         </div>
       </div>

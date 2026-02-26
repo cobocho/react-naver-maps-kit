@@ -45,10 +45,7 @@ export function VisualizationDemo() {
   const [strokeColor, setStrokeColor] = useState("#ffffff");
   const [strokeWeight, setStrokeWeight] = useState(1);
 
-  const data = useMemo(
-    () => generateRandomPoints(SEOUL_CENTER, pointCount, 0.05),
-    [pointCount]
-  );
+  const data = useMemo(() => generateRandomPoints(SEOUL_CENTER, pointCount, 0.05), [pointCount]);
 
   const colorMap = useMemo(() => {
     if (typeof naver === "undefined" || !naver.maps.visualization?.SpectrumStyle) {
@@ -73,9 +70,7 @@ export function VisualizationDemo() {
         <h2 style={{ margin: "0 0 16px" }}>Visualization Demo</h2>
 
         <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", marginBottom: 8, fontWeight: 600 }}>
-            시각화 유형
-          </label>
+          <label style={{ display: "block", marginBottom: 8, fontWeight: 600 }}>시각화 유형</label>
           <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={() => setVisualizationType("heatmap")}
@@ -197,9 +192,7 @@ export function VisualizationDemo() {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", marginBottom: 8, fontWeight: 600 }}>
-                선 색상
-              </label>
+              <label style={{ display: "block", marginBottom: 8, fontWeight: 600 }}>선 색상</label>
               <input
                 type="color"
                 value={strokeColor}
@@ -235,8 +228,7 @@ export function VisualizationDemo() {
           }}
         >
           <strong>데이터 정보</strong>
-          <br />
-          총 {data.length}개 포인트
+          <br />총 {data.length}개 포인트
           <br />
           가중치 범위: 1 ~ 10
         </div>

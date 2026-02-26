@@ -45,7 +45,9 @@ test.describe("1. 렌더링/생성/정리 (스모크)", () => {
 
   test("children(커스텀 HTML 마커)이 DOM에 렌더링된다", async ({ page }) => {
     await expect(page.getByTestId("map-container")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
-    await expect(page.getByTestId("custom-marker-content")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
+    await expect(page.getByTestId("custom-marker-content")).toBeVisible({
+      timeout: MAP_LOAD_TIMEOUT
+    });
   });
 });
 

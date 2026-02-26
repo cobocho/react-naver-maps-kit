@@ -420,9 +420,10 @@ test.describe("5. Ref 기반 imperative 동작", () => {
   test("C-35: ref.getBounds()가 중심 좌표를 포함", async ({ page }) => {
     await page.getByTestId("ref-read-state").click();
 
-    const bounds = parseJson<{ ne: { lat: number; lng: number }; sw: { lat: number; lng: number } }>(
-      await page.getByTestId("ref-bounds").textContent()
-    );
+    const bounds = parseJson<{
+      ne: { lat: number; lng: number };
+      sw: { lat: number; lng: number };
+    }>(await page.getByTestId("ref-bounds").textContent());
 
     expect(bounds.sw.lat).toBeLessThanOrEqual(CIRCLE_CENTER_1.lat);
     expect(bounds.ne.lat).toBeGreaterThanOrEqual(CIRCLE_CENTER_1.lat);

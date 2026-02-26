@@ -9,7 +9,10 @@ import React, {
 } from "react";
 
 import { NaverMapContext } from "../../react/provider/NaverMapProvider";
-import { MapInstanceContext, type MapInstanceContextValue } from "../../react/context/MapInstanceContext";
+import {
+  MapInstanceContext,
+  type MapInstanceContextValue
+} from "../../react/context/MapInstanceContext";
 import { PanoramaContext } from "./PanoramaContext";
 
 import type { ReactNode } from "react";
@@ -409,7 +412,9 @@ export const Panorama = forwardRef<PanoramaRef, PanoramaProps>(function Panorama
   const mapInstanceContextValue = useMemo<MapInstanceContextValue>(
     () => ({
       instance: panoramaInstance,
-      setInstance: setPanoramaInstance as (instance: naver.maps.Map | naver.maps.Panorama | null) => void,
+      setInstance: setPanoramaInstance as (
+        instance: naver.maps.Map | naver.maps.Panorama | null
+      ) => void,
       type: "panorama"
     }),
     [panoramaInstance]

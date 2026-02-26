@@ -37,7 +37,8 @@ export class GridAlgorithm<TData> implements ClusterAlgorithm<TData> {
     for (const item of items) {
       const worldX = ((item.position.lng + 180) / 360) * scale;
       const latRad = (item.position.lat * Math.PI) / 180;
-      const worldY = ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * scale;
+      const worldY =
+        ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * scale;
 
       const cellX = Math.floor((worldX * 256) / gridSize);
       const cellY = Math.floor((worldY * 256) / gridSize);

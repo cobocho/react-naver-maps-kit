@@ -43,11 +43,7 @@ function BasicClusterer() {
       >
         <MarkerClusterer>
           {markers.map((m) => (
-            <Marker
-              key={m.id}
-              position={{ lat: m.lat, lng: m.lng }}
-              title={m.name}
-            />
+            <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }} title={m.name} />
           ))}
         </MarkerClusterer>
       </NaverMap>
@@ -107,12 +103,20 @@ function CustomClusterIcon() {
 ```tsx
 <MarkerClusterer
   clusterIcon={({ count }) => (
-    <div style={{
-      width: 44, height: 44, borderRadius: "50%",
-      background: "#FF5722", color: "white",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontWeight: "bold", boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
-    }}>
+    <div
+      style={{
+        width: 44,
+        height: 44,
+        borderRadius: "50%",
+        background: "#FF5722",
+        color: "white",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: "bold",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+      }}
+    >
       {count}
     </div>
   )}
@@ -120,11 +124,16 @@ function CustomClusterIcon() {
   {markers.map((m) => (
     <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }}>
       {/* 단독 포인트일 때 표시할 커스텀 마커 */}
-      <div style={{
-        width: 28, height: 28, borderRadius: "50%",
-        background: "#03C75A", border: "2px solid white",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.3)"
-      }} />
+      <div
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          background: "#03C75A",
+          border: "2px solid white",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.3)"
+        }}
+      />
     </Marker>
   ))}
 </MarkerClusterer>
@@ -349,8 +358,7 @@ function DynamicClusterer() {
 
 ```tsx
 const markerElements = useMemo(
-  () =>
-    markers.map((m) => <Marker key={m.id} position={m.position} item={m} />),
+  () => markers.map((m) => <Marker key={m.id} position={m.position} item={m} />),
   [markers]
 );
 

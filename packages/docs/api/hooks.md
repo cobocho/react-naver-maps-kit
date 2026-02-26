@@ -62,9 +62,9 @@ Provider의 전체 context 값을 가져옵니다.
 ```tsx
 function MyOverlay() {
   const context = useMapInstance();
-  
+
   if (!context) return null;
-  
+
   if (context.type === "map") {
     const map = context.instance as naver.maps.Map;
     // map 전용 로직
@@ -100,9 +100,9 @@ function MyOverlay() {
 ```tsx
 function MapOnlyOverlay() {
   const map = useMap();
-  
+
   if (!map) return null;
-  
+
   // map 전용 로직
 }
 ```
@@ -118,19 +118,19 @@ function MapOnlyOverlay() {
 ```tsx
 function PanoramaOnlyOverlay() {
   const panorama = usePanoramaInstance();
-  
+
   if (!panorama) return null;
-  
+
   // panorama 전용 로직
 }
 ```
 
 ## 훅 선택 가이드
 
-| 용도 | 권장 훅 |
-|------|--------|
-| SDK 상태 확인 | `useNaverMap()` |
-| map/panorama 공통 오버레이 | `useMapInstance()` |
-| map 전용 컴포넌트 | `useMap()` |
-| panorama 전용 컴포넌트 | `usePanoramaInstance()` |
-| 레거시 코드 유지 | `useNaverMapInstance()` |
+| 용도                       | 권장 훅                 |
+| -------------------------- | ----------------------- |
+| SDK 상태 확인              | `useNaverMap()`         |
+| map/panorama 공통 오버레이 | `useMapInstance()`      |
+| map 전용 컴포넌트          | `useMap()`              |
+| panorama 전용 컴포넌트     | `usePanoramaInstance()` |
+| 레거시 코드 유지           | `useNaverMapInstance()` |

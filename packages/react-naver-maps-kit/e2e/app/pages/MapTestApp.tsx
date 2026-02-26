@@ -6,7 +6,7 @@ import { DEFAULT_CENTER, BUSAN_CENTER, JEJU_CENTER, NCP_KEY_ID } from "../consta
 function ScenarioLayout({
   buttons,
   logs,
-  map,
+  map
 }: {
   buttons: React.ReactNode;
   logs: React.ReactNode;
@@ -79,20 +79,26 @@ function FallbackErrorPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="use-invalid-key" onClick={() => {
-            setUseInvalidKey(true);
-            setMapReady(false);
-            setMapError(null);
-            setProviderError(null);
-          }}>
+          <button
+            data-testid="use-invalid-key"
+            onClick={() => {
+              setUseInvalidKey(true);
+              setMapReady(false);
+              setMapError(null);
+              setProviderError(null);
+            }}
+          >
             Use Invalid Key
           </button>
-          <button data-testid="use-valid-key" onClick={() => {
-            setUseInvalidKey(false);
-            setMapReady(false);
-            setMapError(null);
-            setProviderError(null);
-          }}>
+          <button
+            data-testid="use-valid-key"
+            onClick={() => {
+              setUseInvalidKey(false);
+              setMapReady(false);
+              setMapError(null);
+              setProviderError(null);
+            }}
+          >
             Use Valid Key
           </button>
           <button data-testid="toggle-retry" onClick={() => setRetryEnabled((v) => !v)}>
@@ -127,7 +133,10 @@ function FallbackErrorPage() {
             retryOnError={retryEnabled}
             retryDelayMs={1000}
             fallback={
-              <div data-testid="map-fallback" style={{ width: "100%", height: 500, background: "#eee" }}>
+              <div
+                data-testid="map-fallback"
+                style={{ width: "100%", height: 500, background: "#eee" }}
+              >
                 지도 로딩 중...
               </div>
             }
@@ -155,7 +164,11 @@ function UncontrolledPage() {
 
   return (
     <ScenarioLayout
-      buttons={<button data-testid="read-state" onClick={readState}>상태 읽기</button>}
+      buttons={
+        <button data-testid="read-state" onClick={readState}>
+          상태 읽기
+        </button>
+      }
       logs={
         <>
           <span data-testid="map-ready">{String(mapReady)}</span>
@@ -185,7 +198,9 @@ function ControlledPage() {
   const mapRef = useRef<NaverMapRef>(null);
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [zoom, setZoom] = useState(12);
-  const [mapTypeId, setMapTypeId] = useState<"normal" | "terrain" | "satellite" | "hybrid">("normal");
+  const [mapTypeId, setMapTypeId] = useState<"normal" | "terrain" | "satellite" | "hybrid">(
+    "normal"
+  );
   const [mapReady, setMapReady] = useState(false);
   const [actualCenter, setActualCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [actualZoom, setActualZoom] = useState<number | null>(null);
@@ -201,20 +216,39 @@ function ControlledPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="move-busan" onClick={() => setCenter(BUSAN_CENTER)}>부산으로 이동</button>
-          <button data-testid="move-jeju" onClick={() => setCenter(JEJU_CENTER)}>제주로 이동</button>
-          <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(z + 1, 21))}>확대</button>
-          <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(z - 1, 1))}>축소</button>
-          <button data-testid="set-satellite" onClick={() => setMapTypeId("satellite")}>위성지도</button>
-          <button data-testid="set-normal" onClick={() => setMapTypeId("normal")}>일반지도</button>
-          <button data-testid="read-actual" onClick={readActualState}>실제값 읽기</button>
-          <button data-testid="rapid-updates" onClick={() => {
-            setCenter(BUSAN_CENTER);
-            setTimeout(() => setCenter(JEJU_CENTER), 50);
-            setTimeout(() => setCenter(DEFAULT_CENTER), 100);
-            setTimeout(() => setZoom(15), 50);
-            setTimeout(() => setZoom(10), 100);
-          }}>빠른 업데이트</button>
+          <button data-testid="move-busan" onClick={() => setCenter(BUSAN_CENTER)}>
+            부산으로 이동
+          </button>
+          <button data-testid="move-jeju" onClick={() => setCenter(JEJU_CENTER)}>
+            제주로 이동
+          </button>
+          <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(z + 1, 21))}>
+            확대
+          </button>
+          <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(z - 1, 1))}>
+            축소
+          </button>
+          <button data-testid="set-satellite" onClick={() => setMapTypeId("satellite")}>
+            위성지도
+          </button>
+          <button data-testid="set-normal" onClick={() => setMapTypeId("normal")}>
+            일반지도
+          </button>
+          <button data-testid="read-actual" onClick={readActualState}>
+            실제값 읽기
+          </button>
+          <button
+            data-testid="rapid-updates"
+            onClick={() => {
+              setCenter(BUSAN_CENTER);
+              setTimeout(() => setCenter(JEJU_CENTER), 50);
+              setTimeout(() => setCenter(DEFAULT_CENTER), 100);
+              setTimeout(() => setZoom(15), 50);
+              setTimeout(() => setZoom(10), 100);
+            }}
+          >
+            빠른 업데이트
+          </button>
         </>
       }
       logs={
@@ -223,7 +257,9 @@ function ControlledPage() {
           <span data-testid="state-center">{JSON.stringify(center)}</span>
           <span data-testid="state-zoom">{zoom}</span>
           <span data-testid="state-map-type">{mapTypeId}</span>
-          <span data-testid="actual-center">{actualCenter ? JSON.stringify(actualCenter) : ""}</span>
+          <span data-testid="actual-center">
+            {actualCenter ? JSON.stringify(actualCenter) : ""}
+          </span>
           <span data-testid="actual-zoom">{actualZoom !== null ? actualZoom : ""}</span>
         </>
       }
@@ -267,11 +303,24 @@ function InteractionTogglePage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="toggle-draggable" onClick={() => setDraggable((v) => !v)}>드래그 전환</button>
-          <button data-testid="toggle-scroll-wheel" onClick={() => setScrollWheel((v) => !v)}>스크롤휠 전환</button>
-          <button data-testid="toggle-dblclick-zoom" onClick={() => setDisableDoubleClickZoom((v) => !v)}>더블클릭 줌 전환</button>
-          <button data-testid="toggle-pinch-zoom" onClick={() => setPinchZoom((v) => !v)}>핀치줌 전환</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="toggle-draggable" onClick={() => setDraggable((v) => !v)}>
+            드래그 전환
+          </button>
+          <button data-testid="toggle-scroll-wheel" onClick={() => setScrollWheel((v) => !v)}>
+            스크롤휠 전환
+          </button>
+          <button
+            data-testid="toggle-dblclick-zoom"
+            onClick={() => setDisableDoubleClickZoom((v) => !v)}
+          >
+            더블클릭 줌 전환
+          </button>
+          <button data-testid="toggle-pinch-zoom" onClick={() => setPinchZoom((v) => !v)}>
+            핀치줌 전환
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -354,10 +403,16 @@ function EventFlowPage() {
           <button data-testid="trigger-wheel" onClick={() => triggerEvent("wheel")}>
             wheel 트리거
           </button>
-          <button data-testid="trigger-set-map-type-satellite" onClick={() => mapRef.current?.setMapTypeId("satellite")}>
+          <button
+            data-testid="trigger-set-map-type-satellite"
+            onClick={() => mapRef.current?.setMapTypeId("satellite")}
+          >
             mapType satellite
           </button>
-          <button data-testid="trigger-set-center-busan" onClick={() => mapRef.current?.setCenter(BUSAN_CENTER)}>
+          <button
+            data-testid="trigger-set-center-busan"
+            onClick={() => mapRef.current?.setCenter(BUSAN_CENTER)}
+          >
             center 부산
           </button>
         </>
@@ -478,39 +533,78 @@ function RefImperativePage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="btn-pan-to" onClick={() => mapRef.current?.panTo(BUSAN_CENTER)}>부산으로 팬</button>
-          <button data-testid="btn-set-center-jeju" onClick={() => mapRef.current?.setCenter(JEJU_CENTER)}>제주로 중심 설정</button>
-          <button data-testid="btn-fit-bounds" onClick={() => {
-            const sw = { lat: 33.0, lng: 125.0 };
-            const ne = { lat: 38.0, lng: 132.0 };
-            mapRef.current?.fitBounds(new naver.maps.LatLngBounds(
-              new naver.maps.LatLng(sw.lat, sw.lng),
-              new naver.maps.LatLng(ne.lat, ne.lng)
-            ));
-          }}>대한민국 범위 맞춤</button>
+          <button data-testid="btn-pan-to" onClick={() => mapRef.current?.panTo(BUSAN_CENTER)}>
+            부산으로 팬
+          </button>
+          <button
+            data-testid="btn-set-center-jeju"
+            onClick={() => mapRef.current?.setCenter(JEJU_CENTER)}
+          >
+            제주로 중심 설정
+          </button>
+          <button
+            data-testid="btn-fit-bounds"
+            onClick={() => {
+              const sw = { lat: 33.0, lng: 125.0 };
+              const ne = { lat: 38.0, lng: 132.0 };
+              mapRef.current?.fitBounds(
+                new naver.maps.LatLngBounds(
+                  new naver.maps.LatLng(sw.lat, sw.lng),
+                  new naver.maps.LatLng(ne.lat, ne.lng)
+                )
+              );
+            }}
+          >
+            대한민국 범위 맞춤
+          </button>
           <button
             data-testid="btn-pan-by-right"
             onClick={() => mapRef.current?.panBy(new naver.maps.Point(120, 0))}
           >
             우측으로 panBy
           </button>
-          <button data-testid="btn-set-zoom-15" onClick={() => mapRef.current?.setZoom(15)}>줌 15로 설정</button>
-          <button data-testid="btn-zoom-by-2" onClick={() => mapRef.current?.zoomBy(2)}>줌 +2</button>
-          <button data-testid="btn-zoom-by-minus-1" onClick={() => mapRef.current?.zoomBy(-1)}>줌 -1</button>
-          <button data-testid="btn-set-options-no-drag" onClick={() => mapRef.current?.setOptions({ draggable: false })}>드래그 비활성화</button>
-          <button data-testid="btn-set-options-zoom-range" onClick={() => mapRef.current?.setOptions({
-            minZoom: 6,
-            maxZoom: 17,
-            zoomControl: false
-          })}>줌 범위/컨트롤 옵션 설정</button>
-          <button data-testid="btn-set-map-type-terrain" onClick={() => mapRef.current?.setMapTypeId("terrain")}>terrain 설정</button>
+          <button data-testid="btn-set-zoom-15" onClick={() => mapRef.current?.setZoom(15)}>
+            줌 15로 설정
+          </button>
+          <button data-testid="btn-zoom-by-2" onClick={() => mapRef.current?.zoomBy(2)}>
+            줌 +2
+          </button>
+          <button data-testid="btn-zoom-by-minus-1" onClick={() => mapRef.current?.zoomBy(-1)}>
+            줌 -1
+          </button>
+          <button
+            data-testid="btn-set-options-no-drag"
+            onClick={() => mapRef.current?.setOptions({ draggable: false })}
+          >
+            드래그 비활성화
+          </button>
+          <button
+            data-testid="btn-set-options-zoom-range"
+            onClick={() =>
+              mapRef.current?.setOptions({
+                minZoom: 6,
+                maxZoom: 17,
+                zoomControl: false
+              })
+            }
+          >
+            줌 범위/컨트롤 옵션 설정
+          </button>
+          <button
+            data-testid="btn-set-map-type-terrain"
+            onClick={() => mapRef.current?.setMapTypeId("terrain")}
+          >
+            terrain 설정
+          </button>
           <button
             data-testid="btn-set-size-640x360"
             onClick={() => mapRef.current?.setSize(new naver.maps.Size(640, 360))}
           >
             size 640x360
           </button>
-          <button data-testid="btn-read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="btn-read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -555,5 +649,5 @@ export const mapRoutes: Record<string, React.FC> = {
   "/map/controlled": ControlledPage,
   "/map/interaction-toggle": InteractionTogglePage,
   "/map/event-flow": EventFlowPage,
-  "/map/ref-imperative": RefImperativePage,
+  "/map/ref-imperative": RefImperativePage
 };

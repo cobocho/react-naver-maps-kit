@@ -21,10 +21,14 @@ test.describe("1. basic", () => {
     await expect(page.getByTestId("loading")).toHaveText("false", { timeout: MAP_LOAD_TIMEOUT });
   });
 
-  test("GEO-01: playground seoul.geojson 로드 후 Data 인스턴스/feature를 조회할 수 있다", async ({ page }) => {
+  test("GEO-01: playground seoul.geojson 로드 후 Data 인스턴스/feature를 조회할 수 있다", async ({
+    page
+  }) => {
     await expect(page.getByTestId("fetch-error")).toHaveText("");
     await expect.poll(async () => readNumber(page, "data-ready-count")).toBeGreaterThanOrEqual(1);
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThanOrEqual(1);
 
     await page.getByTestId("read-state").click();
 
@@ -60,12 +64,16 @@ test.describe("2. data switch", () => {
     await expect.poll(async () => readNumber(page, "geojson-feature-count")).toBeGreaterThan(10);
   });
 
-  test("GEO-04: inline 데이터로 전환하면 feature 수가 새 데이터 기준으로 바뀐다", async ({ page }) => {
+  test("GEO-04: inline 데이터로 전환하면 feature 수가 새 데이터 기준으로 바뀐다", async ({
+    page
+  }) => {
     const beforeAdded = await readNumber(page, "features-added-count");
 
     await page.getByTestId("set-data-inline-b").click();
     await expect(page.getByTestId("data-state")).toHaveText("inline-b");
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThan(beforeAdded);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThan(beforeAdded);
 
     await page.getByTestId("read-state").click();
 
@@ -80,7 +88,9 @@ test.describe("2. data switch", () => {
     await page.getByTestId("set-data-seoul").click();
 
     await expect(page.getByTestId("data-state")).toHaveText("seoul");
-    await expect.poll(async () => readNumber(page, "features-added-count")).toBeGreaterThan(beforeAdded);
+    await expect
+      .poll(async () => readNumber(page, "features-added-count"))
+      .toBeGreaterThan(beforeAdded);
 
     await page.getByTestId("read-state").click();
 
@@ -169,7 +179,9 @@ test.describe("4. ref", () => {
     await expect.poll(async () => readNumber(page, "feature-count")).toBeLessThan(before);
   });
 
-  test("GEO-12: ref.overrideStyle/revertStyle 호출 후에도 Data 인스턴스는 정상 상태다", async ({ page }) => {
+  test("GEO-12: ref.overrideStyle/revertStyle 호출 후에도 Data 인스턴스는 정상 상태다", async ({
+    page
+  }) => {
     await page.getByTestId("ref-override-first").click();
     await page.getByTestId("ref-revert-first").click();
     await page.getByTestId("ref-read-state").click();
@@ -206,7 +218,9 @@ test.describe("5. lifecycle", () => {
     await page.getByTestId("toggle-geojson").click();
 
     await expect(page.getByTestId("show-geojson")).toHaveText("true");
-    await expect.poll(async () => readNumber(page, "data-ready-count")).toBeGreaterThan(beforeReady);
+    await expect
+      .poll(async () => readNumber(page, "data-ready-count"))
+      .toBeGreaterThan(beforeReady);
   });
 });
 
@@ -226,11 +240,15 @@ test.describe("6. error", () => {
     await page.getByTestId("set-data-b").click();
     await expect(page.getByTestId("data-state")).toHaveText("b");
 
-    await expect.poll(async () => readNumber(page, "error-count")).toBeGreaterThan(beforeErrorCount);
+    await expect
+      .poll(async () => readNumber(page, "error-count"))
+      .toBeGreaterThan(beforeErrorCount);
     await expect(page.getByTestId("last-error")).toContainText("Forced addGeoJson error for e2e");
   });
 
-  test("GEO-16: 에러 이후 valid data로 복귀하면 feature를 다시 조회할 수 있다", async ({ page }) => {
+  test("GEO-16: 에러 이후 valid data로 복귀하면 feature를 다시 조회할 수 있다", async ({
+    page
+  }) => {
     await page.getByTestId("patch-add-geojson-error").click();
     await page.getByTestId("set-data-b").click();
     await expect.poll(async () => readNumber(page, "error-count")).toBeGreaterThan(0);
@@ -262,7 +280,9 @@ test.describe("7. district click", () => {
 
     await page.getByTestId("trigger-gu-jongno").click();
 
-    await expect.poll(async () => readNumber(page, "click-count")).toBeGreaterThan(beforeClickCount);
+    await expect
+      .poll(async () => readNumber(page, "click-count"))
+      .toBeGreaterThan(beforeClickCount);
     await expect(page.getByTestId("clicked-gu")).toHaveText("종로구");
   });
 
@@ -271,7 +291,9 @@ test.describe("7. district click", () => {
 
     await page.getByTestId("trigger-gu-gangnam").click();
 
-    await expect.poll(async () => readNumber(page, "click-count")).toBeGreaterThan(beforeClickCount);
+    await expect
+      .poll(async () => readNumber(page, "click-count"))
+      .toBeGreaterThan(beforeClickCount);
     await expect(page.getByTestId("clicked-gu")).toHaveText("강남구");
   });
 });

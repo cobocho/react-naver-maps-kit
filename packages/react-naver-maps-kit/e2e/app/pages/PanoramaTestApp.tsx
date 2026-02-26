@@ -223,10 +223,16 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-set-position-2" onClick={() => panoramaRef.current?.setPosition(MARKER_POS_2)}>
+          <button
+            data-testid="ref-set-position-2"
+            onClick={() => panoramaRef.current?.setPosition(MARKER_POS_2)}
+          >
             setPosition 2
           </button>
-          <button data-testid="ref-set-pov-b" onClick={() => panoramaRef.current?.setPov({ pan: 35, tilt: 2, fov: 80 })}>
+          <button
+            data-testid="ref-set-pov-b"
+            onClick={() => panoramaRef.current?.setPov({ pan: 35, tilt: 2, fov: 80 })}
+          >
             setPov B
           </button>
           <button data-testid="ref-set-zoom-2" onClick={() => panoramaRef.current?.setZoom(2)}>
@@ -238,10 +244,16 @@ function RefPage() {
           <button data-testid="ref-zoom-out" onClick={() => panoramaRef.current?.zoomOut()}>
             zoomOut
           </button>
-          <button data-testid="ref-set-visible-false" onClick={() => panoramaRef.current?.setVisible(false)}>
+          <button
+            data-testid="ref-set-visible-false"
+            onClick={() => panoramaRef.current?.setVisible(false)}
+          >
             visible false
           </button>
-          <button data-testid="ref-set-visible-true" onClick={() => panoramaRef.current?.setVisible(true)}>
+          <button
+            data-testid="ref-set-visible-true"
+            onClick={() => panoramaRef.current?.setVisible(true)}
+          >
             visible true
           </button>
           <button
@@ -317,10 +329,18 @@ function EventsPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-init" onClick={() => triggerEvent("init")}>init</button>
-          <button data-testid="trigger-pano-changed" onClick={() => triggerEvent("pano_changed")}>pano_changed</button>
-          <button data-testid="trigger-pov-changed" onClick={() => triggerEvent("pov_changed")}>pov_changed</button>
-          <button data-testid="trigger-pano-status" onClick={() => triggerEvent("pano_status")}>pano_status</button>
+          <button data-testid="trigger-init" onClick={() => triggerEvent("init")}>
+            init
+          </button>
+          <button data-testid="trigger-pano-changed" onClick={() => triggerEvent("pano_changed")}>
+            pano_changed
+          </button>
+          <button data-testid="trigger-pov-changed" onClick={() => triggerEvent("pov_changed")}>
+            pov_changed
+          </button>
+          <button data-testid="trigger-pano-status" onClick={() => triggerEvent("pano_status")}>
+            pano_status
+          </button>
         </>
       }
       logs={

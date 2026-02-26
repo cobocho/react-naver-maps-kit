@@ -1,10 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import {
-  NaverMapProvider,
-  NaverMap,
-  Marker,
-  type MarkerRef
-} from "react-naver-maps-kit";
+import { NaverMapProvider, NaverMap, Marker, type MarkerRef } from "react-naver-maps-kit";
 
 import { NCP_KEY_ID, DEFAULT_CENTER, MARKER_POS_1, MARKER_POS_2, MARKER_POS_3 } from "../constants";
 
@@ -91,7 +86,10 @@ function SmokePage() {
               />
             )}
             {showCustomMarker && (
-              <Marker position={MARKER_POS_2} onMarkerReady={() => setMarkerReadyCount((c) => c + 1)}>
+              <Marker
+                position={MARKER_POS_2}
+                onMarkerReady={() => setMarkerReadyCount((c) => c + 1)}
+              >
                 <div data-testid="custom-marker-content">커스텀</div>
               </Marker>
             )}
@@ -489,34 +487,61 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-set-position" onClick={() => markerRef.current?.setPosition(MARKER_POS_2)}>
+          <button
+            data-testid="ref-set-position"
+            onClick={() => markerRef.current?.setPosition(MARKER_POS_2)}
+          >
             위치 설정
           </button>
-          <button data-testid="ref-set-visible-false" onClick={() => markerRef.current?.setVisible(false)}>
+          <button
+            data-testid="ref-set-visible-false"
+            onClick={() => markerRef.current?.setVisible(false)}
+          >
             표시 끔
           </button>
-          <button data-testid="ref-set-visible-true" onClick={() => markerRef.current?.setVisible(true)}>
+          <button
+            data-testid="ref-set-visible-true"
+            onClick={() => markerRef.current?.setVisible(true)}
+          >
             표시 켬
           </button>
-          <button data-testid="ref-set-draggable" onClick={() => markerRef.current?.setDraggable(true)}>
+          <button
+            data-testid="ref-set-draggable"
+            onClick={() => markerRef.current?.setDraggable(true)}
+          >
             드래그 가능 설정
           </button>
-          <button data-testid="ref-set-clickable" onClick={() => markerRef.current?.setClickable(true)}>
+          <button
+            data-testid="ref-set-clickable"
+            onClick={() => markerRef.current?.setClickable(true)}
+          >
             클릭 가능 설정
           </button>
-          <button data-testid="ref-set-title" onClick={() => markerRef.current?.setTitle("ref-title")}>
+          <button
+            data-testid="ref-set-title"
+            onClick={() => markerRef.current?.setTitle("ref-title")}
+          >
             타이틀 설정
           </button>
-          <button data-testid="ref-set-cursor" onClick={() => markerRef.current?.setCursor("crosshair")}>
+          <button
+            data-testid="ref-set-cursor"
+            onClick={() => markerRef.current?.setCursor("crosshair")}
+          >
             커서 설정
           </button>
           <button data-testid="ref-set-zindex" onClick={() => markerRef.current?.setZIndex(777)}>
             zIndex 설정
           </button>
-          <button data-testid="ref-set-icon" onClick={() => markerRef.current?.setIcon(HTML_ICON_B)}>
+          <button
+            data-testid="ref-set-icon"
+            onClick={() => markerRef.current?.setIcon(HTML_ICON_B)}
+          >
             icon 설정
           </button>
-          <button data-testid="ref-set-shape" onClick={() => markerRef.current?.setShape(POLY_SHAPE)}>
+          <button
+            data-testid="ref-set-shape"
+            onClick={() => markerRef.current?.setShape(POLY_SHAPE)}
+          >
             shape 설정
           </button>
           <button
@@ -591,7 +616,10 @@ function MultiplePage() {
   const [markerDestroyCount, setMarkerDestroyCount] = useState(0);
 
   const addMarker = useCallback(() => {
-    setMarkers((prev) => [...prev, { lat: 37.5 + Math.random() * 0.1, lng: 127.0 + Math.random() * 0.1 }]);
+    setMarkers((prev) => [
+      ...prev,
+      { lat: 37.5 + Math.random() * 0.1, lng: 127.0 + Math.random() * 0.1 }
+    ]);
   }, []);
 
   const removeLast = useCallback(() => {

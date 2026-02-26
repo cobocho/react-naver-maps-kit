@@ -277,10 +277,7 @@ export interface MarkerClustererHelpers<TData> {
    * @example
    * helpers.fitBounds({ south: 37.5, north: 37.6, west: 126.9, east: 127.0 });
    */
-  fitBounds(
-    bounds: LatLngBoundsLiteral,
-    options?: { readonly padding?: number }
-  ): void;
+  fitBounds(bounds: LatLngBoundsLiteral, options?: { readonly padding?: number }): void;
 }
 
 // ─── MarkerClusterer Props ────────────────────────────────────────

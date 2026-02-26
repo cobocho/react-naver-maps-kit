@@ -1,10 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  ELLIPSE_BOUNDS_1,
-  ELLIPSE_BOUNDS_2,
-  ELLIPSE_BOUNDS_3
-} from "./app/constants";
+import { ELLIPSE_BOUNDS_1, ELLIPSE_BOUNDS_2, ELLIPSE_BOUNDS_3 } from "./app/constants";
 
 const MAP_LOAD_TIMEOUT = 20_000;
 
@@ -196,7 +192,9 @@ test.describe("2. bounds/options 반영", () => {
 
   test("E-13: bounds/clickable/visible/zIndex changed 이벤트가 발생한다", async ({ page }) => {
     const boundsBefore = Number(await page.getByTestId("evt-bounds-changed-count").textContent());
-    const clickableBefore = Number(await page.getByTestId("evt-clickable-changed-count").textContent());
+    const clickableBefore = Number(
+      await page.getByTestId("evt-clickable-changed-count").textContent()
+    );
     const visibleBefore = Number(await page.getByTestId("evt-visible-changed-count").textContent());
     const zIndexBefore = Number(await page.getByTestId("evt-zindex-changed-count").textContent());
 
@@ -220,11 +218,21 @@ test.describe("2. bounds/options 반영", () => {
   });
 
   test("E-14: fill/stroke changed 이벤트가 발생한다", async ({ page }) => {
-    const fillColorBefore = Number(await page.getByTestId("evt-fill-color-changed-count").textContent());
-    const fillOpacityBefore = Number(await page.getByTestId("evt-fill-opacity-changed-count").textContent());
-    const strokeColorBefore = Number(await page.getByTestId("evt-stroke-color-changed-count").textContent());
-    const strokeOpacityBefore = Number(await page.getByTestId("evt-stroke-opacity-changed-count").textContent());
-    const strokeWeightBefore = Number(await page.getByTestId("evt-stroke-weight-changed-count").textContent());
+    const fillColorBefore = Number(
+      await page.getByTestId("evt-fill-color-changed-count").textContent()
+    );
+    const fillOpacityBefore = Number(
+      await page.getByTestId("evt-fill-opacity-changed-count").textContent()
+    );
+    const strokeColorBefore = Number(
+      await page.getByTestId("evt-stroke-color-changed-count").textContent()
+    );
+    const strokeOpacityBefore = Number(
+      await page.getByTestId("evt-stroke-opacity-changed-count").textContent()
+    );
+    const strokeWeightBefore = Number(
+      await page.getByTestId("evt-stroke-weight-changed-count").textContent()
+    );
 
     await page.getByTestId("set-fill-red").click();
     await page.getByTestId("set-fill-opacity-08").click();
@@ -233,39 +241,63 @@ test.describe("2. bounds/options 반영", () => {
     await page.getByTestId("set-stroke-weight-6").click();
 
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-fill-color-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-fill-color-changed-count").textContent())
+      )
       .toBeGreaterThan(fillColorBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-fill-opacity-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-fill-opacity-changed-count").textContent())
+      )
       .toBeGreaterThan(fillOpacityBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-color-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-color-changed-count").textContent())
+      )
       .toBeGreaterThan(strokeColorBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-opacity-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-opacity-changed-count").textContent())
+      )
       .toBeGreaterThan(strokeOpacityBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-weight-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-weight-changed-count").textContent())
+      )
       .toBeGreaterThan(strokeWeightBefore);
   });
 
-  test("E-15: strokeLineCap/strokeLineJoin/strokeStyle changed 이벤트가 발생한다", async ({ page }) => {
-    const styleBefore = Number(await page.getByTestId("evt-stroke-style-changed-count").textContent());
-    const lineCapBefore = Number(await page.getByTestId("evt-stroke-linecap-changed-count").textContent());
-    const lineJoinBefore = Number(await page.getByTestId("evt-stroke-linejoin-changed-count").textContent());
+  test("E-15: strokeLineCap/strokeLineJoin/strokeStyle changed 이벤트가 발생한다", async ({
+    page
+  }) => {
+    const styleBefore = Number(
+      await page.getByTestId("evt-stroke-style-changed-count").textContent()
+    );
+    const lineCapBefore = Number(
+      await page.getByTestId("evt-stroke-linecap-changed-count").textContent()
+    );
+    const lineJoinBefore = Number(
+      await page.getByTestId("evt-stroke-linejoin-changed-count").textContent()
+    );
 
     await page.getByTestId("set-stroke-style-shortdash").click();
     await page.getByTestId("set-linecap-butt").click();
     await page.getByTestId("set-linejoin-bevel").click();
 
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-style-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-style-changed-count").textContent())
+      )
       .toBeGreaterThan(styleBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-linecap-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-linecap-changed-count").textContent())
+      )
       .toBeGreaterThan(lineCapBefore);
     await expect
-      .poll(async () => Number(await page.getByTestId("evt-stroke-linejoin-changed-count").textContent()))
+      .poll(async () =>
+        Number(await page.getByTestId("evt-stroke-linejoin-changed-count").textContent())
+      )
       .toBeGreaterThan(lineJoinBefore);
   });
 
@@ -431,7 +463,9 @@ test.describe("4. Ref 기반 imperative 동작", () => {
     await expect(page.getByTestId("ref-map-bound")).toHaveText("true");
   });
 
-  test("E-30: ref.getAreaSize/getDrawingRect/getElement/getBounds가 유효값을 반환한다", async ({ page }) => {
+  test("E-30: ref.getAreaSize/getDrawingRect/getElement/getBounds가 유효값을 반환한다", async ({
+    page
+  }) => {
     await page.getByTestId("ref-read-state").click();
 
     expect(Number(await page.getByTestId("ref-area-size").textContent())).toBeGreaterThan(0);

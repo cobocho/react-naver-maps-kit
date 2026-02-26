@@ -341,7 +341,7 @@ export const Marker = forwardRef<MarkerRef, MarkerProps>(
     const { sdkStatus } = useNaverMap();
     const mapInstanceContext = useMapInstance();
     const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-    
+
     const clustererRegistry = useContext(ClustererContext);
     const visibleIds = useContext(ClustererVisibilityContext);
     const isInsideClusterer = clustererRegistry !== null && clustererRegistry.enabled;

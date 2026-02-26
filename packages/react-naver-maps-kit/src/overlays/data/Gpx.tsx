@@ -135,7 +135,7 @@ export const Gpx = forwardRef<GpxRef, GpxProps>(function GpxInner(props, ref) {
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const dataRef = useRef<naver.maps.Data | null>(null);
   const dataEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onDataDestroyRef = useRef<GpxProps["onDataDestroy"]>(props.onDataDestroy);

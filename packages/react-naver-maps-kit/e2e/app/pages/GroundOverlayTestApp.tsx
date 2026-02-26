@@ -169,7 +169,9 @@ function OptionsPage() {
   const [opacityChangedCount, setOpacityChangedCount] = useState(0);
 
   const readState = useCallback(() => {
-    setOptBounds(toBoundsText(groundOverlayRef.current?.getBounds() as naver.maps.LatLngBounds | undefined));
+    setOptBounds(
+      toBoundsText(groundOverlayRef.current?.getBounds() as naver.maps.LatLngBounds | undefined)
+    );
     setOptUrl(String(groundOverlayRef.current?.getUrl() ?? ""));
     setOptOpacity(String(groundOverlayRef.current?.getOpacity() ?? ""));
   }, []);
@@ -322,19 +324,45 @@ function EventsPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-click" onClick={() => triggerEvent("click")}>click</button>
-          <button data-testid="trigger-dblclick" onClick={() => triggerEvent("dblclick")}>dblclick</button>
-          <button data-testid="trigger-rightclick" onClick={() => triggerEvent("rightclick")}>rightclick</button>
-          <button data-testid="trigger-mousedown" onClick={() => triggerEvent("mousedown")}>mousedown</button>
-          <button data-testid="trigger-mousemove" onClick={() => triggerEvent("mousemove")}>mousemove</button>
-          <button data-testid="trigger-mouseup" onClick={() => triggerEvent("mouseup")}>mouseup</button>
-          <button data-testid="trigger-mouseover" onClick={() => triggerEvent("mouseover")}>mouseover</button>
-          <button data-testid="trigger-mouseout" onClick={() => triggerEvent("mouseout")}>mouseout</button>
-          <button data-testid="trigger-touchstart" onClick={() => triggerEvent("touchstart")}>touchstart</button>
-          <button data-testid="trigger-touchmove" onClick={() => triggerEvent("touchmove")}>touchmove</button>
-          <button data-testid="trigger-touchend" onClick={() => triggerEvent("touchend")}>touchend</button>
-          <button data-testid="trigger-map-changed" onClick={() => triggerEvent("map_changed")}>map_changed</button>
-          <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+          <button data-testid="trigger-click" onClick={() => triggerEvent("click")}>
+            click
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerEvent("dblclick")}>
+            dblclick
+          </button>
+          <button data-testid="trigger-rightclick" onClick={() => triggerEvent("rightclick")}>
+            rightclick
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerEvent("mousedown")}>
+            mousedown
+          </button>
+          <button data-testid="trigger-mousemove" onClick={() => triggerEvent("mousemove")}>
+            mousemove
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerEvent("mouseup")}>
+            mouseup
+          </button>
+          <button data-testid="trigger-mouseover" onClick={() => triggerEvent("mouseover")}>
+            mouseover
+          </button>
+          <button data-testid="trigger-mouseout" onClick={() => triggerEvent("mouseout")}>
+            mouseout
+          </button>
+          <button data-testid="trigger-touchstart" onClick={() => triggerEvent("touchstart")}>
+            touchstart
+          </button>
+          <button data-testid="trigger-touchmove" onClick={() => triggerEvent("touchmove")}>
+            touchmove
+          </button>
+          <button data-testid="trigger-touchend" onClick={() => triggerEvent("touchend")}>
+            touchend
+          </button>
+          <button data-testid="trigger-map-changed" onClick={() => triggerEvent("map_changed")}>
+            map_changed
+          </button>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
         </>
       }
       logs={
@@ -402,7 +430,9 @@ function RefPage() {
       overlayInstance && typeof (overlayInstance as { setUrl?: unknown }).setUrl === "function"
     );
 
-    setRefBounds(toBoundsText(groundOverlayRef.current?.getBounds() as naver.maps.LatLngBounds | undefined));
+    setRefBounds(
+      toBoundsText(groundOverlayRef.current?.getBounds() as naver.maps.LatLngBounds | undefined)
+    );
     setRefOpacity(String(groundOverlayRef.current?.getOpacity() ?? ""));
     setRefUrl(String(groundOverlayRef.current?.getUrl() ?? ""));
     setRefMapBound(String(Boolean(groundOverlayRef.current?.getMap())));
@@ -425,16 +455,28 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-set-opacity-03" onClick={() => groundOverlayRef.current?.setOpacity(0.3)}>
+          <button
+            data-testid="ref-set-opacity-03"
+            onClick={() => groundOverlayRef.current?.setOpacity(0.3)}
+          >
             opacity 0.3
           </button>
-          <button data-testid="ref-set-opacity-08" onClick={() => groundOverlayRef.current?.setOpacity(0.8)}>
+          <button
+            data-testid="ref-set-opacity-08"
+            onClick={() => groundOverlayRef.current?.setOpacity(0.8)}
+          >
             opacity 0.8
           </button>
-          <button data-testid="ref-set-url-2" onClick={() => groundOverlayRef.current?.setUrl(GROUND_OVERLAY_URL_2)}>
+          <button
+            data-testid="ref-set-url-2"
+            onClick={() => groundOverlayRef.current?.setUrl(GROUND_OVERLAY_URL_2)}
+          >
             url 2
           </button>
-          <button data-testid="ref-set-url-3" onClick={() => groundOverlayRef.current?.setUrl(GROUND_OVERLAY_URL_3)}>
+          <button
+            data-testid="ref-set-url-3"
+            onClick={() => groundOverlayRef.current?.setUrl(GROUND_OVERLAY_URL_3)}
+          >
             url 3
           </button>
           <button
@@ -526,9 +568,27 @@ function MultiplePage() {
   const [groundOverlayReadyCount, setGroundOverlayReadyCount] = useState(0);
   const [groundOverlayDestroyCount, setGroundOverlayDestroyCount] = useState(0);
   const [items, setItems] = useState<GroundOverlayItem[]>([
-    { id: 1, url: GROUND_OVERLAY_URL_1, bounds: GROUND_OVERLAY_BOUNDS_1, opacity: 0.8, clickable: true },
-    { id: 2, url: GROUND_OVERLAY_URL_2, bounds: GROUND_OVERLAY_BOUNDS_2, opacity: 0.7, clickable: true },
-    { id: 3, url: GROUND_OVERLAY_URL_3, bounds: GROUND_OVERLAY_BOUNDS_3, opacity: 0.6, clickable: true }
+    {
+      id: 1,
+      url: GROUND_OVERLAY_URL_1,
+      bounds: GROUND_OVERLAY_BOUNDS_1,
+      opacity: 0.8,
+      clickable: true
+    },
+    {
+      id: 2,
+      url: GROUND_OVERLAY_URL_2,
+      bounds: GROUND_OVERLAY_BOUNDS_2,
+      opacity: 0.7,
+      clickable: true
+    },
+    {
+      id: 3,
+      url: GROUND_OVERLAY_URL_3,
+      bounds: GROUND_OVERLAY_BOUNDS_3,
+      opacity: 0.6,
+      clickable: true
+    }
   ]);
 
   const firstClickable = items.find((item) => item.id === 1)?.clickable ?? false;
@@ -555,7 +615,9 @@ function MultiplePage() {
   }, []);
 
   const toggleFirstClickable = useCallback(() => {
-    setItems((prev) => prev.map((item) => (item.id === 1 ? { ...item, clickable: !item.clickable } : item)));
+    setItems((prev) =>
+      prev.map((item) => (item.id === 1 ? { ...item, clickable: !item.clickable } : item))
+    );
   }, []);
 
   const setSecondOpacity = useCallback(() => {
@@ -566,10 +628,18 @@ function MultiplePage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="add-ground-overlay" onClick={addGroundOverlay}>ground overlay 추가</button>
-          <button data-testid="remove-last-ground-overlay" onClick={removeLast}>마지막 제거</button>
-          <button data-testid="toggle-first-clickable" onClick={toggleFirstClickable}>첫 overlay clickable 토글</button>
-          <button data-testid="set-second-opacity" onClick={setSecondOpacity}>둘째 opacity 0.95</button>
+          <button data-testid="add-ground-overlay" onClick={addGroundOverlay}>
+            ground overlay 추가
+          </button>
+          <button data-testid="remove-last-ground-overlay" onClick={removeLast}>
+            마지막 제거
+          </button>
+          <button data-testid="toggle-first-clickable" onClick={toggleFirstClickable}>
+            첫 overlay clickable 토글
+          </button>
+          <button data-testid="set-second-opacity" onClick={setSecondOpacity}>
+            둘째 opacity 0.95
+          </button>
         </>
       }
       logs={

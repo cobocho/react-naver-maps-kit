@@ -88,10 +88,7 @@ interface MarkerClustererHelpers<TData> {
     cluster: Cluster<TData>,
     options?: { readonly padding?: number; readonly maxZoom?: number }
   ): void;
-  fitBounds(
-    bounds: LatLngBoundsLiteral,
-    options?: { readonly padding?: number }
-  ): void;
+  fitBounds(bounds: LatLngBoundsLiteral, options?: { readonly padding?: number }): void;
 }
 
 interface MarkerClustererProps<TData> {
@@ -116,53 +113,53 @@ interface MarkerClustererProps<TData> {
 
 ## Props
 
-| Prop           | Type                                              | Default                               | Description                                       |
-| -------------- | ------------------------------------------------- | ------------------------------------- | ------------------------------------------------- |
-| `algorithm`    | `BuiltInAlgorithmConfig \| ClusterAlgorithm<T>`   | `{ type: "supercluster", radius: 60 }` | 클러스터링 알고리즘                               |
-| `clusterIcon`  | `ClusterIconRenderer<T>`                          | 파란 원형 기본 아이콘                 | 클러스터 마커 아이콘 렌더러                       |
-| `onClusterClick` | `(args) => void`                                | —                                     | 클러스터 마커 클릭 콜백                           |
-| `behavior`     | `{ recomputeOn?, debounceMs? }`                  | `{ recomputeOn: "idle", debounceMs: 200 }` | 재계산 트리거 및 디바운스 설정             |
-| `clusterData`  | `{ includeItems?, maxItemsInCluster? }`          | `{ includeItems: true }`              | cluster 객체에 포함할 데이터 옵션                 |
-| `enabled`      | `boolean`                                         | `true`                                | `false`이면 클러스터링 해제, 개별 마커로 렌더링   |
-| `children`     | `React.ReactNode`                                 | —                                     | 클러스터러에 등록할 `<Marker>` 컴포넌트들 (필수) |
+| Prop             | Type                                            | Default                                    | Description                                      |
+| ---------------- | ----------------------------------------------- | ------------------------------------------ | ------------------------------------------------ |
+| `algorithm`      | `BuiltInAlgorithmConfig \| ClusterAlgorithm<T>` | `{ type: "supercluster", radius: 60 }`     | 클러스터링 알고리즘                              |
+| `clusterIcon`    | `ClusterIconRenderer<T>`                        | 파란 원형 기본 아이콘                      | 클러스터 마커 아이콘 렌더러                      |
+| `onClusterClick` | `(args) => void`                                | —                                          | 클러스터 마커 클릭 콜백                          |
+| `behavior`       | `{ recomputeOn?, debounceMs? }`                 | `{ recomputeOn: "idle", debounceMs: 200 }` | 재계산 트리거 및 디바운스 설정                   |
+| `clusterData`    | `{ includeItems?, maxItemsInCluster? }`         | `{ includeItems: true }`                   | cluster 객체에 포함할 데이터 옵션                |
+| `enabled`        | `boolean`                                       | `true`                                     | `false`이면 클러스터링 해제, 개별 마커로 렌더링  |
+| `children`       | `React.ReactNode`                               | —                                          | 클러스터러에 등록할 `<Marker>` 컴포넌트들 (필수) |
 
 ### `algorithm` — 내장 알고리즘 옵션
 
-| type            | 옵션                                                         | 설명                               |
-| --------------- | ------------------------------------------------------------ | ---------------------------------- |
-| `"supercluster"` | `radius`, `minZoom`, `maxZoom`, `extent`, `nodeSize`        | [Supercluster](https://github.com/mapbox/supercluster) 기반 (기본값) |
-| `"grid"`         | `gridSize`, `minClusterSize`, `maxZoom`                     | 격자 셀 기반                       |
-| `"radius"`       | `radius`, `minClusterSize`, `maxZoom`                       | 중심점-거리 기반                   |
+| type             | 옵션                                                 | 설명                                                                 |
+| ---------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| `"supercluster"` | `radius`, `minZoom`, `maxZoom`, `extent`, `nodeSize` | [Supercluster](https://github.com/mapbox/supercluster) 기반 (기본값) |
+| `"grid"`         | `gridSize`, `minClusterSize`, `maxZoom`              | 격자 셀 기반                                                         |
+| `"radius"`       | `radius`, `minClusterSize`, `maxZoom`                | 중심점-거리 기반                                                     |
 
 ### `behavior` 옵션
 
-| 옵션           | 기본값   | 설명                                                              |
-| -------------- | -------- | ----------------------------------------------------------------- |
-| `recomputeOn`  | `"idle"` | `"idle"` / `"move"` / `"zoom"` — 재계산을 트리거할 지도 이벤트  |
-| `debounceMs`   | `200`    | 재계산 디바운스 지연 시간 (ms)                                    |
+| 옵션          | 기본값   | 설명                                                           |
+| ------------- | -------- | -------------------------------------------------------------- |
+| `recomputeOn` | `"idle"` | `"idle"` / `"move"` / `"zoom"` — 재계산을 트리거할 지도 이벤트 |
+| `debounceMs`  | `200`    | 재계산 디바운스 지연 시간 (ms)                                 |
 
 ### `clusterData` 옵션
 
-| 옵션                 | 기본값 | 설명                                                                   |
-| -------------------- | ------ | ---------------------------------------------------------------------- |
-| `includeItems`       | `true` | `cluster.items`에 마커 레코드 배열을 포함할지 여부                    |
-| `maxItemsInCluster`  | 없음   | `cluster.items`에 포함할 최대 마커 수. 생략하면 전체 포함             |
+| 옵션                | 기본값 | 설명                                                      |
+| ------------------- | ------ | --------------------------------------------------------- |
+| `includeItems`      | `true` | `cluster.items`에 마커 레코드 배열을 포함할지 여부        |
+| `maxItemsInCluster` | 없음   | `cluster.items`에 포함할 최대 마커 수. 생략하면 전체 포함 |
 
 ## 헬퍼 메서드
 
 `onClusterClick` 콜백의 두 번째 인자 `helpers`에서 사용할 수 있습니다.
 
-| 메서드                                      | 설명                                                                                   |
-| ------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `zoomToCluster(cluster, options?)`          | 클러스터의 마커들이 모두 보이도록 지도 뷰포트를 조정합니다.                           |
-| `fitBounds(bounds, options?)`               | 지정한 영역이 화면에 맞도록 지도 뷰포트를 조정합니다.                                 |
+| 메서드                             | 설명                                                        |
+| ---------------------------------- | ----------------------------------------------------------- |
+| `zoomToCluster(cluster, options?)` | 클러스터의 마커들이 모두 보이도록 지도 뷰포트를 조정합니다. |
+| `fitBounds(bounds, options?)`      | 지정한 영역이 화면에 맞도록 지도 뷰포트를 조정합니다.       |
 
 `zoomToCluster` 옵션:
 
-| 옵션       | 설명                                                        |
-| ---------- | ----------------------------------------------------------- |
-| `padding`  | bounds 패딩 (퍼센트)                                       |
-| `maxZoom`  | fitBounds 후 이 줌보다 크면 줌을 제한합니다                |
+| 옵션      | 설명                                        |
+| --------- | ------------------------------------------- |
+| `padding` | bounds 패딩 (퍼센트)                        |
+| `maxZoom` | fitBounds 후 이 줌보다 크면 줌을 제한합니다 |
 
 ## 사용 예시
 
@@ -173,7 +170,7 @@ import { NaverMap, Marker, MarkerClusterer } from "react-naver-maps-kit";
 
 const points = [
   { id: 1, lat: 37.5666, lng: 126.9784 },
-  { id: 2, lat: 37.5700, lng: 126.9820 },
+  { id: 2, lat: 37.57, lng: 126.982 }
   // ...
 ];
 
@@ -182,10 +179,7 @@ function MyMap() {
     <NaverMap defaultCenter={{ lat: 37.5666, lng: 126.9784 }} defaultZoom={12}>
       <MarkerClusterer>
         {points.map((p) => (
-          <Marker
-            key={p.id}
-            position={{ lat: p.lat, lng: p.lng }}
-          />
+          <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} />
         ))}
       </MarkerClusterer>
     </NaverMap>
@@ -208,7 +202,7 @@ function MyMap() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontWeight: "bold",
+        fontWeight: "bold"
       }}
     >
       {count}
@@ -269,9 +263,7 @@ class MyAlgorithm<TData> implements ClusterAlgorithm<TData> {
   }
 }
 
-<MarkerClusterer algorithm={new MyAlgorithm()}>
-  ...
-</MarkerClusterer>
+<MarkerClusterer algorithm={new MyAlgorithm()}>...</MarkerClusterer>;
 ```
 
 ### 커스텀 마커 아이콘 (children)
@@ -281,7 +273,13 @@ class MyAlgorithm<TData> implements ClusterAlgorithm<TData> {
 ```tsx
 <MarkerClusterer
   clusterIcon={({ count }) => (
-    <div style={{ /* 클러스터 스타일 */ }}>
+    <div
+      style={
+        {
+          /* 클러스터 스타일 */
+        }
+      }
+    >
       {count}
     </div>
   )}
@@ -289,14 +287,16 @@ class MyAlgorithm<TData> implements ClusterAlgorithm<TData> {
   {points.map((p) => (
     <Marker key={p.id} position={p.position}>
       {/* 단독 포인트일 때 표시할 커스텀 마커 */}
-      <div style={{
-        width: 32,
-        height: 32,
-        borderRadius: "50%",
-        background: "#03C75A",
-        border: "2px solid white",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
-      }} />
+      <div
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          background: "#03C75A",
+          border: "2px solid white",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+        }}
+      />
     </Marker>
   ))}
 </MarkerClusterer>
@@ -328,10 +328,10 @@ const [clustering, setClustering] = useState(true);
 
 `<Marker>`가 `<MarkerClusterer>` 내부에서 동작할 때 사용하는 추가 props입니다.
 
-| Prop               | Type               | Description                                                                             |
-| ------------------ | ------------------ | --------------------------------------------------------------------------------------- |
-| `clustererItemId`  | `string \| number` | 마커를 식별하는 고유 ID. 생략하면 React `useId()`로 자동 생성됩니다.                   |
-| `item`             | `TData`            | 클러스터 콜백(`onClusterClick`)에서 접근할 커스텀 데이터                                |
+| Prop              | Type               | Description                                                          |
+| ----------------- | ------------------ | -------------------------------------------------------------------- |
+| `clustererItemId` | `string \| number` | 마커를 식별하는 고유 ID. 생략하면 React `useId()`로 자동 생성됩니다. |
+| `item`            | `TData`            | 클러스터 콜백(`onClusterClick`)에서 접근할 커스텀 데이터             |
 
 ## 동작 규칙
 

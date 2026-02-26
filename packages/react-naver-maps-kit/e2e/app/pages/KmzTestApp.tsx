@@ -71,16 +71,24 @@ function BasicPage() {
 
     setFeatureCount(getFeatureCount(kmzRef));
     setStyleStrokeColor(String(currentStyle?.strokeColor ?? ""));
-    setGeojsonType(String((kmzRef.current?.toGeoJson() as { type?: string } | undefined)?.type ?? ""));
+    setGeojsonType(
+      String((kmzRef.current?.toGeoJson() as { type?: string } | undefined)?.type ?? "")
+    );
   }, []);
 
   return (
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="set-stroke-purple" onClick={() => setStrokeColor("#9333ea")}>stroke purple</button>
-          <button data-testid="set-stroke-blue" onClick={() => setStrokeColor("#2563eb")}>stroke blue</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="set-stroke-purple" onClick={() => setStrokeColor("#9333ea")}>
+            stroke purple
+          </button>
+          <button data-testid="set-stroke-blue" onClick={() => setStrokeColor("#2563eb")}>
+            stroke blue
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -143,9 +151,15 @@ function UrlSwitchPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="set-url-a" onClick={() => setUrl("/seoul.kmz")}>url a</button>
-          <button data-testid="set-url-b" onClick={() => setUrl("/seoul-b.kmz")}>url b</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="set-url-a" onClick={() => setUrl("/seoul.kmz")}>
+            url a
+          </button>
+          <button data-testid="set-url-b" onClick={() => setUrl("/seoul-b.kmz")}>
+            url b
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -196,7 +210,16 @@ function EventPage() {
   }, []);
 
   const triggerPointerEvent = useCallback(
-    (eventName: "click" | "dblclick" | "rightclick" | "mousedown" | "mouseup" | "mouseover" | "mouseout") => {
+    (
+      eventName:
+        | "click"
+        | "dblclick"
+        | "rightclick"
+        | "mousedown"
+        | "mouseup"
+        | "mouseover"
+        | "mouseout"
+    ) => {
       const data = kmzRef.current?.getInstance();
 
       if (!data) {
@@ -268,18 +291,45 @@ function EventPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-click" onClick={() => triggerPointerEvent("click")}>click</button>
-          <button data-testid="trigger-dblclick" onClick={() => triggerPointerEvent("dblclick")}>dblclick</button>
-          <button data-testid="trigger-rightclick" onClick={() => triggerPointerEvent("rightclick")}>rightclick</button>
-          <button data-testid="trigger-mousedown" onClick={() => triggerPointerEvent("mousedown")}>mousedown</button>
-          <button data-testid="trigger-mouseup" onClick={() => triggerPointerEvent("mouseup")}>mouseup</button>
-          <button data-testid="trigger-mouseover" onClick={() => triggerPointerEvent("mouseover")}>mouseover</button>
-          <button data-testid="trigger-mouseout" onClick={() => triggerPointerEvent("mouseout")}>mouseout</button>
-          <button data-testid="trigger-addfeature" onClick={triggerAddFeature}>addfeature</button>
-          <button data-testid="trigger-removefeature" onClick={triggerRemoveFeature}>removefeature</button>
-          <button data-testid="trigger-property-changed" onClick={triggerPropertyChanged}>property_changed</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
-          <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+          <button data-testid="trigger-click" onClick={() => triggerPointerEvent("click")}>
+            click
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerPointerEvent("dblclick")}>
+            dblclick
+          </button>
+          <button
+            data-testid="trigger-rightclick"
+            onClick={() => triggerPointerEvent("rightclick")}
+          >
+            rightclick
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerPointerEvent("mousedown")}>
+            mousedown
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerPointerEvent("mouseup")}>
+            mouseup
+          </button>
+          <button data-testid="trigger-mouseover" onClick={() => triggerPointerEvent("mouseover")}>
+            mouseover
+          </button>
+          <button data-testid="trigger-mouseout" onClick={() => triggerPointerEvent("mouseout")}>
+            mouseout
+          </button>
+          <button data-testid="trigger-addfeature" onClick={triggerAddFeature}>
+            addfeature
+          </button>
+          <button data-testid="trigger-removefeature" onClick={triggerRemoveFeature}>
+            removefeature
+          </button>
+          <button data-testid="trigger-property-changed" onClick={triggerPropertyChanged}>
+            property_changed
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
         </>
       }
       logs={
@@ -385,11 +435,21 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-read-state" onClick={readState}>상태 읽기</button>
-          <button data-testid="ref-set-style-green" onClick={setStyleGreen}>setStyle green</button>
-          <button data-testid="ref-remove-first" onClick={removeFirstFeature}>remove first</button>
-          <button data-testid="ref-override-first" onClick={overrideFirstFeature}>override first</button>
-          <button data-testid="ref-revert-first" onClick={revertFirstFeature}>revert first</button>
+          <button data-testid="ref-read-state" onClick={readState}>
+            상태 읽기
+          </button>
+          <button data-testid="ref-set-style-green" onClick={setStyleGreen}>
+            setStyle green
+          </button>
+          <button data-testid="ref-remove-first" onClick={removeFirstFeature}>
+            remove first
+          </button>
+          <button data-testid="ref-override-first" onClick={overrideFirstFeature}>
+            override first
+          </button>
+          <button data-testid="ref-revert-first" onClick={revertFirstFeature}>
+            revert first
+          </button>
         </>
       }
       logs={
@@ -438,7 +498,9 @@ function LifecyclePage() {
           <button data-testid="toggle-kmz" onClick={() => setShowKmz((v) => !v)}>
             kmz 토글
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -486,8 +548,12 @@ function ErrorPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="set-url-valid-a" onClick={() => setUrl("/seoul.kmz")}>valid a</button>
-          <button data-testid="set-url-valid-b" onClick={() => setUrl("/seoul-b.kmz")}>valid b</button>
+          <button data-testid="set-url-valid-a" onClick={() => setUrl("/seoul.kmz")}>
+            valid a
+          </button>
+          <button data-testid="set-url-valid-b" onClick={() => setUrl("/seoul-b.kmz")}>
+            valid b
+          </button>
           <button
             data-testid="set-url-network-error"
             onClick={() => setUrl("http://127.0.0.1:1/kmz-unreachable.kmz")}

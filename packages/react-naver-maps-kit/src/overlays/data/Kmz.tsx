@@ -151,7 +151,7 @@ export const Kmz = forwardRef<KmzRef, KmzProps>(function KmzInner(props, ref) {
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const dataRef = useRef<naver.maps.Data | null>(null);
   const dataEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onDataDestroyRef = useRef<KmzProps["onDataDestroy"]>(props.onDataDestroy);

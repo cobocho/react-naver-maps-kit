@@ -10,7 +10,7 @@ const ViewCone = ({ pan, fov }: { pan: number; fov: number }) => {
   const size = 120;
   const coneLength = 50;
   const halfFov = fov / 2;
-  
+
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const x1 = size / 2 + Math.sin(toRad(-halfFov)) * coneLength;
   const y1 = size / 2 - Math.cos(toRad(-halfFov)) * coneLength;
@@ -41,16 +41,14 @@ const ViewCone = ({ pan, fov }: { pan: number; fov: number }) => {
 
 const CameraIcon = ({ pan, fov, showCone }: { pan?: number; fov?: number; showCone?: boolean }) => (
   <div style={{ position: "relative", width: 40, height: 40 }}>
-    {showCone && pan !== undefined && fov !== undefined && (
-      <ViewCone pan={pan} fov={fov} />
-    )}
+    {showCone && pan !== undefined && fov !== undefined && <ViewCone pan={pan} fov={fov} />}
     <svg
       width="40"
       height="40"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ 
+      style={{
         filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
         position: "relative",
         zIndex: 1
@@ -120,11 +118,7 @@ export function PanoramaDemo() {
             defaultZoom={15}
             style={{ width: "100%", height: 400 }}
           >
-            <Marker
-              position={position}
-              draggable={true}
-              onDragEnd={handleCameraDragEnd}
-            >
+            <Marker position={position} draggable={true} onDragEnd={handleCameraDragEnd}>
               <div style={{ cursor: "grab" }}>
                 <CameraIcon pan={pov.pan} fov={pov.fov} showCone={showViewCone} />
               </div>

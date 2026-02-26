@@ -8,6 +8,7 @@
 ```tsx
 <NaverMapProvider ncpKeyId="..." submodules={["visualization"]}>
 ```
+
 :::
 
 ## 기본 사용법
@@ -19,7 +20,7 @@ function MapWithDotMap() {
   const data = [
     { lat: 37.5665, lng: 126.978 },
     { lat: 37.5666, lng: 126.979 },
-    { lat: 37.5667, lng: 126.980 }
+    { lat: 37.5667, lng: 126.98 }
   ];
 
   return (
@@ -45,10 +46,7 @@ function MapWithDotMap() {
 
 ```ts
 interface DotMapOptionProps {
-  data:
-    | naver.maps.LatLng[]
-    | naver.maps.PointArrayLiteral[]
-    | Array<{ lat: number; lng: number }>;
+  data: naver.maps.LatLng[] | naver.maps.PointArrayLiteral[] | Array<{ lat: number; lng: number }>;
   opacity?: number;
   radius?: number;
   strokeWeight?: number;
@@ -73,27 +71,27 @@ interface DotMapRef {
 
 ## 옵션 프로퍼티
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | `LatLng[] \| object[]` | - | 시각화 데이터 (필수) |
-| `radius` | `number` | `5` | 점 반경 (픽셀) |
-| `opacity` | `number` | `0.6` | 불투명도 (0-1) |
-| `fillColor` | `string` | `"#ff0000"` | 채우기 색상 |
-| `strokeColor` | `string` | `"#fff"` | 테두리 색상 |
-| `strokeWeight` | `number` | `1` | 테두리 두께 |
-| `strokeLineCap` | `"butt" \| "round" \| "square"` | `"round"` | 선 끝 스타일 |
-| `strokeLineJoin` | `"bevel" \| "miter" \| "round"` | `"round"` | 선 연결 스타일 |
-| `onDotMapReady` | `(dotMap) => void` | - | 인스턴스 생성 완료 콜백 |
+| Prop             | Type                            | Default     | Description             |
+| ---------------- | ------------------------------- | ----------- | ----------------------- |
+| `data`           | `LatLng[] \| object[]`          | -           | 시각화 데이터 (필수)    |
+| `radius`         | `number`                        | `5`         | 점 반경 (픽셀)          |
+| `opacity`        | `number`                        | `0.6`       | 불투명도 (0-1)          |
+| `fillColor`      | `string`                        | `"#ff0000"` | 채우기 색상             |
+| `strokeColor`    | `string`                        | `"#fff"`    | 테두리 색상             |
+| `strokeWeight`   | `number`                        | `1`         | 테두리 두께             |
+| `strokeLineCap`  | `"butt" \| "round" \| "square"` | `"round"`   | 선 끝 스타일            |
+| `strokeLineJoin` | `"bevel" \| "miter" \| "round"` | `"round"`   | 선 연결 스타일          |
+| `onDotMapReady`  | `(dotMap) => void`              | -           | 인스턴스 생성 완료 콜백 |
 
 ## Ref 메서드
 
-| Method | Return Type | Description |
-|--------|-------------|-------------|
-| `getInstance()` | `DotMap` | DotMap 인스턴스 |
-| `getMap()` | `naver.maps.Map` | 지도 인스턴스 |
-| `setData()` | `void` | 데이터 설정 |
-| `addData()` | `void` | 데이터 추가 |
-| `redraw()` | `void` | 다시 그리기 |
+| Method          | Return Type      | Description     |
+| --------------- | ---------------- | --------------- |
+| `getInstance()` | `DotMap`         | DotMap 인스턴스 |
+| `getMap()`      | `naver.maps.Map` | 지도 인스턴스   |
+| `setData()`     | `void`           | 데이터 설정     |
+| `addData()`     | `void`           | 데이터 추가     |
+| `redraw()`      | `void`           | 다시 그리기     |
 
 ## 지원하는 Data 형식
 
@@ -105,10 +103,7 @@ const data1 = [
 ];
 
 // 2. naver.maps.LatLng 배열
-const data2 = [
-  new naver.maps.LatLng(37.5665, 126.978),
-  new naver.maps.LatLng(37.5666, 126.979)
-];
+const data2 = [new naver.maps.LatLng(37.5665, 126.978), new naver.maps.LatLng(37.5666, 126.979)];
 
 // 3. PointArrayLiteral 배열
 const data3 = [

@@ -374,17 +374,13 @@ test.describe("6. 핵심 이벤트 흐름", () => {
   test("버튼 트리거로 onDblClick이 호출된다", async ({ page }) => {
     await page.getByTestId("trigger-dblclick").click();
 
-    await expect
-      .poll(async () => (await readEventLog(page)).includes("dblclick"))
-      .toBe(true);
+    await expect.poll(async () => (await readEventLog(page)).includes("dblclick")).toBe(true);
   });
 
   test("버튼 트리거로 onRightClick이 호출된다", async ({ page }) => {
     await page.getByTestId("trigger-rightclick").click();
 
-    await expect
-      .poll(async () => (await readEventLog(page)).includes("rightclick"))
-      .toBe(true);
+    await expect.poll(async () => (await readEventLog(page)).includes("rightclick")).toBe(true);
   });
 
   test("버튼 트리거로 onMouseDown → onMouseUp 순서가 보장된다", async ({ page }) => {
@@ -416,9 +412,7 @@ test.describe("6. 핵심 이벤트 흐름", () => {
   test("버튼 트리거로 onWheel이 호출된다", async ({ page }) => {
     await page.getByTestId("trigger-wheel").click();
 
-    await expect
-      .poll(async () => (await readEventLog(page)).includes("wheel"))
-      .toBe(true);
+    await expect.poll(async () => (await readEventLog(page)).includes("wheel")).toBe(true);
   });
 
   test("setMapTypeId 동작 시 onMapTypeIdChanged가 호출된다", async ({ page }) => {

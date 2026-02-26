@@ -296,7 +296,7 @@ export const Ellipse = forwardRef<EllipseRef, EllipseProps>(function EllipseInne
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const ellipseRef = useRef<naver.maps.Ellipse | null>(null);
   const ellipseEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onEllipseDestroyRef = useRef<EllipseProps["onEllipseDestroy"]>(props.onEllipseDestroy);

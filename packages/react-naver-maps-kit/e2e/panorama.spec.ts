@@ -54,7 +54,9 @@ test.describe("1. basic", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/panorama/basic");
     await expect
-      .poll(async () => readNumber(page, "panorama-ready-count"), { timeout: PANORAMA_LOAD_TIMEOUT })
+      .poll(async () => readNumber(page, "panorama-ready-count"), {
+        timeout: PANORAMA_LOAD_TIMEOUT
+      })
       .toBeGreaterThanOrEqual(1);
   });
 
@@ -86,11 +88,15 @@ test.describe("2. controlled", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/panorama/controlled");
     await expect
-      .poll(async () => readNumber(page, "panorama-ready-count"), { timeout: PANORAMA_LOAD_TIMEOUT })
+      .poll(async () => readNumber(page, "panorama-ready-count"), {
+        timeout: PANORAMA_LOAD_TIMEOUT
+      })
       .toBeGreaterThanOrEqual(1);
   });
 
-  test("PANO-03: controlled position 변경 후 Panorama에서 유효 좌표를 반환한다", async ({ page }) => {
+  test("PANO-03: controlled position 변경 후 Panorama에서 유효 좌표를 반환한다", async ({
+    page
+  }) => {
     await page.getByTestId("set-position-2").click();
     await page.getByTestId("read-state").click();
 
@@ -131,7 +137,9 @@ test.describe("3. ref", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/panorama/ref");
     await expect
-      .poll(async () => readNumber(page, "panorama-ready-count"), { timeout: PANORAMA_LOAD_TIMEOUT })
+      .poll(async () => readNumber(page, "panorama-ready-count"), {
+        timeout: PANORAMA_LOAD_TIMEOUT
+      })
       .toBeGreaterThanOrEqual(1);
   });
 
@@ -193,7 +201,9 @@ test.describe("4. events", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/panorama/events");
     await expect
-      .poll(async () => readNumber(page, "panorama-ready-count"), { timeout: PANORAMA_LOAD_TIMEOUT })
+      .poll(async () => readNumber(page, "panorama-ready-count"), {
+        timeout: PANORAMA_LOAD_TIMEOUT
+      })
       .toBeGreaterThanOrEqual(1);
   });
 
@@ -220,7 +230,9 @@ test.describe("4. events", () => {
 
     await page.getByTestId("trigger-pano-status").click();
 
-    await expect.poll(async () => readNumber(page, "evt-pano-status-count")).toBeGreaterThan(before);
+    await expect
+      .poll(async () => readNumber(page, "evt-pano-status-count"))
+      .toBeGreaterThan(before);
     await expect(page.getByTestId("evt-last-pano-status")).toHaveText("OK");
   });
 });
@@ -231,7 +243,9 @@ test.describe("5. lifecycle", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/#/panorama/lifecycle");
     await expect
-      .poll(async () => readNumber(page, "panorama-ready-count"), { timeout: PANORAMA_LOAD_TIMEOUT })
+      .poll(async () => readNumber(page, "panorama-ready-count"), {
+        timeout: PANORAMA_LOAD_TIMEOUT
+      })
       .toBeGreaterThanOrEqual(1);
   });
 
@@ -256,6 +270,8 @@ test.describe("5. lifecycle", () => {
     await page.getByTestId("toggle-panorama").click();
     await expect(page.getByTestId("show-panorama")).toHaveText("true");
 
-    await expect.poll(async () => readNumber(page, "panorama-ready-count")).toBeGreaterThan(beforeReady);
+    await expect
+      .poll(async () => readNumber(page, "panorama-ready-count"))
+      .toBeGreaterThan(beforeReady);
   });
 });

@@ -99,7 +99,7 @@ yarn add react-naver-maps-kit
 ### 첫 번째 지도
 
 ```tsx
-import { NaverMapProvider, NaverMap, Marker } from 'react-naver-maps-kit';
+import { NaverMapProvider, NaverMap, Marker } from "react-naver-maps-kit";
 
 function App() {
   return (
@@ -107,7 +107,7 @@ function App() {
       <NaverMap
         defaultCenter={{ lat: 37.5665, lng: 126.978 }}
         defaultZoom={14}
-        style={{ width: '100%', height: '400px' }}
+        style={{ width: "100%", height: "400px" }}
       >
         <Marker position={{ lat: 37.5665, lng: 126.978 }} />
       </NaverMap>
@@ -120,13 +120,15 @@ function App() {
 
 ```tsx
 <Marker position={{ lat: 37.5665, lng: 126.978 }}>
-  <div style={{ 
-    padding: '8px 16px', 
-    background: '#03C75A', 
-    color: 'white',
-    borderRadius: '20px',
-    fontWeight: 'bold'
-  }}>
+  <div
+    style={{
+      padding: "8px 16px",
+      background: "#03C75A",
+      color: "white",
+      borderRadius: "20px",
+      fontWeight: "bold"
+    }}
+  >
     서울시청
   </div>
 </Marker>
@@ -136,31 +138,31 @@ function App() {
 
 ### 지도
 
-| 컴포넌트 | 설명 |
-|----------|------|
-| [`NaverMapProvider`](/api/provider) | SDK 로딩 및 인증 관리 |
-| [`NaverMap`](/api/map) | 지도 컨테이너 |
-| [`Panorama`](/guide/submodules/panorama) | 거리뷰 |
+| 컴포넌트                                 | 설명                  |
+| ---------------------------------------- | --------------------- |
+| [`NaverMapProvider`](/api/provider)      | SDK 로딩 및 인증 관리 |
+| [`NaverMap`](/api/map)                   | 지도 컨테이너         |
+| [`Panorama`](/guide/submodules/panorama) | 거리뷰                |
 
 ### 오버레이
 
-| 컴포넌트 | 설명 |
-|----------|------|
-| [`Marker`](/api/marker) | 마커 (커스텀 콘텐츠 지원) |
-| [`MarkerClusterer`](/api/marker-clusterer) | 마커 클러스터링 |
-| [`InfoWindow`](/api/info-window) | 정보창 |
-| [`Polyline`](/api/polyline) | 선 |
-| [`Polygon`](/api/polygon) | 다각형 |
-| [`Circle`](/api/circle) | 원 |
-| [`Rectangle`](/api/rectangle) | 사각형 |
+| 컴포넌트                                   | 설명                      |
+| ------------------------------------------ | ------------------------- |
+| [`Marker`](/api/marker)                    | 마커 (커스텀 콘텐츠 지원) |
+| [`MarkerClusterer`](/api/marker-clusterer) | 마커 클러스터링           |
+| [`InfoWindow`](/api/info-window)           | 정보창                    |
+| [`Polyline`](/api/polyline)                | 선                        |
+| [`Polygon`](/api/polygon)                  | 다각형                    |
+| [`Circle`](/api/circle)                    | 원                        |
+| [`Rectangle`](/api/rectangle)              | 사각형                    |
 
 ### 서브모듈
 
-| 서브모듈 | 컴포넌트 |
-|----------|----------|
-| [`panorama`](/guide/submodules/panorama) | Panorama, FlightSpot |
-| [`visualization`](/guide/submodules/visualization) | HeatMap, DotMap |
-| [`drawing`](/guide/submodules/drawing) | DrawingManager |
+| 서브모듈                                           | 컴포넌트             |
+| -------------------------------------------------- | -------------------- |
+| [`panorama`](/guide/submodules/panorama)           | Panorama, FlightSpot |
+| [`visualization`](/guide/submodules/visualization) | HeatMap, DotMap      |
+| [`drawing`](/guide/submodules/drawing)             | DrawingManager       |
 
 ---
 

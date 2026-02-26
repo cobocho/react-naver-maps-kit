@@ -181,7 +181,7 @@ export const GroundOverlay = forwardRef<GroundOverlayRef, GroundOverlayProps>(
     const { sdkStatus } = useNaverMap();
     const mapInstanceContext = useMapInstance();
     const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-    
+
     const groundOverlayRef = useRef<naver.maps.GroundOverlay | null>(null);
     const groundOverlayEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
     const onGroundOverlayDestroyRef = useRef<GroundOverlayProps["onGroundOverlayDestroy"]>(

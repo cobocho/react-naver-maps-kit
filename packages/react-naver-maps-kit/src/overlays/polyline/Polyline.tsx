@@ -332,7 +332,7 @@ export const Polyline = forwardRef<PolylineRef, PolylineProps>(function Polyline
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const polylineRef = useRef<naver.maps.Polyline | null>(null);
   const polylineEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onPolylineDestroyRef = useRef<PolylineProps["onPolylineDestroy"]>(props.onPolylineDestroy);

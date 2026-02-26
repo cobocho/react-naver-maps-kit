@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GeoJson, NaverMap, NaverMapProvider, type GeoJsonProps, type GeoJsonRef } from "react-naver-maps-kit";
+import {
+  GeoJson,
+  NaverMap,
+  NaverMapProvider,
+  type GeoJsonProps,
+  type GeoJsonRef
+} from "react-naver-maps-kit";
 
 import { DEFAULT_CENTER, NCP_KEY_ID } from "../constants";
 
@@ -441,18 +447,45 @@ function EventPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-click" onClick={() => triggerPointerEvent("click")}>click</button>
-          <button data-testid="trigger-dblclick" onClick={() => triggerPointerEvent("dblclick")}>dblclick</button>
-          <button data-testid="trigger-rightclick" onClick={() => triggerPointerEvent("rightclick")}>rightclick</button>
-          <button data-testid="trigger-mousedown" onClick={() => triggerPointerEvent("mousedown")}>mousedown</button>
-          <button data-testid="trigger-mouseup" onClick={() => triggerPointerEvent("mouseup")}>mouseup</button>
-          <button data-testid="trigger-mouseover" onClick={() => triggerPointerEvent("mouseover")}>mouseover</button>
-          <button data-testid="trigger-mouseout" onClick={() => triggerPointerEvent("mouseout")}>mouseout</button>
-          <button data-testid="trigger-addfeature" onClick={triggerAddFeature}>addfeature</button>
-          <button data-testid="trigger-removefeature" onClick={triggerRemoveFeature}>removefeature</button>
-          <button data-testid="trigger-property-changed" onClick={triggerPropertyChanged}>property_changed</button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
-          <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+          <button data-testid="trigger-click" onClick={() => triggerPointerEvent("click")}>
+            click
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerPointerEvent("dblclick")}>
+            dblclick
+          </button>
+          <button
+            data-testid="trigger-rightclick"
+            onClick={() => triggerPointerEvent("rightclick")}
+          >
+            rightclick
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerPointerEvent("mousedown")}>
+            mousedown
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerPointerEvent("mouseup")}>
+            mouseup
+          </button>
+          <button data-testid="trigger-mouseover" onClick={() => triggerPointerEvent("mouseover")}>
+            mouseover
+          </button>
+          <button data-testid="trigger-mouseout" onClick={() => triggerPointerEvent("mouseout")}>
+            mouseout
+          </button>
+          <button data-testid="trigger-addfeature" onClick={triggerAddFeature}>
+            addfeature
+          </button>
+          <button data-testid="trigger-removefeature" onClick={triggerRemoveFeature}>
+            removefeature
+          </button>
+          <button data-testid="trigger-property-changed" onClick={triggerPropertyChanged}>
+            property_changed
+          </button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
         </>
       }
       logs={
@@ -545,8 +578,7 @@ function DistrictClickPage() {
 
   const triggerGuClick = useCallback((guName: string) => {
     const instance = geoJsonRef.current?.getInstance();
-    const feature = geoJsonRef
-      .current
+    const feature = geoJsonRef.current
       ?.getAllFeature()
       ?.find((candidate) => String(candidate.getProperty("SIG_KOR_NM")) === guName);
 
@@ -554,11 +586,7 @@ function DistrictClickPage() {
       return;
     }
 
-    naver.maps.Event.trigger(
-      instance,
-      "click",
-      { feature } as unknown as naver.maps.PointerEvent
-    );
+    naver.maps.Event.trigger(instance, "click", { feature } as unknown as naver.maps.PointerEvent);
   }, []);
 
   return (
@@ -571,7 +599,9 @@ function DistrictClickPage() {
           <button data-testid="trigger-gu-gangnam" onClick={() => triggerGuClick("강남구")}>
             click 강남구
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -688,12 +718,24 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-read-state" onClick={readState}>상태 읽기</button>
-          <button data-testid="ref-set-style-green" onClick={setStyleGreen}>setStyle green</button>
-          <button data-testid="ref-remove-first" onClick={removeFirstFeature}>remove first</button>
-          <button data-testid="ref-override-first" onClick={overrideFirstFeature}>override first</button>
-          <button data-testid="ref-revert-first" onClick={revertFirstFeature}>revert first</button>
-          <button data-testid="ref-find-feature-by-id" onClick={findFeatureById}>find by id</button>
+          <button data-testid="ref-read-state" onClick={readState}>
+            상태 읽기
+          </button>
+          <button data-testid="ref-set-style-green" onClick={setStyleGreen}>
+            setStyle green
+          </button>
+          <button data-testid="ref-remove-first" onClick={removeFirstFeature}>
+            remove first
+          </button>
+          <button data-testid="ref-override-first" onClick={overrideFirstFeature}>
+            override first
+          </button>
+          <button data-testid="ref-revert-first" onClick={revertFirstFeature}>
+            revert first
+          </button>
+          <button data-testid="ref-find-feature-by-id" onClick={findFeatureById}>
+            find by id
+          </button>
         </>
       }
       logs={
@@ -743,7 +785,9 @@ function LifecyclePage() {
           <button data-testid="toggle-geojson" onClick={() => setShowGeoJson((v) => !v)}>
             geojson 토글
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={
@@ -803,8 +847,9 @@ function ErrorPage() {
       return;
     }
 
-    originalAddGeoJsonRef.current = (instance as unknown as { addGeoJson: (...args: unknown[]) => unknown })
-      .addGeoJson;
+    originalAddGeoJsonRef.current = (
+      instance as unknown as { addGeoJson: (...args: unknown[]) => unknown }
+    ).addGeoJson;
 
     (instance as unknown as { addGeoJson: (...args: unknown[]) => unknown }).addGeoJson = () => {
       throw new Error("Forced addGeoJson error for e2e");
@@ -854,7 +899,9 @@ function ErrorPage() {
           >
             data b
           </button>
-          <button data-testid="read-state" onClick={readState}>상태 읽기</button>
+          <button data-testid="read-state" onClick={readState}>
+            상태 읽기
+          </button>
         </>
       }
       logs={

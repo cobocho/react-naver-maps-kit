@@ -29,7 +29,7 @@ const routes: Record<string, React.FC> = {
   ...gpxRoutes,
   ...groundOverlayRoutes,
   ...polygonRoutes,
-  ...rectangleRoutes,
+  ...rectangleRoutes
 };
 
 function App() {

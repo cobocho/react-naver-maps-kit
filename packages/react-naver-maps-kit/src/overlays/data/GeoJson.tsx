@@ -124,7 +124,7 @@ export const GeoJson = forwardRef<GeoJsonRef, GeoJsonProps>(function GeoJsonInne
   const { sdkStatus } = useNaverMap();
   const mapInstanceContext = useMapInstance();
   const contextMap = mapInstanceContext?.instance as naver.maps.Map | null;
-  
+
   const dataRef = useRef<naver.maps.Data | null>(null);
   const dataEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
   const onDataDestroyRef = useRef<GeoJsonProps["onDataDestroy"]>(props.onDataDestroy);

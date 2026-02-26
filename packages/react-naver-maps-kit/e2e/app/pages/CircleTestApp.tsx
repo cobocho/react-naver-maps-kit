@@ -474,18 +474,42 @@ function EventsPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="trigger-click" onClick={() => triggerPointer("click")}>click</button>
-          <button data-testid="trigger-dblclick" onClick={() => triggerPointer("dblclick")}>dblclick</button>
-          <button data-testid="trigger-rightclick" onClick={() => triggerPointer("rightclick")}>rightclick</button>
-          <button data-testid="trigger-mouseover" onClick={() => triggerPointer("mouseover")}>mouseover</button>
-          <button data-testid="trigger-mouseout" onClick={() => triggerPointer("mouseout")}>mouseout</button>
-          <button data-testid="trigger-mousedown" onClick={() => triggerPointer("mousedown")}>mousedown</button>
-          <button data-testid="trigger-mouseup" onClick={() => triggerPointer("mouseup")}>mouseup</button>
-          <button data-testid="change-center" onClick={() => setCenter(CIRCLE_CENTER_2)}>center 변경</button>
-          <button data-testid="change-radius" onClick={() => setRadius(CIRCLE_RADIUS_2)}>radius 변경</button>
-          <button data-testid="toggle-visible" onClick={() => setVisible((v) => !v)}>visible 토글</button>
-          <button data-testid="change-zindex" onClick={() => setZIndex((z) => z + 1)}>zIndex 변경</button>
-          <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+          <button data-testid="trigger-click" onClick={() => triggerPointer("click")}>
+            click
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerPointer("dblclick")}>
+            dblclick
+          </button>
+          <button data-testid="trigger-rightclick" onClick={() => triggerPointer("rightclick")}>
+            rightclick
+          </button>
+          <button data-testid="trigger-mouseover" onClick={() => triggerPointer("mouseover")}>
+            mouseover
+          </button>
+          <button data-testid="trigger-mouseout" onClick={() => triggerPointer("mouseout")}>
+            mouseout
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerPointer("mousedown")}>
+            mousedown
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerPointer("mouseup")}>
+            mouseup
+          </button>
+          <button data-testid="change-center" onClick={() => setCenter(CIRCLE_CENTER_2)}>
+            center 변경
+          </button>
+          <button data-testid="change-radius" onClick={() => setRadius(CIRCLE_RADIUS_2)}>
+            radius 변경
+          </button>
+          <button data-testid="toggle-visible" onClick={() => setVisible((v) => !v)}>
+            visible 토글
+          </button>
+          <button data-testid="change-zindex" onClick={() => setZIndex((z) => z + 1)}>
+            zIndex 변경
+          </button>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
         </>
       }
       logs={
@@ -577,22 +601,40 @@ function RefPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="ref-set-center-2" onClick={() => circleRef.current?.setCenter(CIRCLE_CENTER_2)}>
+          <button
+            data-testid="ref-set-center-2"
+            onClick={() => circleRef.current?.setCenter(CIRCLE_CENTER_2)}
+          >
             setCenter 2
           </button>
-          <button data-testid="ref-set-radius-2000" onClick={() => circleRef.current?.setRadius(CIRCLE_RADIUS_3)}>
+          <button
+            data-testid="ref-set-radius-2000"
+            onClick={() => circleRef.current?.setRadius(CIRCLE_RADIUS_3)}
+          >
             setRadius 2000
           </button>
-          <button data-testid="ref-set-visible-false" onClick={() => circleRef.current?.setVisible(false)}>
+          <button
+            data-testid="ref-set-visible-false"
+            onClick={() => circleRef.current?.setVisible(false)}
+          >
             visible false
           </button>
-          <button data-testid="ref-set-visible-true" onClick={() => circleRef.current?.setVisible(true)}>
+          <button
+            data-testid="ref-set-visible-true"
+            onClick={() => circleRef.current?.setVisible(true)}
+          >
             visible true
           </button>
-          <button data-testid="ref-set-zindex-555" onClick={() => circleRef.current?.setZIndex(555)}>
+          <button
+            data-testid="ref-set-zindex-555"
+            onClick={() => circleRef.current?.setZIndex(555)}
+          >
             zIndex 555
           </button>
-          <button data-testid="ref-set-clickable-true" onClick={() => circleRef.current?.setClickable(true)}>
+          <button
+            data-testid="ref-set-clickable-true"
+            onClick={() => circleRef.current?.setClickable(true)}
+          >
             clickable true
           </button>
           <button
@@ -713,9 +755,7 @@ function MultiplePage() {
 
   const toggleFirstVisible = useCallback(() => {
     setCircles((prev) =>
-      prev.map((circle) =>
-        circle.id === 1 ? { ...circle, visible: !circle.visible } : circle
-      )
+      prev.map((circle) => (circle.id === 1 ? { ...circle, visible: !circle.visible } : circle))
     );
   }, []);
 
@@ -729,10 +769,18 @@ function MultiplePage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="add-circle" onClick={addCircle}>circle 추가</button>
-          <button data-testid="remove-last-circle" onClick={removeLast}>마지막 제거</button>
-          <button data-testid="toggle-first-visible" onClick={toggleFirstVisible}>첫 circle visible 토글</button>
-          <button data-testid="set-second-zindex" onClick={setSecondZIndex}>둘째 zIndex 555</button>
+          <button data-testid="add-circle" onClick={addCircle}>
+            circle 추가
+          </button>
+          <button data-testid="remove-last-circle" onClick={removeLast}>
+            마지막 제거
+          </button>
+          <button data-testid="toggle-first-visible" onClick={toggleFirstVisible}>
+            첫 circle visible 토글
+          </button>
+          <button data-testid="set-second-zindex" onClick={setSecondZIndex}>
+            둘째 zIndex 555
+          </button>
         </>
       }
       logs={

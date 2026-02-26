@@ -46,7 +46,9 @@ test.describe("2. enabled", () => {
     await expect(page.getByTestId("map-ready")).toHaveText("true", { timeout: MAP_LOAD_TIMEOUT });
   });
 
-  test("MC-03: enabled=true면 클러스터 아이콘이 보이고 개별 포인트는 숨겨진다", async ({ page }) => {
+  test("MC-03: enabled=true면 클러스터 아이콘이 보이고 개별 포인트는 숨겨진다", async ({
+    page
+  }) => {
     await expect(page.getByTestId("enabled-state")).toHaveText("true");
     await expect(page.getByTestId("enabled-cluster-icon")).toBeVisible();
 
@@ -137,7 +139,9 @@ test.describe("4. helpers", () => {
     await expect(page.getByTestId("helpers-cluster-icon")).toBeVisible();
   });
 
-  test("MC-11: zoomToCluster helper 호출 시 center가 이동하고 zoom이 제한된다", async ({ page }) => {
+  test("MC-11: zoomToCluster helper 호출 시 center가 이동하고 zoom이 제한된다", async ({
+    page
+  }) => {
     await page.getByTestId("reset-map").click();
     await page.getByTestId("read-map-state").click();
 

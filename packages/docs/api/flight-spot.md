@@ -8,6 +8,7 @@
 ```tsx
 <NaverMapProvider ncpKeyId="..." submodules={["panorama"]}>
 ```
+
 :::
 
 ## 기본 사용법
@@ -44,17 +45,17 @@ interface FlightSpotRef {
 
 ## 프로퍼티
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `onPoiClicked` | `(panoId: string) => void` | 항공뷰 POI 클릭 이벤트. 클릭한 위치의 파노라마 ID를 반환합니다. |
-| `onFlightSpotReady` | `(layer) => void` | FlightSpot 레이어 생성 완료 콜백 |
+| Prop                | Type                       | Description                                                     |
+| ------------------- | -------------------------- | --------------------------------------------------------------- |
+| `onPoiClicked`      | `(panoId: string) => void` | 항공뷰 POI 클릭 이벤트. 클릭한 위치의 파노라마 ID를 반환합니다. |
+| `onFlightSpotReady` | `(layer) => void`          | FlightSpot 레이어 생성 완료 콜백                                |
 
 ## Ref 메서드
 
-| Method | Return Type | Description |
-|--------|-------------|-------------|
-| `getInstance()` | `naver.maps.FlightSpot` | FlightSpot 인스턴스 |
-| `getMap()` | `naver.maps.Map` | 연결된 지도 인스턴스 |
+| Method          | Return Type             | Description          |
+| --------------- | ----------------------- | -------------------- |
+| `getInstance()` | `naver.maps.FlightSpot` | FlightSpot 인스턴스  |
+| `getMap()`      | `naver.maps.Map`        | 연결된 지도 인스턴스 |
 
 ## 활용 예제
 
@@ -84,10 +85,7 @@ function MapWithFlightSpot() {
       </NaverMap>
 
       {showPanorama && panoId && (
-        <Panorama
-          panoId={panoId}
-          style={{ width: "50%", height: "400px" }}
-        />
+        <Panorama panoId={panoId} style={{ width: "50%", height: "400px" }} />
       )}
     </div>
   );

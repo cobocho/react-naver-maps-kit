@@ -149,7 +149,11 @@ function SmokePage() {
 
   return (
     <ScenarioLayout
-      buttons={<button data-testid="reset-click-log" onClick={() => setClusterClickCount(0)}>클릭 카운트 초기화</button>}
+      buttons={
+        <button data-testid="reset-click-log" onClick={() => setClusterClickCount(0)}>
+          클릭 카운트 초기화
+        </button>
+      }
       logs={
         <>
           <span data-testid="map-ready">{String(mapReady)}</span>
@@ -489,17 +493,39 @@ function BehaviorPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="set-recompute-idle" onClick={() => setRecomputeOn("idle")}>idle</button>
-          <button data-testid="set-recompute-move" onClick={() => setRecomputeOn("move")}>move</button>
-          <button data-testid="set-recompute-zoom" onClick={() => setRecomputeOn("zoom")}>zoom</button>
-          <button data-testid="set-debounce-0" onClick={() => setDebounceMs(0)}>debounce 0</button>
-          <button data-testid="set-debounce-200" onClick={() => setDebounceMs(200)}>debounce 200</button>
-          <button data-testid="trigger-idle" onClick={() => triggerMapEvent("idle")}>trigger idle</button>
-          <button data-testid="trigger-move" onClick={() => triggerMapEvent("bounds_changed")}>trigger move</button>
-          <button data-testid="trigger-zoom" onClick={() => triggerMapEvent("zoom_changed")}>trigger zoom</button>
-          <button data-testid="trigger-idle-triple" onClick={triggerIdleTriple}>trigger idle x3</button>
-          <button data-testid="set-map-zoom-15" onClick={setZoom15}>map zoom 15</button>
-          <button data-testid="read-metrics" onClick={readMetrics}>메트릭 읽기</button>
+          <button data-testid="set-recompute-idle" onClick={() => setRecomputeOn("idle")}>
+            idle
+          </button>
+          <button data-testid="set-recompute-move" onClick={() => setRecomputeOn("move")}>
+            move
+          </button>
+          <button data-testid="set-recompute-zoom" onClick={() => setRecomputeOn("zoom")}>
+            zoom
+          </button>
+          <button data-testid="set-debounce-0" onClick={() => setDebounceMs(0)}>
+            debounce 0
+          </button>
+          <button data-testid="set-debounce-200" onClick={() => setDebounceMs(200)}>
+            debounce 200
+          </button>
+          <button data-testid="trigger-idle" onClick={() => triggerMapEvent("idle")}>
+            trigger idle
+          </button>
+          <button data-testid="trigger-move" onClick={() => triggerMapEvent("bounds_changed")}>
+            trigger move
+          </button>
+          <button data-testid="trigger-zoom" onClick={() => triggerMapEvent("zoom_changed")}>
+            trigger zoom
+          </button>
+          <button data-testid="trigger-idle-triple" onClick={triggerIdleTriple}>
+            trigger idle x3
+          </button>
+          <button data-testid="set-map-zoom-15" onClick={setZoom15}>
+            map zoom 15
+          </button>
+          <button data-testid="read-metrics" onClick={readMetrics}>
+            메트릭 읽기
+          </button>
         </>
       }
       logs={
@@ -574,9 +600,15 @@ function AlgorithmSwitchPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="use-algorithm-a" onClick={() => setUseAlgorithmB(false)}>algorithm A</button>
-          <button data-testid="use-algorithm-b" onClick={() => setUseAlgorithmB(true)}>algorithm B</button>
-          <button data-testid="read-destroy-count" onClick={readDestroyCount}>destroy 읽기</button>
+          <button data-testid="use-algorithm-a" onClick={() => setUseAlgorithmB(false)}>
+            algorithm A
+          </button>
+          <button data-testid="use-algorithm-b" onClick={() => setUseAlgorithmB(true)}>
+            algorithm B
+          </button>
+          <button data-testid="read-destroy-count" onClick={readDestroyCount}>
+            destroy 읽기
+          </button>
         </>
       }
       logs={
@@ -659,8 +691,12 @@ function DynamicPage() {
     <ScenarioLayout
       buttons={
         <>
-          <button data-testid="add-point" onClick={addPoint}>포인트 추가</button>
-          <button data-testid="remove-point" onClick={removeLast}>포인트 제거</button>
+          <button data-testid="add-point" onClick={addPoint}>
+            포인트 추가
+          </button>
+          <button data-testid="remove-point" onClick={removeLast}>
+            포인트 제거
+          </button>
         </>
       }
       logs={

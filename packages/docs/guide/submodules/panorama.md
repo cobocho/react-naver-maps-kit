@@ -134,36 +134,36 @@ interface PanoramaRef {
 
 #### Props
 
-| Prop                   | 타입                                  | 설명                              |
-| ---------------------- | ------------------------------------- | --------------------------------- |
-| `position`             | `{ lat: number; lng: number }`        | 파노라마 위치 (controlled)        |
-| `defaultPosition`      | `{ lat: number; lng: number }`        | 초기 파노라마 위치 (uncontrolled) |
-| `panoId`               | `string`                              | 파노라마 ID                       |
-| `pov`                  | `{ pan, tilt, fov }`                  | 시점 (controlled)                 |
-| `defaultPov`           | `{ pan, tilt, fov }`                  | 초기 시점 (uncontrolled)          |
-| `visible`              | `boolean`                             | 표시 여부                         |
-| `size`                 | `naver.maps.Size`                     | 파노라마 크기                     |
-| `minScale`             | `number`                              | 최소 스케일                       |
-| `maxScale`             | `number`                              | 최대 스케일                       |
-| `minZoom`              | `number`                              | 최소 줌 레벨                      |
-| `maxZoom`              | `number`                              | 최대 줌 레벨                      |
-| `flightSpot`           | `boolean`                             | 항공뷰 전환 버튼 표시             |
-| `aroundControl`        | `boolean`                             | 주변 보기 컨트롤 표시             |
-| `aroundControlOptions` | `naver.maps.AroundControlOptions`     | 주변 보기 컨트롤 옵션             |
-| `zoomControl`          | `boolean`                             | 줌 컨트롤 표시                    |
-| `zoomControlOptions`   | `naver.maps.ZoomControlOptions`       | 줌 컨트롤 옵션                    |
-| `logoControl`          | `boolean`                             | 로고 컨트롤 표시                  |
-| `logoControlOptions`   | `naver.maps.LogoControlOptions`       | 로고 컨트롤 옵션                  |
-| `style`                | `CSSProperties`                       | 컨테이너 스타일                   |
-| `className`            | `string`                              | 컨테이너 클래스명                 |
-| `children`             | `ReactNode`                           | 내부 마커 등 자식 컴포넌트        |
-| `onPanoramaReady`      | `(panorama) => void`                  | 인스턴스 생성 완료 콜백           |
-| `onPanoramaDestroy`    | `() => void`                          | 인스턴스 정리 완료 콜백           |
-| `onPanoramaError`      | `(error: Error) => void`              | 생성 실패 콜백                    |
-| `onInit`               | `() => void`                          | 초기화 완료 이벤트                |
-| `onPanoChanged`        | `() => void`                          | 파노라마 변경 이벤트              |
-| `onPovChanged`         | `() => void`                          | 시점 변경 이벤트                  |
-| `onPanoStatus`         | `(status: string) => void`            | 파노라마 상태 변경 이벤트         |
+| Prop                   | 타입                              | 설명                              |
+| ---------------------- | --------------------------------- | --------------------------------- |
+| `position`             | `{ lat: number; lng: number }`    | 파노라마 위치 (controlled)        |
+| `defaultPosition`      | `{ lat: number; lng: number }`    | 초기 파노라마 위치 (uncontrolled) |
+| `panoId`               | `string`                          | 파노라마 ID                       |
+| `pov`                  | `{ pan, tilt, fov }`              | 시점 (controlled)                 |
+| `defaultPov`           | `{ pan, tilt, fov }`              | 초기 시점 (uncontrolled)          |
+| `visible`              | `boolean`                         | 표시 여부                         |
+| `size`                 | `naver.maps.Size`                 | 파노라마 크기                     |
+| `minScale`             | `number`                          | 최소 스케일                       |
+| `maxScale`             | `number`                          | 최대 스케일                       |
+| `minZoom`              | `number`                          | 최소 줌 레벨                      |
+| `maxZoom`              | `number`                          | 최대 줌 레벨                      |
+| `flightSpot`           | `boolean`                         | 항공뷰 전환 버튼 표시             |
+| `aroundControl`        | `boolean`                         | 주변 보기 컨트롤 표시             |
+| `aroundControlOptions` | `naver.maps.AroundControlOptions` | 주변 보기 컨트롤 옵션             |
+| `zoomControl`          | `boolean`                         | 줌 컨트롤 표시                    |
+| `zoomControlOptions`   | `naver.maps.ZoomControlOptions`   | 줌 컨트롤 옵션                    |
+| `logoControl`          | `boolean`                         | 로고 컨트롤 표시                  |
+| `logoControlOptions`   | `naver.maps.LogoControlOptions`   | 로고 컨트롤 옵션                  |
+| `style`                | `CSSProperties`                   | 컨테이너 스타일                   |
+| `className`            | `string`                          | 컨테이너 클래스명                 |
+| `children`             | `ReactNode`                       | 내부 마커 등 자식 컴포넌트        |
+| `onPanoramaReady`      | `(panorama) => void`              | 인스턴스 생성 완료 콜백           |
+| `onPanoramaDestroy`    | `() => void`                      | 인스턴스 정리 완료 콜백           |
+| `onPanoramaError`      | `(error: Error) => void`          | 생성 실패 콜백                    |
+| `onInit`               | `() => void`                      | 초기화 완료 이벤트                |
+| `onPanoChanged`        | `() => void`                      | 파노라마 변경 이벤트              |
+| `onPovChanged`         | `() => void`                      | 시점 변경 이벤트                  |
+| `onPanoStatus`         | `(status: string) => void`        | 파노라마 상태 변경 이벤트         |
 
 #### Controlled vs Uncontrolled
 
@@ -174,7 +174,7 @@ interface PanoramaRef {
 <Panorama
   defaultPosition={{ lat: 37.5665, lng: 126.978 }}
   defaultPov={{ pan: 0, tilt: 0, fov: 100 }}
-/>
+/>;
 
 // Controlled: React 상태와 동기화
 const [position, setPosition] = useState({ lat: 37.5665, lng: 126.978 });
@@ -186,7 +186,7 @@ const [pov, setPov] = useState({ pan: 0, tilt: 0, fov: 100 });
   onPovChanged={() => {
     // pov 상태 업데이트
   }}
-/>
+/>;
 ```
 
 #### Ref Methods
@@ -201,10 +201,12 @@ function PanoramaWithRef() {
   return (
     <>
       <Panorama ref={panoramaRef} defaultPosition={{ lat: 37.5665, lng: 126.978 }} />
-      <button onClick={() => {
-        const pos = panoramaRef.current?.getPosition();
-        console.log(pos?.lat(), pos?.lng());
-      }}>
+      <button
+        onClick={() => {
+          const pos = panoramaRef.current?.getPosition();
+          console.log(pos?.lat(), pos?.lng());
+        }}
+      >
         Get Position
       </button>
     </>
@@ -212,35 +214,35 @@ function PanoramaWithRef() {
 }
 ```
 
-| 메서드             | 반환 타입                    | 설명                   |
-| ------------------ | ---------------------------- | ---------------------- |
-| `getInstance()`    | `naver.maps.Panorama`        | 파노라마 인스턴스      |
-| `getElement()`     | `HTMLElement`                | 컨테이너 DOM 요소      |
-| `getLocation()`    | `naver.maps.PanoramaLocation`| 현재 위치 정보         |
-| `getPosition()`    | `naver.maps.LatLng`          | 현재 위치              |
-| `setPosition()`    | `void`                       | 위치 설정              |
-| `getPov()`         | `{ pan, tilt, fov }`         | 현재 시점              |
-| `setPov()`         | `void`                       | 시점 설정              |
-| `getPanoId()`      | `string`                     | 현재 파노라마 ID       |
-| `setPanoId()`      | `void`                       | 파노라마 ID 설정       |
-| `setPanoIdWithPov()`| `void`                      | ID와 시점 동시 설정    |
-| `getZoom()`        | `number`                     | 현재 줌 레벨           |
-| `setZoom()`        | `void`                       | 줌 레벨 설정           |
-| `zoomIn()`         | `void`                       | 줌 인                  |
-| `zoomOut()`        | `void`                       | 줌 아웃                |
-| `getScale()`       | `number`                     | 현재 스케일            |
-| `setScale()`       | `void`                       | 스케일 설정            |
-| `getMinScale()`    | `number`                     | 최소 스케일            |
-| `getMaxScale()`    | `number`                     | 최대 스케일            |
-| `getMinZoom()`     | `number`                     | 최소 줌 레벨           |
-| `getMaxZoom()`     | `number`                     | 최대 줌 레벨           |
-| `getSize()`        | `naver.maps.Size`            | 파노라마 크기          |
-| `setSize()`        | `void`                       | 크기 설정              |
-| `getVisible()`     | `boolean`                    | 표시 여부              |
-| `setVisible()`     | `void`                       | 표시 여부 설정         |
-| `getOptions()`     | `unknown`                    | 옵션 조회              |
-| `setOptions()`     | `void`                       | 옵션 설정              |
-| `getProjection()`  | `naver.maps.PanoramaProjection` | 투영 객체           |
+| 메서드               | 반환 타입                       | 설명                |
+| -------------------- | ------------------------------- | ------------------- |
+| `getInstance()`      | `naver.maps.Panorama`           | 파노라마 인스턴스   |
+| `getElement()`       | `HTMLElement`                   | 컨테이너 DOM 요소   |
+| `getLocation()`      | `naver.maps.PanoramaLocation`   | 현재 위치 정보      |
+| `getPosition()`      | `naver.maps.LatLng`             | 현재 위치           |
+| `setPosition()`      | `void`                          | 위치 설정           |
+| `getPov()`           | `{ pan, tilt, fov }`            | 현재 시점           |
+| `setPov()`           | `void`                          | 시점 설정           |
+| `getPanoId()`        | `string`                        | 현재 파노라마 ID    |
+| `setPanoId()`        | `void`                          | 파노라마 ID 설정    |
+| `setPanoIdWithPov()` | `void`                          | ID와 시점 동시 설정 |
+| `getZoom()`          | `number`                        | 현재 줌 레벨        |
+| `setZoom()`          | `void`                          | 줌 레벨 설정        |
+| `zoomIn()`           | `void`                          | 줌 인               |
+| `zoomOut()`          | `void`                          | 줌 아웃             |
+| `getScale()`         | `number`                        | 현재 스케일         |
+| `setScale()`         | `void`                          | 스케일 설정         |
+| `getMinScale()`      | `number`                        | 최소 스케일         |
+| `getMaxScale()`      | `number`                        | 최대 스케일         |
+| `getMinZoom()`       | `number`                        | 최소 줌 레벨        |
+| `getMaxZoom()`       | `number`                        | 최대 줌 레벨        |
+| `getSize()`          | `naver.maps.Size`               | 파노라마 크기       |
+| `setSize()`          | `void`                          | 크기 설정           |
+| `getVisible()`       | `boolean`                       | 표시 여부           |
+| `setVisible()`       | `void`                          | 표시 여부 설정      |
+| `getOptions()`       | `unknown`                       | 옵션 조회           |
+| `setOptions()`       | `void`                          | 옵션 설정           |
+| `getProjection()`    | `naver.maps.PanoramaProjection` | 투영 객체           |
 
 ### FlightSpot
 
@@ -273,12 +275,14 @@ function PanoramaWithMarkers() {
   return (
     <Panorama defaultPosition={{ lat: 37.3595704, lng: 127.105399 }}>
       <Marker position={{ lat: 37.3595704, lng: 127.105399 }}>
-        <div style={{
-          background: "#FF5722",
-          color: "white",
-          padding: "4px 10px",
-          borderRadius: 16
-        }}>
+        <div
+          style={{
+            background: "#FF5722",
+            color: "white",
+            padding: "4px 10px",
+            borderRadius: 16
+          }}
+        >
           네이버 본사
         </div>
       </Marker>
@@ -301,11 +305,7 @@ function MapWithPanorama() {
 
   return (
     <div style={{ display: "flex", gap: "16px" }}>
-      <NaverMap
-        center={position}
-        zoom={15}
-        style={{ width: "50%", height: "400px" }}
-      >
+      <NaverMap center={position} zoom={15} style={{ width: "50%", height: "400px" }}>
         <Marker
           position={position}
           draggable={true}
@@ -354,10 +354,7 @@ function MapWithFlightSpot() {
       </NaverMap>
 
       {showPanorama && panoId && (
-        <Panorama
-          panoId={panoId}
-          style={{ width: "50%", height: "400px" }}
-        />
+        <Panorama panoId={panoId} style={{ width: "50%", height: "400px" }} />
       )}
     </div>
   );
@@ -374,11 +371,11 @@ function PanoramaControls() {
   const [pov, setPov] = useState({ pan: 0, tilt: 0, fov: 100 });
 
   const rotateLeft = () => {
-    setPov(prev => ({ ...prev, pan: prev.pan - 45 }));
+    setPov((prev) => ({ ...prev, pan: prev.pan - 45 }));
   };
 
   const rotateRight = () => {
-    setPov(prev => ({ ...prev, pan: prev.pan + 45 }));
+    setPov((prev) => ({ ...prev, pan: prev.pan + 45 }));
   };
 
   return (

@@ -5,12 +5,8 @@ declare namespace naver.maps {
 
   namespace visualization {
     interface HeatMap {
-      addData(
-        data: LatLng | PointArrayLiteral | visualization.WeightedLocation
-      ): void;
-      setData(
-        data: LatLng[] | PointArrayLiteral[] | visualization.WeightedLocation[]
-      ): void;
+      addData(data: LatLng | PointArrayLiteral | visualization.WeightedLocation): void;
+      setData(data: LatLng[] | PointArrayLiteral[] | visualization.WeightedLocation[]): void;
       setOptions(options: Partial<HeatMapOptions>): void;
     }
 

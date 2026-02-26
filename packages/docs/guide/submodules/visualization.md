@@ -43,7 +43,7 @@ function MapWithHeatMap() {
   const data = [
     { lat: 37.5665, lng: 126.978, weight: 10 },
     { lat: 37.5666, lng: 126.979, weight: 5 },
-    { lat: 37.5667, lng: 126.980, weight: 8 }
+    { lat: 37.5667, lng: 126.98, weight: 8 }
   ];
 
   return (
@@ -105,14 +105,14 @@ interface HeatMapRef {
 
 #### Props
 
-| Prop              | 타입                               | 기본값  | 설명                        |
-| ----------------- | ---------------------------------- | ------- | --------------------------- |
-| `data`            | `LatLng[] \| WeightedLocation[]`   | -       | 시각화 데이터               |
-| `radius`          | `number`                           | `20`    | 반경 (픽셀)                 |
-| `opacity`         | `number`                           | `0.6`   | 불투명도 (0-1)              |
-| `colorMap`        | `SpectrumStyle`                    | -       | 색상 스펙트럼               |
-| `colorMapReverse` | `boolean`                          | `false` | 스펙트럼 색상 반전          |
-| `onHeatMapReady`  | `(heatMap) => void`                | -       | 인스턴스 생성 완료 콜백     |
+| Prop              | 타입                             | 기본값  | 설명                    |
+| ----------------- | -------------------------------- | ------- | ----------------------- |
+| `data`            | `LatLng[] \| WeightedLocation[]` | -       | 시각화 데이터           |
+| `radius`          | `number`                         | `20`    | 반경 (픽셀)             |
+| `opacity`         | `number`                         | `0.6`   | 불투명도 (0-1)          |
+| `colorMap`        | `SpectrumStyle`                  | -       | 색상 스펙트럼           |
+| `colorMapReverse` | `boolean`                        | `false` | 스펙트럼 색상 반전      |
+| `onHeatMapReady`  | `(heatMap) => void`              | -       | 인스턴스 생성 완료 콜백 |
 
 #### 지원하는 Data 형식
 
@@ -132,10 +132,7 @@ const data2 = [
 ];
 
 // 3. naver.maps.LatLng 배열
-const data3 = [
-  new naver.maps.LatLng(37.5665, 126.978),
-  new naver.maps.LatLng(37.5666, 126.979)
-];
+const data3 = [new naver.maps.LatLng(37.5665, 126.978), new naver.maps.LatLng(37.5666, 126.979)];
 
 // 4. PointArrayLiteral 배열
 const data4 = [
@@ -154,26 +151,22 @@ const data5 = [
 
 사용 가능한 스펙트럼 스타일:
 
-| 스펙트럼   | 설명                     |
-| ---------- | ------------------------ |
-| `RAINBOW`  | 무지개 색상              |
-| `JET`      | Jet 색상                 |
-| `HSV`      | HSV 색상 공간            |
-| `HOT`      | 뜨거운 색상 (검정→빨강)  |
-| `COOL`     | 차가운 색상 (청록→자홍)  |
-| `GREYS`    | 회색 계열                |
-| `YIGnBu`   | 노랑→초록→파랑           |
-| `YIOrRd`   | 노랑→주황→빨강           |
-| `RdBu`     | 빨강→파랑                |
-| `PORTLAND` | Portland 색상            |
-| `OXYGEN`   | Oxygen 색상              |
+| 스펙트럼   | 설명                    |
+| ---------- | ----------------------- |
+| `RAINBOW`  | 무지개 색상             |
+| `JET`      | Jet 색상                |
+| `HSV`      | HSV 색상 공간           |
+| `HOT`      | 뜨거운 색상 (검정→빨강) |
+| `COOL`     | 차가운 색상 (청록→자홍) |
+| `GREYS`    | 회색 계열               |
+| `YIGnBu`   | 노랑→초록→파랑          |
+| `YIOrRd`   | 노랑→주황→빨강          |
+| `RdBu`     | 빨강→파랑               |
+| `PORTLAND` | Portland 색상           |
+| `OXYGEN`   | Oxygen 색상             |
 
 ```tsx
-<HeatMap
-  data={data}
-  colorMap={naver.maps.visualization.SpectrumStyle.JET}
-  colorMapReverse={true}
-/>
+<HeatMap data={data} colorMap={naver.maps.visualization.SpectrumStyle.JET} colorMapReverse={true} />
 ```
 
 #### Ref Methods
@@ -202,13 +195,13 @@ function HeatMapWithRef() {
 }
 ```
 
-| 메서드          | 반환 타입                        | 설명                 |
-| --------------- | -------------------------------- | -------------------- |
-| `getInstance()` | `naver.maps.visualization.HeatMap` | HeatMap 인스턴스   |
-| `getMap()`      | `naver.maps.Map`                 | 지도 인스턴스        |
-| `setData()`     | `void`                           | 데이터 설정          |
-| `addData()`     | `void`                           | 데이터 추가          |
-| `redraw()`      | `void`                           | 다시 그리기          |
+| 메서드          | 반환 타입                          | 설명             |
+| --------------- | ---------------------------------- | ---------------- |
+| `getInstance()` | `naver.maps.visualization.HeatMap` | HeatMap 인스턴스 |
+| `getMap()`      | `naver.maps.Map`                   | 지도 인스턴스    |
+| `setData()`     | `void`                             | 데이터 설정      |
+| `addData()`     | `void`                             | 데이터 추가      |
+| `redraw()`      | `void`                             | 다시 그리기      |
 
 ---
 
@@ -223,7 +216,7 @@ function MapWithDotMap() {
   const data = [
     { lat: 37.5665, lng: 126.978 },
     { lat: 37.5666, lng: 126.979 },
-    { lat: 37.5667, lng: 126.980 }
+    { lat: 37.5667, lng: 126.98 }
   ];
 
   return (
@@ -250,10 +243,7 @@ function MapWithDotMap() {
 
 ```ts
 interface DotMapOptionProps {
-  data:
-    | naver.maps.LatLng[]
-    | naver.maps.PointArrayLiteral[]
-    | Array<{ lat: number; lng: number }>;
+  data: naver.maps.LatLng[] | naver.maps.PointArrayLiteral[] | Array<{ lat: number; lng: number }>;
   opacity?: number;
   radius?: number;
   strokeWeight?: number;
@@ -278,27 +268,27 @@ interface DotMapRef {
 
 #### Props
 
-| Prop             | 타입                       | 기본값      | 설명                    |
-| ---------------- | -------------------------- | ----------- | ----------------------- |
-| `data`           | `LatLng[] \| object[]`     | -           | 시각화 데이터           |
-| `radius`         | `number`                   | `5`         | 점 반경 (픽셀)          |
-| `opacity`        | `number`                   | `0.6`       | 불투명도 (0-1)          |
-| `fillColor`      | `string`                   | `"#ff0000"` | 채우기 색상             |
-| `strokeColor`    | `string`                   | `"#fff"`    | 테두리 색상             |
-| `strokeWeight`   | `number`                   | `1`         | 테두리 두께             |
-| `strokeLineCap`  | `"butt" \| "round" \| "square"` | `"round"` | 선 끝 스타일       |
-| `strokeLineJoin` | `"bevel" \| "miter" \| "round"` | `"round"` | 선 연결 스타일     |
-| `onDotMapReady`  | `(dotMap) => void`         | -           | 인스턴스 생성 완료 콜백 |
+| Prop             | 타입                            | 기본값      | 설명                    |
+| ---------------- | ------------------------------- | ----------- | ----------------------- |
+| `data`           | `LatLng[] \| object[]`          | -           | 시각화 데이터           |
+| `radius`         | `number`                        | `5`         | 점 반경 (픽셀)          |
+| `opacity`        | `number`                        | `0.6`       | 불투명도 (0-1)          |
+| `fillColor`      | `string`                        | `"#ff0000"` | 채우기 색상             |
+| `strokeColor`    | `string`                        | `"#fff"`    | 테두리 색상             |
+| `strokeWeight`   | `number`                        | `1`         | 테두리 두께             |
+| `strokeLineCap`  | `"butt" \| "round" \| "square"` | `"round"`   | 선 끝 스타일            |
+| `strokeLineJoin` | `"bevel" \| "miter" \| "round"` | `"round"`   | 선 연결 스타일          |
+| `onDotMapReady`  | `(dotMap) => void`              | -           | 인스턴스 생성 완료 콜백 |
 
 #### Ref Methods
 
-| 메서드          | 반환 타입                        | 설명                |
-| --------------- | -------------------------------- | ------------------- |
-| `getInstance()` | `naver.maps.visualization.DotMap` | DotMap 인스턴스   |
-| `getMap()`      | `naver.maps.Map`                 | 지도 인스턴스       |
-| `setData()`     | `void`                           | 데이터 설정         |
-| `addData()`     | `void`                           | 데이터 추가         |
-| `redraw()`      | `void`                           | 다시 그리기         |
+| 메서드          | 반환 타입                         | 설명            |
+| --------------- | --------------------------------- | --------------- |
+| `getInstance()` | `naver.maps.visualization.DotMap` | DotMap 인스턴스 |
+| `getMap()`      | `naver.maps.Map`                  | 지도 인스턴스   |
+| `setData()`     | `void`                            | 데이터 설정     |
+| `addData()`     | `void`                            | 데이터 추가     |
+| `redraw()`      | `void`                            | 다시 그리기     |
 
 ---
 
@@ -455,8 +445,17 @@ import { useState } from "react";
 import { NaverMap, HeatMap } from "react-naver-maps-kit";
 
 const spectrumOptions = [
-  "RAINBOW", "JET", "HSV", "HOT", "COOL",
-  "GREYS", "YIGnBu", "YIOrRd", "RdBu", "PORTLAND", "OXYGEN"
+  "RAINBOW",
+  "JET",
+  "HSV",
+  "HOT",
+  "COOL",
+  "GREYS",
+  "YIGnBu",
+  "YIOrRd",
+  "RdBu",
+  "PORTLAND",
+  "OXYGEN"
 ];
 
 function HeatMapWithSpectrum() {
@@ -465,28 +464,27 @@ function HeatMapWithSpectrum() {
 
   const data = [
     { lat: 37.5665, lng: 126.978, weight: 10 },
-    { lat: 37.5670, lng: 126.980, weight: 8 },
-    { lat: 37.5660, lng: 126.975, weight: 6 }
+    { lat: 37.567, lng: 126.98, weight: 8 },
+    { lat: 37.566, lng: 126.975, weight: 6 }
   ];
 
-  const colorMap = naver.maps.visualization.SpectrumStyle[
-    spectrum as keyof typeof naver.maps.visualization.SpectrumStyle
-  ];
+  const colorMap =
+    naver.maps.visualization.SpectrumStyle[
+      spectrum as keyof typeof naver.maps.visualization.SpectrumStyle
+    ];
 
   return (
     <div>
       <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
         <select value={spectrum} onChange={(e) => setSpectrum(e.target.value)}>
           {spectrumOptions.map((opt) => (
-            <option key={opt} value={opt}>{opt}</option>
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
           ))}
         </select>
         <label>
-          <input
-            type="checkbox"
-            checked={reverse}
-            onChange={(e) => setReverse(e.target.checked)}
-          />
+          <input type="checkbox" checked={reverse} onChange={(e) => setReverse(e.target.checked)} />
           스펙트럼 반전
         </label>
       </div>
@@ -553,16 +551,9 @@ function VisualizationToggle() {
         defaultZoom={13}
         style={{ width: "100%", height: "500px" }}
       >
-        {type === "heatmap" && (
-          <HeatMap data={data} radius={20} opacity={0.6} />
-        )}
+        {type === "heatmap" && <HeatMap data={data} radius={20} opacity={0.6} />}
         {type === "dotmap" && (
-          <DotMap
-            data={data}
-            radius={5}
-            fillColor="#EA4335"
-            strokeColor="#fff"
-          />
+          <DotMap data={data} radius={5} fillColor="#EA4335" strokeColor="#fff" />
         )}
       </NaverMap>
     </div>

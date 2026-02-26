@@ -26,7 +26,11 @@ export function CircleDemo() {
       </p>
 
       <div className="map-container">
-        <NaverMap defaultCenter={DEFAULT_POS} defaultZoom={14} style={{ width: "100%", height: 500 }}>
+        <NaverMap
+          defaultCenter={DEFAULT_POS}
+          defaultZoom={14}
+          style={{ width: "100%", height: 500 }}
+        >
           <Circle
             center={DEFAULT_POS}
             radius={radius}
@@ -49,7 +53,14 @@ export function CircleDemo() {
         <div className="controls-grid">
           <div className="control-item">
             <label>Radius ({radius}m)</label>
-            <input type="range" min={100} max={5000} step={100} value={radius} onChange={(e) => setRadius(Number(e.target.value))} />
+            <input
+              type="range"
+              min={100}
+              max={5000}
+              step={100}
+              value={radius}
+              onChange={(e) => setRadius(Number(e.target.value))}
+            />
           </div>
           <div className="control-item">
             <label>Fill</label>
@@ -57,26 +68,58 @@ export function CircleDemo() {
           </div>
           <div className="control-item">
             <label>FillOpacity ({fillOpacity})</label>
-            <input type="range" min={0} max={1} step={0.05} value={fillOpacity} onChange={(e) => setFillOpacity(Number(e.target.value))} />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={fillOpacity}
+              onChange={(e) => setFillOpacity(Number(e.target.value))}
+            />
           </div>
           <div className="control-item">
             <label>Stroke</label>
-            <input type="color" value={strokeColor} onChange={(e) => setStrokeColor(e.target.value)} />
+            <input
+              type="color"
+              value={strokeColor}
+              onChange={(e) => setStrokeColor(e.target.value)}
+            />
           </div>
           <div className="control-item">
             <label>StrokeWeight ({strokeWeight})</label>
-            <input type="range" min={0} max={10} value={strokeWeight} onChange={(e) => setStrokeWeight(Number(e.target.value))} />
+            <input
+              type="range"
+              min={0}
+              max={10}
+              value={strokeWeight}
+              onChange={(e) => setStrokeWeight(Number(e.target.value))}
+            />
           </div>
           <div className="control-item">
             <label>StrokeOpacity ({strokeOpacity})</label>
-            <input type="range" min={0} max={1} step={0.05} value={strokeOpacity} onChange={(e) => setStrokeOpacity(Number(e.target.value))} />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={strokeOpacity}
+              onChange={(e) => setStrokeOpacity(Number(e.target.value))}
+            />
           </div>
           <div className="control-item">
-            <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={visible}
+              onChange={(e) => setVisible(e.target.checked)}
+            />
             <label>Visible</label>
           </div>
           <div className="control-item">
-            <input type="checkbox" checked={clickable} onChange={(e) => setClickable(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={clickable}
+              onChange={(e) => setClickable(e.target.checked)}
+            />
             <label>Clickable</label>
           </div>
         </div>
