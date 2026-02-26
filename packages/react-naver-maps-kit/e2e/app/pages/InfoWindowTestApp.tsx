@@ -51,6 +51,44 @@ function readInfoPosition(infoRef: React.RefObject<InfoWindowRef | null>): strin
   return JSON.stringify({ lat: pos.y, lng: pos.x });
 }
 
+function toPointText(value: unknown): string {
+  if (!value || typeof value !== "object") {
+    return "";
+  }
+
+  const candidate = value as {
+    x?: number | (() => number);
+    y?: number | (() => number);
+  };
+  const x = typeof candidate.x === "function" ? candidate.x() : candidate.x;
+  const y = typeof candidate.y === "function" ? candidate.y() : candidate.y;
+
+  if (typeof x !== "number" || typeof y !== "number") {
+    return "";
+  }
+
+  return JSON.stringify({ x, y });
+}
+
+function toSizeText(value: unknown): string {
+  if (!value || typeof value !== "object") {
+    return "";
+  }
+
+  const candidate = value as {
+    width?: number | (() => number);
+    height?: number | (() => number);
+  };
+  const width = typeof candidate.width === "function" ? candidate.width() : candidate.width;
+  const height = typeof candidate.height === "function" ? candidate.height() : candidate.height;
+
+  if (typeof width !== "number" || typeof height !== "number") {
+    return "";
+  }
+
+  return JSON.stringify({ width, height });
+}
+
 function CommonLogs({
   mapReady,
   infoOpenCount,
@@ -355,6 +393,7 @@ function RefPage() {
 
   const [mapReady, setMapReady] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [infoPosition, setInfoPosition] = useState(DEFAULT_CENTER);
   const [openCount, setOpenCount] = useState(0);
   const [closeCount, setCloseCount] = useState(0);
   const [readyCount, setReadyCount] = useState(0);
@@ -362,12 +401,26 @@ function RefPage() {
   const [contentLog, setContentLog] = useState("");
   const [positionLog, setPositionLog] = useState("");
   const [centerLog, setCenterLog] = useState("");
+  const [zIndexLog, setZIndexLog] = useState("");
+  const [refMaxWidth, setRefMaxWidth] = useState("");
+  const [refDisableAnchor, setRefDisableAnchor] = useState("");
+  const [refMapBound, setRefMapBound] = useState("");
+  const [refContentElementExists, setRefContentElementExists] = useState("");
+  const [refPanesExists, setRefPanesExists] = useState("");
+  const [refProjectionExists, setRefProjectionExists] = useState("");
 
   const syncState = useCallback(() => {
     const content = infoRef.current?.getContent();
     setContentLog(typeof content === "string" ? content : content?.textContent ?? "");
     setPositionLog(readInfoPosition(infoRef));
     setCenterLog(readLatLng(mapRef));
+    setZIndexLog(String(infoRef.current?.getZIndex() ?? ""));
+    setRefMaxWidth(String(infoRef.current?.getOptions("maxWidth") ?? ""));
+    setRefDisableAnchor(String(infoRef.current?.getOptions("disableAnchor") ?? ""));
+    setRefMapBound(String(Boolean(infoRef.current?.getMap())));
+    setRefContentElementExists(String(Boolean(infoRef.current?.getContentElement())));
+    setRefPanesExists(String(Boolean(infoRef.current?.getPanes())));
+    setRefProjectionExists(String(Boolean(infoRef.current?.getProjection())));
   }, []);
 
   return (
@@ -381,6 +434,59 @@ function RefPage() {
             }}
           >
             content 변경
+          </button>
+          <button
+            data-testid="ref-set-position-2"
+            onClick={() => {
+              infoRef.current?.setPosition(MARKER_POS_2);
+              setInfoPosition(MARKER_POS_2);
+            }}
+          >
+            position2 변경
+          </button>
+          <button
+            data-testid="ref-set-zindex-321"
+            onClick={() => {
+              infoRef.current?.setZIndex(321);
+            }}
+          >
+            zIndex 변경
+          </button>
+          <button
+            data-testid="ref-set-options-batch"
+            onClick={() => {
+              const optionSetter = infoRef.current as InfoWindowRef & {
+                setOptions: (key: string, value: unknown) => void;
+              };
+
+              optionSetter?.setOptions("maxWidth", 360);
+              optionSetter?.setOptions("disableAnchor", true);
+              optionSetter?.setOptions("borderWidth", 6);
+            }}
+          >
+            options batch 변경
+          </button>
+          <button
+            data-testid="ref-set-map-null"
+            onClick={() => {
+              infoRef.current?.setMap(null);
+              setVisible(false);
+            }}
+          >
+            setMap(null)
+          </button>
+          <button
+            data-testid="ref-set-map-instance"
+            onClick={() => {
+              const map = mapRef.current?.getInstance();
+              if (map) {
+                infoRef.current?.setMap(map);
+                infoRef.current?.open(map, DEFAULT_CENTER);
+                setVisible(true);
+              }
+            }}
+          >
+            setMap(map)
           </button>
           <button
             data-testid="ref-close"
@@ -419,6 +525,13 @@ function RefPage() {
             mapCenter={centerLog}
           />
           <span data-testid="visible-state">{String(visible)}</span>
+          <span data-testid="ref-zindex">{zIndexLog}</span>
+          <span data-testid="ref-opt-max-width">{refMaxWidth}</span>
+          <span data-testid="ref-opt-disable-anchor">{refDisableAnchor}</span>
+          <span data-testid="ref-map-bound">{refMapBound}</span>
+          <span data-testid="ref-content-element-exists">{refContentElementExists}</span>
+          <span data-testid="ref-panes-exists">{refPanesExists}</span>
+          <span data-testid="ref-projection-exists">{refProjectionExists}</span>
         </>
       }
       map={
@@ -433,7 +546,7 @@ function RefPage() {
           >
             <InfoWindow
               ref={infoRef}
-              position={DEFAULT_CENTER}
+              position={infoPosition}
               visible={visible}
               onOpen={() => setOpenCount((c) => c + 1)}
               onClose={() => setCloseCount((c) => c + 1)}
@@ -538,6 +651,13 @@ function OptionsPage() {
   const [maxWidth, setMaxWidth] = useState(220);
   const [borderWidth, setBorderWidth] = useState(1);
   const [anchorSkew, setAnchorSkew] = useState(false);
+  const [anchorColor, setAnchorColor] = useState("#111111");
+  const [anchorSize, setAnchorSize] = useState({ width: 12, height: 10 });
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [borderColor, setBorderColor] = useState("#999999");
+  const [disableAnchor, setDisableAnchor] = useState(false);
+  const [disableAutoPan, setDisableAutoPan] = useState(false);
+  const [pixelOffset, setPixelOffset] = useState({ x: 0, y: 0 });
   const [zIndex, setZIndex] = useState(1);
   const [content, setContent] = useState("option-content-1");
 
@@ -552,11 +672,25 @@ function OptionsPage() {
   const [positionChangedCount, setPositionChangedCount] = useState(0);
   const [contentChangedCount, setContentChangedCount] = useState(0);
   const [zIndexChangedCount, setZIndexChangedCount] = useState(0);
+  const [anchorColorChangedCount, setAnchorColorChangedCount] = useState(0);
+  const [anchorSizeChangedCount, setAnchorSizeChangedCount] = useState(0);
+  const [backgroundColorChangedCount, setBackgroundColorChangedCount] = useState(0);
+  const [borderColorChangedCount, setBorderColorChangedCount] = useState(0);
+  const [disableAnchorChangedCount, setDisableAnchorChangedCount] = useState(0);
+  const [disableAutoPanChangedCount, setDisableAutoPanChangedCount] = useState(0);
+  const [pixelOffsetChangedCount, setPixelOffsetChangedCount] = useState(0);
 
   const [optMaxWidth, setOptMaxWidth] = useState("");
   const [optBorderWidth, setOptBorderWidth] = useState("");
   const [optAnchorSkew, setOptAnchorSkew] = useState("");
   const [optPosition, setOptPosition] = useState("");
+  const [optAnchorColor, setOptAnchorColor] = useState("");
+  const [optAnchorSize, setOptAnchorSize] = useState("");
+  const [optBackgroundColor, setOptBackgroundColor] = useState("");
+  const [optBorderColor, setOptBorderColor] = useState("");
+  const [optDisableAnchor, setOptDisableAnchor] = useState("");
+  const [optDisableAutoPan, setOptDisableAutoPan] = useState("");
+  const [optPixelOffset, setOptPixelOffset] = useState("");
 
   const readState = useCallback(() => {
     const contentValue = infoRef.current?.getContent();
@@ -567,12 +701,26 @@ function OptionsPage() {
     const maxWidthValue = infoRef.current?.getOptions("maxWidth");
     const borderWidthValue = infoRef.current?.getOptions("borderWidth");
     const anchorSkewValue = infoRef.current?.getOptions("anchorSkew");
+    const anchorColorValue = infoRef.current?.getOptions("anchorColor");
+    const anchorSizeValue = infoRef.current?.getOptions("anchorSize");
+    const backgroundColorValue = infoRef.current?.getOptions("backgroundColor");
+    const borderColorValue = infoRef.current?.getOptions("borderColor");
+    const disableAnchorValue = infoRef.current?.getOptions("disableAnchor");
+    const disableAutoPanValue = infoRef.current?.getOptions("disableAutoPan");
+    const pixelOffsetValue = infoRef.current?.getOptions("pixelOffset");
     const pos = infoRef.current?.getPosition();
 
     setOptMaxWidth(String(maxWidthValue));
     setOptBorderWidth(String(borderWidthValue));
     setOptAnchorSkew(String(anchorSkewValue));
     setOptPosition(pos ? JSON.stringify({ lat: pos.y, lng: pos.x }) : "");
+    setOptAnchorColor(String(anchorColorValue ?? ""));
+    setOptAnchorSize(toSizeText(anchorSizeValue));
+    setOptBackgroundColor(String(backgroundColorValue ?? ""));
+    setOptBorderColor(String(borderColorValue ?? ""));
+    setOptDisableAnchor(String(disableAnchorValue));
+    setOptDisableAutoPan(String(disableAutoPanValue));
+    setOptPixelOffset(toPointText(pixelOffsetValue));
   }, []);
 
   return (
@@ -582,6 +730,13 @@ function OptionsPage() {
           <button data-testid="set-max-width-320" onClick={() => setMaxWidth(320)}>maxWidth 320</button>
           <button data-testid="set-border-width-4" onClick={() => setBorderWidth(4)}>borderWidth 4</button>
           <button data-testid="toggle-anchor-skew" onClick={() => setAnchorSkew((v) => !v)}>anchorSkew 토글</button>
+          <button data-testid="set-anchor-color-red" onClick={() => setAnchorColor("#ff0000")}>anchorColor red</button>
+          <button data-testid="set-anchor-size-large" onClick={() => setAnchorSize({ width: 28, height: 16 })}>anchorSize large</button>
+          <button data-testid="set-background-dark" onClick={() => setBackgroundColor("#111111")}>bg dark</button>
+          <button data-testid="set-border-color-blue" onClick={() => setBorderColor("#1d4ed8")}>border blue</button>
+          <button data-testid="toggle-disable-anchor" onClick={() => setDisableAnchor((v) => !v)}>disableAnchor 토글</button>
+          <button data-testid="toggle-disable-autopan" onClick={() => setDisableAutoPan((v) => !v)}>disableAutoPan 토글</button>
+          <button data-testid="set-pixel-offset-30" onClick={() => setPixelOffset({ x: 30, y: -30 })}>pixelOffset 30</button>
           <button data-testid="move-position-2" onClick={() => setPosition(MARKER_POS_2)}>위치2 이동</button>
           <button data-testid="set-content-2" onClick={() => setContent("option-content-2")}>content2 설정</button>
           <button data-testid="set-zindex-777" onClick={() => setZIndex(777)}>zIndex 777</button>
@@ -603,10 +758,24 @@ function OptionsPage() {
           <span data-testid="evt-position-changed-count">{positionChangedCount}</span>
           <span data-testid="evt-content-changed-count">{contentChangedCount}</span>
           <span data-testid="evt-zindex-changed-count">{zIndexChangedCount}</span>
+          <span data-testid="evt-anchor-color-changed-count">{anchorColorChangedCount}</span>
+          <span data-testid="evt-anchor-size-changed-count">{anchorSizeChangedCount}</span>
+          <span data-testid="evt-background-color-changed-count">{backgroundColorChangedCount}</span>
+          <span data-testid="evt-border-color-changed-count">{borderColorChangedCount}</span>
+          <span data-testid="evt-disable-anchor-changed-count">{disableAnchorChangedCount}</span>
+          <span data-testid="evt-disable-autopan-changed-count">{disableAutoPanChangedCount}</span>
+          <span data-testid="evt-pixel-offset-changed-count">{pixelOffsetChangedCount}</span>
           <span data-testid="opt-max-width">{optMaxWidth}</span>
           <span data-testid="opt-border-width">{optBorderWidth}</span>
           <span data-testid="opt-anchor-skew">{optAnchorSkew}</span>
           <span data-testid="opt-position">{optPosition}</span>
+          <span data-testid="opt-anchor-color">{optAnchorColor}</span>
+          <span data-testid="opt-anchor-size">{optAnchorSize}</span>
+          <span data-testid="opt-background-color">{optBackgroundColor}</span>
+          <span data-testid="opt-border-color">{optBorderColor}</span>
+          <span data-testid="opt-disable-anchor">{optDisableAnchor}</span>
+          <span data-testid="opt-disable-autopan">{optDisableAutoPan}</span>
+          <span data-testid="opt-pixel-offset">{optPixelOffset}</span>
         </>
       }
       map={
@@ -626,6 +795,13 @@ function OptionsPage() {
               maxWidth={maxWidth}
               borderWidth={borderWidth}
               anchorSkew={anchorSkew}
+              anchorColor={anchorColor}
+              anchorSize={anchorSize}
+              backgroundColor={backgroundColor}
+              borderColor={borderColor}
+              disableAnchor={disableAnchor}
+              disableAutoPan={disableAutoPan}
+              pixelOffset={pixelOffset}
               zIndex={zIndex}
               content={content}
               onOpen={() => setOpenCount((c) => c + 1)}
@@ -635,6 +811,13 @@ function OptionsPage() {
               onPositionChanged={() => setPositionChangedCount((c) => c + 1)}
               onContentChanged={() => setContentChangedCount((c) => c + 1)}
               onZIndexChanged={() => setZIndexChangedCount((c) => c + 1)}
+              onAnchorColorChanged={() => setAnchorColorChangedCount((c) => c + 1)}
+              onAnchorSizeChanged={() => setAnchorSizeChangedCount((c) => c + 1)}
+              onBackgroundColorChanged={() => setBackgroundColorChangedCount((c) => c + 1)}
+              onBorderColorChanged={() => setBorderColorChangedCount((c) => c + 1)}
+              onDisableAnchorChanged={() => setDisableAnchorChangedCount((c) => c + 1)}
+              onDisableAutoPanChanged={() => setDisableAutoPanChangedCount((c) => c + 1)}
+              onPixelOffsetChanged={() => setPixelOffsetChangedCount((c) => c + 1)}
             />
           </NaverMap>
         </NaverMapProvider>

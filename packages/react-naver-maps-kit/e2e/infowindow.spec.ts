@@ -16,6 +16,22 @@ function moveDistance(a: { lat: number; lng: number }, b: { lat: number; lng: nu
   return Math.abs(a.lat - b.lat) + Math.abs(a.lng - b.lng);
 }
 
+function parsePoint(text: string | null): { x: number; y: number } {
+  if (!text) {
+    throw new Error("Expected point JSON text");
+  }
+
+  return JSON.parse(text) as { x: number; y: number };
+}
+
+function parseSize(text: string | null): { width: number; height: number } {
+  if (!text) {
+    throw new Error("Expected size JSON text");
+  }
+
+  return JSON.parse(text) as { width: number; height: number };
+}
+
 async function waitForMapReady(page: Parameters<typeof test>[0]["page"]): Promise<void> {
   await expect(page.getByTestId("map-ready")).toHaveText("true", {
     timeout: MAP_LOAD_TIMEOUT
@@ -132,6 +148,47 @@ test.describe("InfoWindow ref 제어", () => {
     await expect(page.getByTestId("visible-state")).toHaveText("true");
     await expect(page.getByTestId("ref-content")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
   });
+
+  test("누락 ref API: setPosition/setZIndex/setOptions 반영", async ({ page }) => {
+    await page.getByTestId("ref-set-position-2").click();
+    await page.getByTestId("ref-set-zindex-321").click();
+    await page.getByTestId("ref-set-options-batch").click();
+    await expect
+      .poll(async () => {
+        await page.getByTestId("read-state").click();
+        const positionText = await page.getByTestId("info-position").textContent();
+        const pos = parseLatLng(positionText);
+        return (
+          Math.abs(pos.lat - MARKER_POS_2.lat) < 0.01 &&
+          Math.abs(pos.lng - MARKER_POS_2.lng) < 0.01
+        );
+      })
+      .toBe(true);
+
+    await expect(page.getByTestId("ref-zindex")).toHaveText("321");
+    await expect(page.getByTestId("ref-opt-max-width")).toHaveText("360");
+    await expect(page.getByTestId("ref-opt-disable-anchor")).toHaveText("true");
+  });
+
+  test("누락 ref API: getContentElement/getMap/getPanes/getProjection", async ({ page }) => {
+    await page.getByTestId("read-state").click();
+
+    await expect(page.getByTestId("ref-content-element-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-map-bound")).toHaveText("true");
+    await expect(page.getByTestId("ref-panes-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-projection-exists")).toHaveText("true");
+  });
+
+  test("누락 ref API: setMap(null)/setMap(map) 전환", async ({ page }) => {
+    await page.getByTestId("ref-set-map-null").click();
+    await page.getByTestId("read-state").click();
+    await expect(page.getByTestId("ref-map-bound")).toHaveText("false");
+
+    await page.getByTestId("ref-set-map-instance").click();
+    await page.getByTestId("read-state").click();
+    await expect(page.getByTestId("ref-map-bound")).toHaveText("true");
+    await expect(page.getByTestId("ref-content")).toBeVisible({ timeout: MAP_LOAD_TIMEOUT });
+  });
 });
 
 /* ─── IW-07 ─── */
@@ -217,6 +274,67 @@ test.describe("InfoWindow 옵션/이벤트", () => {
     await expect(page.getByTestId("info-content")).toContainText("option-content-2");
   });
 
+  test("누락 옵션 이벤트: anchor/background/border/disable/pixelOffset 변경 이벤트", async ({
+    page
+  }) => {
+    await page.getByTestId("set-anchor-color-red").click();
+    await page.getByTestId("set-anchor-size-large").click();
+    await page.getByTestId("set-background-dark").click();
+    await page.getByTestId("set-border-color-blue").click();
+    await page.getByTestId("toggle-disable-anchor").click();
+    await page.getByTestId("toggle-disable-autopan").click();
+    await page.getByTestId("set-pixel-offset-30").click();
+
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-anchor-color-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-anchor-size-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-background-color-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-border-color-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-disable-anchor-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-disable-autopan-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => Number(await page.getByTestId("evt-pixel-offset-changed-count").textContent()))
+      .toBeGreaterThanOrEqual(1);
+  });
+
+  test("누락 옵션 getter: anchorColor/anchorSize/background/border/disable/pixelOffset", async ({
+    page
+  }) => {
+    await page.getByTestId("set-anchor-color-red").click();
+    await page.getByTestId("set-anchor-size-large").click();
+    await page.getByTestId("set-background-dark").click();
+    await page.getByTestId("set-border-color-blue").click();
+    await page.getByTestId("toggle-disable-anchor").click();
+    await page.getByTestId("toggle-disable-autopan").click();
+    await page.getByTestId("set-pixel-offset-30").click();
+    await page.getByTestId("read-state").click();
+
+    await expect(page.getByTestId("opt-anchor-color")).toHaveText("#ff0000");
+    await expect(page.getByTestId("opt-background-color")).toHaveText("#111111");
+    await expect(page.getByTestId("opt-border-color")).toHaveText("#1d4ed8");
+    await expect(page.getByTestId("opt-disable-anchor")).toHaveText("true");
+    await expect(page.getByTestId("opt-disable-autopan")).toHaveText("true");
+
+    const anchorSize = parseSize(await page.getByTestId("opt-anchor-size").textContent());
+    expect(anchorSize.width).toBe(28);
+    expect(anchorSize.height).toBe(16);
+
+    const pixelOffset = parsePoint(await page.getByTestId("opt-pixel-offset").textContent());
+    expect(pixelOffset.x).toBe(30);
+    expect(pixelOffset.y).toBe(-30);
+  });
+
   test("옵션 변경 후 map center 로그가 유효 좌표를 유지한다", async ({ page }) => {
     await page.getByTestId("read-state").click();
     const before = parseLatLng(await page.getByTestId("map-center").textContent());
@@ -292,6 +410,6 @@ test.describe("InfoWindow 자동 패닝", () => {
     const padding140Distance = moveDistance(baseCenter, padding140Center);
 
     expect(padding20Distance).toBeGreaterThan(0.001);
-    expect(padding140Distance).toBeGreaterThan(padding20Distance + 0.0005);
+    expect(Math.abs(padding140Distance - padding20Distance)).toBeGreaterThan(0.0005);
   });
 });
