@@ -13,14 +13,27 @@
     "build:lib": "pnpm --filter react-naver-maps-kit build",
     "build:docs": "pnpm build:lib && pnpm --filter react-naver-maps-kit-docs build",
     "build:playground": "pnpm build:lib && pnpm --filter playground build",
+    "check:lib": "pnpm -C packages/react-naver-maps-kit typecheck",
     "changeset": "changeset",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "changeset:publish": "changeset publish",
-    "format": "prettier --write \"packages/**/*.{js,jsx,ts,tsx,json,md}\""
+    "lint-staged": "lint-staged",
+    "format": "prettier --write \"packages/**/*.{js,jsx,ts,tsx,json,md}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "packages/**/*.{js,jsx,ts,tsx,json,md}": [
+      "prettier --write"
+    ],
+    "packages/react-naver-maps-kit/**/*.{js,jsx,ts,tsx}": [
+      "pnpm --filter react-naver-maps-kit exec eslint --fix --max-warnings=0"
+    ]
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.7",
     "prettier": "^3.5.3"
   }
 }
