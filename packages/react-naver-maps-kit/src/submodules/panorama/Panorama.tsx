@@ -229,7 +229,6 @@ export const Panorama = forwardRef<PanoramaRef, PanoramaProps>(function Panorama
     [
       props.size,
       props.panoId,
-      props.visible,
       props.minScale,
       props.maxScale,
       props.minZoom,
@@ -379,6 +378,14 @@ export const Panorama = forwardRef<PanoramaRef, PanoramaProps>(function Panorama
 
     panorama.setPosition(toLatLng(props.position) as naver.maps.LatLng);
   }, [isControlledPosition, props.position]);
+
+  // controlled visible 동기화
+  useEffect(() => {
+    const panorama = panoramaRef.current;
+    if (!panorama || props.visible === undefined) return;
+
+    panorama.setVisible(props.visible);
+  }, [props.visible]);
 
   // controlled pov 동기화
   useEffect(() => {

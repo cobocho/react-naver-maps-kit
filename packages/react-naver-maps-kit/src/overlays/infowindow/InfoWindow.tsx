@@ -304,6 +304,7 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
     
     const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
     const infoWindowEventListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+    const lastOpenAnchorRef = useRef<InfoWindowAnchor | undefined>(undefined);
     const onInfoWindowDestroyRef = useRef<InfoWindowProps["onInfoWindowDestroy"]>(
       props.onInfoWindowDestroy
     );
@@ -315,8 +316,25 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
       return document.createElement("div");
     }, []);
     const visible = props.visible ?? true;
+    const lastVisibleRef = useRef<boolean>(visible);
     const hasChildren = props.children !== undefined && props.children !== null;
-    const optionSnapshot = useMemo(() => toInfoWindowOptions(props), [props]);
+    const optionSnapshot = useMemo(
+      () => toInfoWindowOptions(props),
+      [
+        props.anchorColor,
+        props.anchorSize,
+        props.anchorSkew,
+        props.backgroundColor,
+        props.borderColor,
+        props.borderWidth,
+        props.disableAnchor,
+        props.disableAutoPan,
+        props.maxWidth,
+        props.pixelOffset,
+        props.position,
+        props.zIndex
+      ]
+    );
 
     useEffect(() => {
       onInfoWindowDestroyRef.current = props.onInfoWindowDestroy;
@@ -425,7 +443,17 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
 
         props.onInfoWindowError?.(normalizedError);
       }
-    }, [childrenContainer, hasChildren, map, optionSnapshot, props, sdkStatus]);
+    }, [
+      childrenContainer,
+      hasChildren,
+      map,
+      optionSnapshot,
+      props.autoPanPadding,
+      props.content,
+      props.onInfoWindowReady,
+      props.onInfoWindowError,
+      sdkStatus
+    ]);
 
     useEffect(() => {
       const infoWindow = infoWindowRef.current;
@@ -454,33 +482,60 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
         infoWindow.setPosition(props.position);
       }
 
-      if (!map || !visible) {
-        infoWindow.close();
-        return;
-      }
-
-      if (props.anchor) {
-        infoWindow.open(map, props.anchor);
-        return;
-      }
-
-      if (props.position) {
-        infoWindow.open(map, props.position);
-        return;
-      }
-
-      infoWindow.open(map);
     }, [
       childrenContainer,
       hasChildren,
-      map,
       optionSnapshot,
-      props.anchor,
       props.content,
       props.position,
       props.autoPanPadding,
       visible
     ]);
+
+    useEffect(() => {
+      const infoWindow = infoWindowRef.current;
+
+      if (!infoWindow) {
+        return;
+      }
+
+      if (!map || !visible) {
+        if (infoWindow.getMap()) {
+          infoWindow.close();
+        }
+        lastOpenAnchorRef.current = undefined;
+        lastVisibleRef.current = visible;
+        return;
+      }
+
+      const isBoundToCurrentMap = infoWindow.getMap() === map;
+      const becameVisible = !lastVisibleRef.current && visible;
+
+      if (props.anchor) {
+        const anchorChanged = lastOpenAnchorRef.current !== props.anchor;
+
+        if (!isBoundToCurrentMap || anchorChanged || becameVisible) {
+          infoWindow.open(map, props.anchor);
+        }
+
+        lastOpenAnchorRef.current = props.anchor;
+        lastVisibleRef.current = visible;
+        return;
+      }
+
+      const hadAnchor = lastOpenAnchorRef.current !== undefined;
+
+      if (!isBoundToCurrentMap || hadAnchor || becameVisible) {
+        if (props.position) {
+          infoWindow.open(map, props.position);
+        } else {
+          infoWindow.open(map);
+        }
+      }
+
+      lastOpenAnchorRef.current = undefined;
+      lastVisibleRef.current = visible;
+    }, [map, visible, props.anchor, props.position]);
 
     useEffect(() => {
       const infoWindow = infoWindowRef.current;
