@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="react-naver-maps-kit-e2e" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Broken</name>
+    <trkseg>
+      <trkpt lat="37.5665" lon="126.9780">
+      <trkpt lat="37.5670" lon="126.9790" />
+    </trkseg>
+  </trk>
+</gpx>

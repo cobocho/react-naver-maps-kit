@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="react-naver-maps-kit-e2e" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="37.5656" lon="126.9751">
+    <name>B-Point-1</name>
+  </wpt>
+  <wpt lat="37.5682" lon="126.9823">
+    <name>B-Point-2</name>
+  </wpt>
+  <trk>
+    <name>B-Track</name>
+    <trkseg>
+      <trkpt lat="37.5656" lon="126.9751" />
+      <trkpt lat="37.5667" lon="126.9782" />
+      <trkpt lat="37.5682" lon="126.9823" />
+    </trkseg>
+  </trk>
+</gpx>
