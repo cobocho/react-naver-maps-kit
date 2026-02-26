@@ -112,6 +112,25 @@ test.describe("2. fallback/에러/재시도", () => {
   });
 });
 
+test.describe("2.1 suspense fallback 우선순위", () => {
+  test("Suspense fallback이 없으면 NaverMap fallback이 먼저 보인다", async ({ page }) => {
+    await page.goto("/#/map/suspense-priority/naver-fallback");
+
+    await expect(page.getByTestId("naver-fallback-priority")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId("map-ready")).toHaveText("false");
+  });
+
+  test("Suspense fallback이 있고 NaverMap fallback이 없으면 Suspense fallback이 먼저 보인다", async ({
+    page
+  }) => {
+    await page.goto("/#/map/suspense-priority/suspense-fallback");
+
+    await expect(page.getByTestId("suspense-fallback-priority")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId("naver-fallback-priority")).toHaveCount(0);
+    await expect(page.getByTestId("map-ready")).toHaveText("false");
+  });
+});
+
 /* ─── 3. 초기 옵션 적용 (uncontrolled) ─── */
 
 test.describe("3. 초기 옵션 적용 (uncontrolled)", () => {
