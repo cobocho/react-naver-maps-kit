@@ -1,0 +1,183 @@
+name: E2E By API Changes (main)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.any.outputs.value }}
+      map: ${{ steps.filter.outputs.map }}
+      marker: ${{ steps.filter.outputs.marker }}
+      infowindow: ${{ steps.filter.outputs.infowindow }}
+      panorama: ${{ steps.filter.outputs.panorama }}
+      circle: ${{ steps.filter.outputs.circle }}
+      ellipse: ${{ steps.filter.outputs.ellipse }}
+      rectangle: ${{ steps.filter.outputs.rectangle }}
+      polygon: ${{ steps.filter.outputs.polygon }}
+      groundoverlay: ${{ steps.filter.outputs.groundoverlay }}
+      markerclusterer: ${{ steps.filter.outputs.markerclusterer }}
+      geojson: ${{ steps.filter.outputs.geojson }}
+      gpx: ${{ steps.filter.outputs.gpx }}
+      kmz: ${{ steps.filter.outputs.kmz }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Filter changed API source files
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            map:
+              - 'packages/react-naver-maps-kit/src/react/components/NaverMap.tsx'
+              - 'packages/react-naver-maps-kit/src/react/provider/NaverMapProvider.tsx'
+              - 'packages/react-naver-maps-kit/src/react/context/MapInstanceContext.tsx'
+              - 'packages/react-naver-maps-kit/src/react/hooks/useNaverMap.ts'
+              - 'packages/react-naver-maps-kit/src/core/loader/loadNaverMapsScript.ts'
+            marker:
+              - 'packages/react-naver-maps-kit/src/overlays/marker/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            infowindow:
+              - 'packages/react-naver-maps-kit/src/overlays/infowindow/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            panorama:
+              - 'packages/react-naver-maps-kit/src/submodules/panorama/**'
+            circle:
+              - 'packages/react-naver-maps-kit/src/overlays/circle/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            ellipse:
+              - 'packages/react-naver-maps-kit/src/overlays/ellipse/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            rectangle:
+              - 'packages/react-naver-maps-kit/src/overlays/rectangle/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            polygon:
+              - 'packages/react-naver-maps-kit/src/overlays/polygon/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            groundoverlay:
+              - 'packages/react-naver-maps-kit/src/overlays/ground-overlay/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            markerclusterer:
+              - 'packages/react-naver-maps-kit/src/overlays/marker-clusterer/**'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            geojson:
+              - 'packages/react-naver-maps-kit/src/overlays/data/GeoJson.tsx'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            gpx:
+              - 'packages/react-naver-maps-kit/src/overlays/data/Gpx.tsx'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+            kmz:
+              - 'packages/react-naver-maps-kit/src/overlays/data/Kmz.tsx'
+              - 'packages/react-naver-maps-kit/src/overlays/shared/**'
+
+      - name: Set any_changed output
+        id: any
+        run: |
+          if [ "${{ steps.filter.outputs.changes }}" = "[]" ]; then
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  run-e2e:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.any_changed == 'true'
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm -C packages/react-naver-maps-kit e2e:install
+
+      - name: E2E map
+        if: needs.detect-changes.outputs.map == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:map
+
+      - name: E2E marker
+        if: needs.detect-changes.outputs.marker == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:marker
+
+      - name: E2E infowindow
+        if: needs.detect-changes.outputs.infowindow == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:infowindow
+
+      - name: E2E panorama
+        if: needs.detect-changes.outputs.panorama == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:panorama
+
+      - name: E2E circle
+        if: needs.detect-changes.outputs.circle == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:circle
+
+      - name: E2E ellipse
+        if: needs.detect-changes.outputs.ellipse == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:ellipse
+
+      - name: E2E rectangle
+        if: needs.detect-changes.outputs.rectangle == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:rectangle
+
+      - name: E2E polygon
+        if: needs.detect-changes.outputs.polygon == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:polygon
+
+      - name: E2E groundoverlay
+        if: needs.detect-changes.outputs.groundoverlay == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:groundoverlay
+
+      - name: E2E markerclusterer
+        if: needs.detect-changes.outputs.markerclusterer == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:cluster
+
+      - name: E2E geojson
+        if: needs.detect-changes.outputs.geojson == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:geojson
+
+      - name: E2E gpx
+        if: needs.detect-changes.outputs.gpx == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:gpx
+
+      - name: E2E kmz
+        if: needs.detect-changes.outputs.kmz == 'true'
+        run: pnpm -C packages/react-naver-maps-kit e2e:kmz
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            packages/react-naver-maps-kit/playwright-report
+            packages/react-naver-maps-kit/test-results
+          retention-days: 14
+
+  no-api-changes:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.any_changed != 'true'
+    steps:
+      - name: Skip
+        run: echo "No API runtime source changes detected. E2E tests are skipped."
