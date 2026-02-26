@@ -1,8 +1,22 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-import { BUSAN_CENTER, DEFAULT_CENTER } from "./app/constants";
+import { BUSAN_CENTER, DEFAULT_CENTER, JEJU_CENTER } from "./app/constants";
 
 const MAP_LOAD_TIMEOUT = 20_000;
+
+async function readEventLog(page: Page): Promise<string[]> {
+  const logText = await page.getByTestId("event-log").textContent();
+  if (!logText) {
+    return [];
+  }
+
+  return JSON.parse(logText) as string[];
+}
+
+async function readRefState(page: Page) {
+  await page.getByTestId("btn-read-state").click();
+  await page.waitForTimeout(400);
+}
 
 /* ─── 1. 로딩 / 생성 / 정리 (스모크) ─── */
 
@@ -352,10 +366,78 @@ test.describe("6. 핵심 이벤트 흐름", () => {
     await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
     await page.waitForTimeout(1000);
 
-    const logText = await page.getByTestId("event-log").textContent();
-    const log: string[] = JSON.parse(logText!);
+    const log = await readEventLog(page);
 
     expect(log).toContain("click");
+  });
+
+  test("버튼 트리거로 onDblClick이 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-dblclick").click();
+
+    await expect
+      .poll(async () => (await readEventLog(page)).includes("dblclick"))
+      .toBe(true);
+  });
+
+  test("버튼 트리거로 onRightClick이 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-rightclick").click();
+
+    await expect
+      .poll(async () => (await readEventLog(page)).includes("rightclick"))
+      .toBe(true);
+  });
+
+  test("버튼 트리거로 onMouseDown → onMouseUp 순서가 보장된다", async ({ page }) => {
+    await page.getByTestId("trigger-mousedown").click();
+    await page.getByTestId("trigger-mouseup").click();
+
+    await expect
+      .poll(async () => {
+        const log = await readEventLog(page);
+        const mouseDownIdx = log.indexOf("mousedown");
+        const mouseUpIdx = log.indexOf("mouseup");
+        return mouseDownIdx >= 0 && mouseUpIdx >= 0 && mouseDownIdx < mouseUpIdx;
+      })
+      .toBe(true);
+  });
+
+  test("버튼 트리거로 onTouchStart/onTouchEnd가 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-touchstart").click();
+    await page.getByTestId("trigger-touchend").click();
+
+    await expect
+      .poll(async () => {
+        const log = await readEventLog(page);
+        return log.includes("touchstart") && log.includes("touchend");
+      })
+      .toBe(true);
+  });
+
+  test("버튼 트리거로 onWheel이 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-wheel").click();
+
+    await expect
+      .poll(async () => (await readEventLog(page)).includes("wheel"))
+      .toBe(true);
+  });
+
+  test("setMapTypeId 동작 시 onMapTypeIdChanged가 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-set-map-type-satellite").click();
+
+    await expect
+      .poll(async () => {
+        const log = await readEventLog(page);
+        return log.some((entry) => entry === "maptypeidchanged:satellite");
+      })
+      .toBe(true);
+  });
+
+  test("setCenter 동작 시 onCenterPointChanged가 호출된다", async ({ page }) => {
+    await page.getByTestId("trigger-set-center-busan").click();
+
+    await expect
+      .poll(async () => (await readEventLog(page)).includes("centerpointchanged"))
+      .toBe(true);
   });
 
   test("드래그 시 onDragStart → onDragEnd 순서가 보장된다", async ({ page }) => {
@@ -372,8 +454,7 @@ test.describe("6. 핵심 이벤트 흐름", () => {
     await page.mouse.up();
     await page.waitForTimeout(1500);
 
-    const logText = await page.getByTestId("event-log").textContent();
-    const log: string[] = JSON.parse(logText!);
+    const log = await readEventLog(page);
 
     expect(log).toContain("dragstart");
     expect(log).toContain("dragend");
@@ -392,8 +473,7 @@ test.describe("6. 핵심 이벤트 흐름", () => {
     await page.mouse.wheel(0, -300);
     await page.waitForTimeout(2000);
 
-    const logText = await page.getByTestId("event-log").textContent();
-    const log: string[] = JSON.parse(logText!);
+    const log = await readEventLog(page);
 
     expect(log).toContain("zoomstart");
     expect(log).toContain("zoomchanged");
@@ -417,8 +497,7 @@ test.describe("6. 핵심 이벤트 흐름", () => {
     await page.mouse.up();
     await page.waitForTimeout(2000);
 
-    const logText = await page.getByTestId("event-log").textContent();
-    const log: string[] = JSON.parse(logText!);
+    const log = await readEventLog(page);
 
     expect(log).toContain("idle");
   });
@@ -437,8 +516,7 @@ test.describe("6. 핵심 이벤트 흐름", () => {
     await page.mouse.up();
     await page.waitForTimeout(2000);
 
-    const logText = await page.getByTestId("event-log").textContent();
-    const log: string[] = JSON.parse(logText!);
+    const log = await readEventLog(page);
 
     expect(log).toContain("boundschanged");
     expect(log).toContain("centerchanged");
@@ -458,8 +536,7 @@ test.describe("7. Ref 기반 imperative 동작", () => {
     await page.getByTestId("btn-pan-to").click();
     await page.waitForTimeout(2000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const centerText = await page.getByTestId("ref-center").textContent();
     expect(centerText).toBeTruthy();
@@ -473,8 +550,7 @@ test.describe("7. Ref 기반 imperative 동작", () => {
     await page.getByTestId("btn-fit-bounds").click();
     await page.waitForTimeout(2000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const boundsText = await page.getByTestId("ref-bounds").textContent();
     expect(boundsText).toBeTruthy();
@@ -490,46 +566,40 @@ test.describe("7. Ref 기반 imperative 동작", () => {
     await page.getByTestId("btn-set-zoom-15").click();
     await page.waitForTimeout(1000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const zoomText = await page.getByTestId("ref-zoom").textContent();
     expect(Number(zoomText)).toBe(15);
   });
 
   test("ref.zoomBy(+2) → 줌이 2 증가한다", async ({ page }) => {
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
     const initialZoom = Number(await page.getByTestId("ref-zoom").textContent());
 
     await page.getByTestId("btn-zoom-by-2").click();
     await page.waitForTimeout(1000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const newZoom = Number(await page.getByTestId("ref-zoom").textContent());
     expect(newZoom).toBe(initialZoom + 2);
   });
 
   test("ref.zoomBy(-1) → 줌이 1 감소한다", async ({ page }) => {
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
     const initialZoom = Number(await page.getByTestId("ref-zoom").textContent());
 
     await page.getByTestId("btn-zoom-by-minus-1").click();
     await page.waitForTimeout(1000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const newZoom = Number(await page.getByTestId("ref-zoom").textContent());
     expect(newZoom).toBe(initialZoom - 1);
   });
 
   test("ref.setOptions({ draggable: false }) → 드래그가 즉시 비활성화된다", async ({ page }) => {
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
     const beforeCenter = await page.getByTestId("ref-center").textContent();
 
     await page.getByTestId("btn-set-options-no-drag").click();
@@ -548,16 +618,106 @@ test.describe("7. Ref 기반 imperative 동작", () => {
     await page.mouse.up();
     await page.waitForTimeout(1000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
     const afterCenter = await page.getByTestId("ref-center").textContent();
 
     expect(afterCenter).toBe(beforeCenter);
   });
 
+  test("ref.setCenter() → 센터가 제주로 변경된다", async ({ page }) => {
+    await page.getByTestId("btn-set-center-jeju").click();
+
+    await expect
+      .poll(async () => {
+        await readRefState(page);
+        const centerText = await page.getByTestId("ref-center").textContent();
+        if (!centerText) {
+          return false;
+        }
+
+        const center = JSON.parse(centerText) as { lat: number; lng: number };
+        return (
+          Math.abs(center.lat - JEJU_CENTER.lat) < 0.2 &&
+          Math.abs(center.lng - JEJU_CENTER.lng) < 0.2
+        );
+      })
+      .toBe(true);
+  });
+
+  test("ref.panBy() → 센터가 이동한다", async ({ page }) => {
+    await readRefState(page);
+    const beforeCenterText = await page.getByTestId("ref-center").textContent();
+    expect(beforeCenterText).toBeTruthy();
+
+    await page.getByTestId("btn-pan-by-right").click();
+
+    await expect
+      .poll(async () => {
+        await readRefState(page);
+        const afterCenterText = await page.getByTestId("ref-center").textContent();
+        return afterCenterText !== beforeCenterText;
+      })
+      .toBe(true);
+  });
+
+  test("ref.setMapTypeId/getMapTypeId → terrain으로 변경된다", async ({ page }) => {
+    await page.getByTestId("btn-set-map-type-terrain").click();
+
+    await expect
+      .poll(async () => {
+        await readRefState(page);
+        return await page.getByTestId("ref-map-type-id").textContent();
+      })
+      .toBe("terrain");
+  });
+
+  test("ref.setOptions/getMinZoom/getMaxZoom/getOptions가 반영된다", async ({ page }) => {
+    await page.getByTestId("btn-set-options-zoom-range").click();
+
+    await expect
+      .poll(async () => {
+        await readRefState(page);
+        const minZoomText = await page.getByTestId("ref-min-zoom").textContent();
+        const maxZoomText = await page.getByTestId("ref-max-zoom").textContent();
+        const zoomControlText = await page.getByTestId("ref-zoom-control").textContent();
+        return minZoomText === "6" && maxZoomText === "17" && zoomControlText === "false";
+      })
+      .toBe(true);
+  });
+
+  test("ref.setSize/getSize가 반영된다", async ({ page }) => {
+    await page.getByTestId("btn-set-size-640x360").click();
+
+    await expect
+      .poll(async () => {
+        await readRefState(page);
+        const sizeText = await page.getByTestId("ref-size").textContent();
+        if (!sizeText) {
+          return false;
+        }
+
+        const size = JSON.parse(sizeText) as { width: number; height: number };
+        return size.width === 640 && size.height === 360;
+      })
+      .toBe(true);
+  });
+
+  test("ref.getElement/getPanes/getProjection/getCenterPoint 결과가 존재한다", async ({ page }) => {
+    await readRefState(page);
+
+    await expect(page.getByTestId("ref-element-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-panes-exists")).toHaveText("true");
+    await expect(page.getByTestId("ref-projection-exists")).toHaveText("true");
+
+    const centerPointText = await page.getByTestId("ref-center-point").textContent();
+    expect(centerPointText).toBeTruthy();
+    const centerPoint = JSON.parse(centerPointText!) as { x: number; y: number };
+    expect(typeof centerPoint.x).toBe("number");
+    expect(typeof centerPoint.y).toBe("number");
+  });
+
   test("ref.getCenter/getZoom/getBounds → 반환값이 합리적이다", async ({ page }) => {
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const centerText = await page.getByTestId("ref-center").textContent();
     expect(centerText).toBeTruthy();
@@ -578,8 +738,7 @@ test.describe("7. Ref 기반 imperative 동작", () => {
     await page.getByTestId("btn-set-zoom-15").click();
     await page.waitForTimeout(1000);
 
-    await page.getByTestId("btn-read-state").click();
-    await page.waitForTimeout(500);
+    await readRefState(page);
 
     const newZoomText = await page.getByTestId("ref-zoom").textContent();
     expect(Number(newZoomText)).toBe(15);

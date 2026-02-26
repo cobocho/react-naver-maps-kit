@@ -1,6 +1,7 @@
 import React, { useRef, useState, useCallback } from "react";
 import { NaverMapProvider, NaverMap, type NaverMapRef } from "react-naver-maps-kit";
-import { DEFAULT_CENTER, TARGET_POSITION, BUSAN_CENTER, JEJU_CENTER, NCP_KEY_ID } from "../constants";
+
+import { DEFAULT_CENTER, BUSAN_CENTER, JEJU_CENTER, NCP_KEY_ID } from "../constants";
 
 function ScenarioLayout({
   buttons,
@@ -315,10 +316,51 @@ function EventFlowPage() {
     setEventLog((prev) => [...prev, event]);
   }, []);
 
+  const triggerEvent = useCallback((eventName: string) => {
+    const map = mapRef.current?.getInstance();
+
+    if (!map) {
+      return;
+    }
+
+    naver.maps.Event.trigger(map, eventName, {});
+  }, []);
+
   return (
     <ScenarioLayout
       buttons={
-        <button data-testid="clear-log" onClick={() => setEventLog([])}>로그 비우기</button>
+        <>
+          <button data-testid="clear-log" onClick={() => setEventLog([])}>
+            로그 비우기
+          </button>
+          <button data-testid="trigger-dblclick" onClick={() => triggerEvent("dblclick")}>
+            dblclick 트리거
+          </button>
+          <button data-testid="trigger-rightclick" onClick={() => triggerEvent("rightclick")}>
+            rightclick 트리거
+          </button>
+          <button data-testid="trigger-mousedown" onClick={() => triggerEvent("mousedown")}>
+            mousedown 트리거
+          </button>
+          <button data-testid="trigger-mouseup" onClick={() => triggerEvent("mouseup")}>
+            mouseup 트리거
+          </button>
+          <button data-testid="trigger-touchstart" onClick={() => triggerEvent("touchstart")}>
+            touchstart 트리거
+          </button>
+          <button data-testid="trigger-touchend" onClick={() => triggerEvent("touchend")}>
+            touchend 트리거
+          </button>
+          <button data-testid="trigger-wheel" onClick={() => triggerEvent("wheel")}>
+            wheel 트리거
+          </button>
+          <button data-testid="trigger-set-map-type-satellite" onClick={() => mapRef.current?.setMapTypeId("satellite")}>
+            mapType satellite
+          </button>
+          <button data-testid="trigger-set-center-busan" onClick={() => mapRef.current?.setCenter(BUSAN_CENTER)}>
+            center 부산
+          </button>
+        </>
       }
       logs={
         <>
@@ -337,6 +379,13 @@ function EventFlowPage() {
             style={{ width: "100%", height: 500 }}
             onMapReady={() => setMapReady(true)}
             onClick={() => log("click")}
+            onDblClick={() => log("dblclick")}
+            onRightClick={() => log("rightclick")}
+            onMouseDown={() => log("mousedown")}
+            onMouseUp={() => log("mouseup")}
+            onTouchStart={() => log("touchstart")}
+            onTouchEnd={() => log("touchend")}
+            onWheel={() => log("wheel")}
             onDragStart={() => log("dragstart")}
             onDrag={() => log("drag")}
             onDragEnd={() => log("dragend")}
@@ -345,6 +394,8 @@ function EventFlowPage() {
             onIdle={() => log("idle")}
             onBoundsChanged={() => log("boundschanged")}
             onCenterChanged={() => log("centerchanged")}
+            onCenterPointChanged={() => log("centerpointchanged")}
+            onMapTypeIdChanged={(mapTypeId) => log(`maptypeidchanged:${mapTypeId}`)}
           />
         </NaverMapProvider>
       }
@@ -360,11 +411,30 @@ function RefImperativePage() {
   const [center, setCenter] = useState("");
   const [zoom, setZoom] = useState("");
   const [bounds, setBounds] = useState("");
+  const [mapTypeId, setMapTypeId] = useState("");
+  const [minZoom, setMinZoom] = useState("");
+  const [maxZoom, setMaxZoom] = useState("");
+  const [size, setSize] = useState("");
+  const [centerPoint, setCenterPoint] = useState("");
+  const [zoomControl, setZoomControl] = useState("");
+  const [elementExists, setElementExists] = useState("");
+  const [panesExists, setPanesExists] = useState("");
+  const [projectionExists, setProjectionExists] = useState("");
 
   const readState = useCallback(() => {
     const c = mapRef.current?.getCenter();
     const z = mapRef.current?.getZoom();
     const b = mapRef.current?.getBounds();
+    const currentMapTypeId = mapRef.current?.getMapTypeId();
+    const currentMinZoom = mapRef.current?.getMinZoom();
+    const currentMaxZoom = mapRef.current?.getMaxZoom();
+    const currentCenterPoint = mapRef.current?.getCenterPoint();
+    const currentSize = mapRef.current?.getSize();
+    const currentZoomControl = mapRef.current?.getOptions("zoomControl");
+    const currentElement = mapRef.current?.getElement();
+    const currentPanes = mapRef.current?.getPanes();
+    const currentProjection = mapRef.current?.getProjection();
+
     if (c) setCenter(JSON.stringify({ lat: c.y, lng: c.x }));
     if (z !== undefined) setZoom(String(z));
     if (b) {
@@ -372,6 +442,36 @@ function RefImperativePage() {
       const sw = (b as naver.maps.LatLngBounds).getSW();
       setBounds(JSON.stringify({ ne: { lat: ne.y, lng: ne.x }, sw: { lat: sw.y, lng: sw.x } }));
     }
+
+    if (currentMapTypeId) setMapTypeId(String(currentMapTypeId));
+    if (currentMinZoom !== undefined) setMinZoom(String(currentMinZoom));
+    if (currentMaxZoom !== undefined) setMaxZoom(String(currentMaxZoom));
+
+    if (currentCenterPoint) {
+      const pointValue = currentCenterPoint as unknown as { x?: number; y?: number };
+      if (typeof pointValue.x === "number" && typeof pointValue.y === "number") {
+        setCenterPoint(JSON.stringify({ x: pointValue.x, y: pointValue.y }));
+      }
+    }
+
+    if (currentSize) {
+      const sizeValue = currentSize as unknown as {
+        width?: number;
+        height?: number;
+        x?: number;
+        y?: number;
+      };
+      const width = sizeValue.width ?? sizeValue.x;
+      const height = sizeValue.height ?? sizeValue.y;
+      if (typeof width === "number" && typeof height === "number") {
+        setSize(JSON.stringify({ width, height }));
+      }
+    }
+
+    setZoomControl(String(currentZoomControl));
+    setElementExists(String(Boolean(currentElement)));
+    setPanesExists(String(Boolean(currentPanes)));
+    setProjectionExists(String(Boolean(currentProjection)));
   }, []);
 
   return (
@@ -379,6 +479,7 @@ function RefImperativePage() {
       buttons={
         <>
           <button data-testid="btn-pan-to" onClick={() => mapRef.current?.panTo(BUSAN_CENTER)}>부산으로 팬</button>
+          <button data-testid="btn-set-center-jeju" onClick={() => mapRef.current?.setCenter(JEJU_CENTER)}>제주로 중심 설정</button>
           <button data-testid="btn-fit-bounds" onClick={() => {
             const sw = { lat: 33.0, lng: 125.0 };
             const ne = { lat: 38.0, lng: 132.0 };
@@ -387,10 +488,28 @@ function RefImperativePage() {
               new naver.maps.LatLng(ne.lat, ne.lng)
             ));
           }}>대한민국 범위 맞춤</button>
+          <button
+            data-testid="btn-pan-by-right"
+            onClick={() => mapRef.current?.panBy(new naver.maps.Point(120, 0))}
+          >
+            우측으로 panBy
+          </button>
           <button data-testid="btn-set-zoom-15" onClick={() => mapRef.current?.setZoom(15)}>줌 15로 설정</button>
           <button data-testid="btn-zoom-by-2" onClick={() => mapRef.current?.zoomBy(2)}>줌 +2</button>
           <button data-testid="btn-zoom-by-minus-1" onClick={() => mapRef.current?.zoomBy(-1)}>줌 -1</button>
           <button data-testid="btn-set-options-no-drag" onClick={() => mapRef.current?.setOptions({ draggable: false })}>드래그 비활성화</button>
+          <button data-testid="btn-set-options-zoom-range" onClick={() => mapRef.current?.setOptions({
+            minZoom: 6,
+            maxZoom: 17,
+            zoomControl: false
+          })}>줌 범위/컨트롤 옵션 설정</button>
+          <button data-testid="btn-set-map-type-terrain" onClick={() => mapRef.current?.setMapTypeId("terrain")}>terrain 설정</button>
+          <button
+            data-testid="btn-set-size-640x360"
+            onClick={() => mapRef.current?.setSize(new naver.maps.Size(640, 360))}
+          >
+            size 640x360
+          </button>
           <button data-testid="btn-read-state" onClick={readState}>상태 읽기</button>
         </>
       }
@@ -400,6 +519,15 @@ function RefImperativePage() {
           <span data-testid="ref-center">{center}</span>
           <span data-testid="ref-zoom">{zoom}</span>
           <span data-testid="ref-bounds">{bounds}</span>
+          <span data-testid="ref-map-type-id">{mapTypeId}</span>
+          <span data-testid="ref-min-zoom">{minZoom}</span>
+          <span data-testid="ref-max-zoom">{maxZoom}</span>
+          <span data-testid="ref-size">{size}</span>
+          <span data-testid="ref-center-point">{centerPoint}</span>
+          <span data-testid="ref-zoom-control">{zoomControl}</span>
+          <span data-testid="ref-element-exists">{elementExists}</span>
+          <span data-testid="ref-panes-exists">{panesExists}</span>
+          <span data-testid="ref-projection-exists">{projectionExists}</span>
         </>
       }
       map={
