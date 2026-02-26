@@ -10,8 +10,8 @@ import {
   useState
 } from "react";
 
-import { NaverMapContext } from "../provider/NaverMapProvider";
 import { MapInstanceContext, type MapInstanceContextValue } from "../context/MapInstanceContext";
+import { NaverMapContext } from "../provider/NaverMapProvider";
 
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
@@ -762,7 +762,9 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
   const mapInstanceContextValue = useMemo<MapInstanceContextValue>(
     () => ({
       instance: localMapInstance,
-      setInstance: setLocalMapInstance as (instance: naver.maps.Map | naver.maps.Panorama | null) => void,
+      setInstance: setLocalMapInstance as (
+        instance: naver.maps.Map | naver.maps.Panorama | null
+      ) => void,
       type: "map"
     }),
     [localMapInstance]

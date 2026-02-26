@@ -1,8 +1,8 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 
-import { useNaverMap } from "../../react/hooks/useNaverMap";
 import { useMapInstance } from "../../react/context/MapInstanceContext";
+import { useNaverMap } from "../../react/hooks/useNaverMap";
 
 import type { ReactNode, ReactPortal } from "react";
 
@@ -549,13 +549,6 @@ export const InfoWindow = forwardRef<InfoWindowRef, InfoWindowProps>(
         infoWindowEventListenersRef,
         buildInfoWindowEventBindings(props)
       );
-
-      return () => {
-        if (infoWindowEventListenersRef.current.length > 0) {
-          naver.maps.Event.removeListener(infoWindowEventListenersRef.current);
-          infoWindowEventListenersRef.current = [];
-        }
-      };
     }, [props]);
 
     useEffect(() => {
