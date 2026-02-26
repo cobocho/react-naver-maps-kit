@@ -1,15 +1,35 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 
-import { mapRoutes } from "./pages/MapTestApp";
-import { markerRoutes } from "./pages/MarkerTestApp";
+import { circleRoutes } from "./pages/CircleTestApp";
+import { ellipseRoutes } from "./pages/EllipseTestApp";
+import { geoJsonRoutes } from "./pages/GeoJsonTestApp";
+import { gpxRoutes } from "./pages/GpxTestApp";
+import { groundOverlayRoutes } from "./pages/GroundOverlayTestApp";
 import { infoWindowRoutes } from "./pages/InfoWindowTestApp";
+import { kmzRoutes } from "./pages/KmzTestApp";
+import { mapRoutes } from "./pages/MapTestApp";
+import { markerClustererRoutes } from "./pages/MarkerClustererTestApp";
+import { markerRoutes } from "./pages/MarkerTestApp";
+import { panoramaRoutes } from "./pages/PanoramaTestApp";
+import { polygonRoutes } from "./pages/PolygonTestApp";
+import { rectangleRoutes } from "./pages/RectangleTestApp";
 import "./styles.css";
 
 const routes: Record<string, React.FC> = {
   ...mapRoutes,
   ...markerRoutes,
+  ...markerClustererRoutes,
+  ...panoramaRoutes,
   ...infoWindowRoutes,
+  ...kmzRoutes,
+  ...circleRoutes,
+  ...ellipseRoutes,
+  ...geoJsonRoutes,
+  ...gpxRoutes,
+  ...groundOverlayRoutes,
+  ...polygonRoutes,
+  ...rectangleRoutes,
 };
 
 function App() {
