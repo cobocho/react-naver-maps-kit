@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { NaverMap, Rectangle } from "react-naver-maps-kit";
 
@@ -6,7 +7,7 @@ import { EventLog } from "../EventLog.tsx";
 
 const DEFAULT_CENTER = { lat: 37.5666102, lng: 126.9783881 };
 
-export function RectangleDemo() {
+function RectangleDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [spread, setSpread] = useState(0.005);
@@ -120,3 +121,5 @@ export function RectangleDemo() {
     </>
   );
 }
+
+export const RectangleDemo = withDemoNaverMapProvider(RectangleDemoBase);

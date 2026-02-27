@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { InfoWindow, Marker, NaverMap } from "react-naver-maps-kit";
 
@@ -6,7 +7,7 @@ import { EventLog } from "../EventLog.tsx";
 
 const DEFAULT_POS = { lat: 37.5666102, lng: 126.9783881 };
 
-export function InfoWindowDemo() {
+function InfoWindowDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [visible, setVisible] = useState(true);
@@ -132,3 +133,5 @@ export function InfoWindowDemo() {
     </>
   );
 }
+
+export const InfoWindowDemo = withDemoNaverMapProvider(InfoWindowDemoBase);

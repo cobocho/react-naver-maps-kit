@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useRef, useState } from "react";
 import { Marker, NaverMap } from "react-naver-maps-kit";
 import type { MarkerRef } from "react-naver-maps-kit";
@@ -321,7 +322,7 @@ function CustomMarkerIcon({ style, label }: { style: MarkerStyle; label: string 
   }
 }
 
-export function MarkerDemo() {
+function MarkerDemoBase() {
   const { entries, log, clear } = useEventLog();
   const markerRef = useRef<MarkerRef>(null);
 
@@ -694,3 +695,5 @@ export function MarkerDemo() {
     </>
   );
 }
+
+export const MarkerDemo = withDemoNaverMapProvider(MarkerDemoBase);

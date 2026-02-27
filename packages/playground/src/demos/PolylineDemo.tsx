@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { NaverMap, Polyline } from "react-naver-maps-kit";
 
@@ -33,7 +34,7 @@ const ROUTES = {
 
 type RouteKey = keyof typeof ROUTES;
 
-export function PolylineDemo() {
+function PolylineDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [route, setRoute] = useState<RouteKey>("zigzag");
@@ -149,3 +150,5 @@ export function PolylineDemo() {
     </>
   );
 }
+
+export const PolylineDemo = withDemoNaverMapProvider(PolylineDemoBase);

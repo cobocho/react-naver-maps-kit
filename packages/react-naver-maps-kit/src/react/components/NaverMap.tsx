@@ -167,6 +167,9 @@ export interface NaverMapRef {
 
 /* ─── 상수 ─── */
 
+const GL_CREATION_AVAILABLE_KEY = "__reactNaverMapsKitGlCreationAvailable";
+const GL_FALLBACK_WARNED_KEY = "__reactNaverMapsKitGlFallbackWarned";
+
 const MAP_OPTION_KEYS = [
   "background",
   "baseTileOpacity",
@@ -317,6 +320,72 @@ const NON_DIV_KEYS = new Set([
 ]);
 
 /* ─── 유틸 ─── */
+
+type BrowserWindow = Window & {
+  __reactNaverMapsKitGlCreationAvailable?: boolean;
+  __reactNaverMapsKitGlFallbackWarned?: boolean;
+};
+
+function getBrowserWindow(): BrowserWindow | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window as BrowserWindow;
+}
+
+function detectWebGlSupport(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const canvas = document.createElement("canvas");
+  return Boolean(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+}
+
+function getGlobalGlCreationAvailability(): boolean | undefined {
+  const browserWindow = getBrowserWindow();
+  return browserWindow?.[GL_CREATION_AVAILABLE_KEY];
+}
+
+function setGlobalGlCreationAvailability(value: boolean): void {
+  const browserWindow = getBrowserWindow();
+  if (!browserWindow) {
+    return;
+  }
+
+  browserWindow[GL_CREATION_AVAILABLE_KEY] = value;
+}
+
+function resolveInitialGlCreationAvailability(): boolean {
+  const cached = getGlobalGlCreationAvailability();
+  if (typeof cached === "boolean") {
+    return cached;
+  }
+
+  const supported = detectWebGlSupport();
+  setGlobalGlCreationAvailability(supported);
+  return supported;
+}
+
+function warnGlFallback(cause?: unknown): void {
+  const browserWindow = getBrowserWindow();
+  if (browserWindow?.[GL_FALLBACK_WARNED_KEY]) {
+    return;
+  }
+
+  if (browserWindow) {
+    browserWindow[GL_FALLBACK_WARNED_KEY] = true;
+  }
+
+  const message =
+    "[react-naver-maps-kit] GL map is unavailable. Falling back to regular map rendering.";
+  if (cause instanceof Error) {
+    console.warn(message, cause);
+    return;
+  }
+  console.warn(message);
+}
 
 function toCenterSignature(center: MapOptions["center"] | undefined): string {
   if (!center) {
@@ -645,30 +714,75 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
       initOptions.zoom = initialZoomRef.current;
     }
 
+    const requestedGl = initOptions.gl === true;
+    let effectiveInitOptions = initOptions;
+    if (requestedGl && !resolveInitialGlCreationAvailability()) {
+      effectiveInitOptions = { ...initOptions, gl: false };
+      delete effectiveInitOptions.customStyleId;
+      warnGlFallback();
+    }
+
     let mapInstance: naver.maps.Map;
+    let appliedInitOptions = effectiveInitOptions;
     try {
-      mapInstance = new naver.maps.Map(container, initOptions);
+      mapInstance = new naver.maps.Map(container, effectiveInitOptions);
+      if (requestedGl && effectiveInitOptions.gl) {
+        setGlobalGlCreationAvailability(true);
+      }
     } catch (error) {
       const normalizedError =
         error instanceof Error ? error : new Error("Failed to create naver.maps.Map instance.");
-      propsRef.current.onMapError?.(normalizedError);
 
-      if (propsRef.current.retryOnError) {
-        retryTimerRef.current = setTimeout(() => {
-          void reloadSdk().catch(() => undefined);
-        }, propsRef.current.retryDelayMs ?? 1000);
-      }
+      if (requestedGl) {
+        setGlobalGlCreationAvailability(false);
+        warnGlFallback(normalizedError);
 
-      return () => {
-        if (retryTimerRef.current) {
-          clearTimeout(retryTimerRef.current);
-          retryTimerRef.current = null;
+        const fallbackOptions: naver.maps.MapOptions = { ...effectiveInitOptions, gl: false };
+        delete fallbackOptions.customStyleId;
+
+        try {
+          mapInstance = new naver.maps.Map(container, fallbackOptions);
+          appliedInitOptions = fallbackOptions;
+        } catch (fallbackError) {
+          const normalizedFallbackError =
+            fallbackError instanceof Error
+              ? fallbackError
+              : new Error("Failed to create naver.maps.Map instance.");
+          propsRef.current.onMapError?.(normalizedFallbackError);
+
+          if (propsRef.current.retryOnError) {
+            retryTimerRef.current = setTimeout(() => {
+              void reloadSdk().catch(() => undefined);
+            }, propsRef.current.retryDelayMs ?? 1000);
+          }
+
+          return () => {
+            if (retryTimerRef.current) {
+              clearTimeout(retryTimerRef.current);
+              retryTimerRef.current = null;
+            }
+          };
         }
-      };
+      } else {
+        propsRef.current.onMapError?.(normalizedError);
+
+        if (propsRef.current.retryOnError) {
+          retryTimerRef.current = setTimeout(() => {
+            void reloadSdk().catch(() => undefined);
+          }, propsRef.current.retryDelayMs ?? 1000);
+        }
+
+        return () => {
+          if (retryTimerRef.current) {
+            clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = null;
+          }
+        };
+      }
     }
 
     mapRef.current = mapInstance;
-    appliedOptionsRef.current = initOptions;
+    appliedOptionsRef.current = appliedInitOptions;
     setMap(mapInstance);
     setLocalMapInstance(mapInstance);
     setMapReady(true);
@@ -725,6 +839,10 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     }
 
     const changed = getChangedOptions(appliedOptionsRef.current, mapOptions);
+    if (mapOptions.gl && getGlobalGlCreationAvailability() === false) {
+      delete changed.gl;
+      delete changed.customStyleId;
+    }
     if (Object.keys(changed).length === 0) {
       appliedOptionsRef.current = mapOptions;
       return;

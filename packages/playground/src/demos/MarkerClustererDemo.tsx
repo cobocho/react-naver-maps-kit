@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useMemo, useState } from "react";
 import { Marker, MarkerClusterer, NaverMap } from "react-naver-maps-kit";
 import type { BuiltInAlgorithmConfig } from "react-naver-maps-kit";
@@ -54,7 +55,7 @@ function ClusterBadge({ count }: { count: number }) {
   );
 }
 
-export function MarkerClustererDemo() {
+function MarkerClustererDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [pointCount, setPointCount] = useState(200);
@@ -210,3 +211,5 @@ export function MarkerClustererDemo() {
     </>
   );
 }
+
+export const MarkerClustererDemo = withDemoNaverMapProvider(MarkerClustererDemoBase);

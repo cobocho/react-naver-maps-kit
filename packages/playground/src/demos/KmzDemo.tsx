@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useRef, useState, useMemo } from "react";
 import { NaverMap, Kmz } from "react-naver-maps-kit";
 import type { KmzRef } from "react-naver-maps-kit";
@@ -5,7 +6,7 @@ import type { KmzRef } from "react-naver-maps-kit";
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";
 
-export function KmzDemo() {
+function KmzDemoBase() {
   const { entries, log, clear } = useEventLog();
   const kmzRef = useRef<KmzRef>(null);
 
@@ -120,3 +121,5 @@ export function KmzDemo() {
     </>
   );
 }
+
+export const KmzDemo = withDemoNaverMapProvider(KmzDemoBase);

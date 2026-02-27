@@ -1,8 +1,12 @@
 const NAVER_MAPS_SCRIPT_BASE_URL = "https://oapi.map.naver.com/openapi/v3/maps.js";
+const NAVER_MAPS_SCRIPT_SELECTOR =
+  'script[data-react-naver-maps-kit="true"], script[src*="oapi.map.naver.com/openapi/v3/maps.js"]';
+const NAVER_MAPS_CALLBACK_NAME = "__reactNaverMapsKitOnJsContentLoaded";
+const NAVER_MAPS_JS_CONTENT_LOADED_FLAG = "__reactNaverMapsKitJsContentLoaded";
 
 type LegacyClientIdParam = "ncpClientId" | "govClientId" | "finClientId";
 
-type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+type Submodule = "geocoder" | "panorama" | "drawing" | "visualization" | "gl";
 
 export interface LoadNaverMapsScriptOptions {
   ncpKeyId?: string;
@@ -19,10 +23,53 @@ type BrowserWindow = Window & {
     maps?: unknown;
   };
   navermap_authFailure?: () => void;
+  __reactNaverMapsKitOnJsContentLoaded?: () => void;
+  __reactNaverMapsKitJsContentLoaded?: boolean;
 };
 
 let inFlightLoad: Promise<void> | null = null;
 let inFlightScriptUrl: string | null = null;
+
+function getNaverMapsScripts(): HTMLScriptElement[] {
+  if (typeof document === "undefined") {
+    return [];
+  }
+
+  return Array.from(document.querySelectorAll<HTMLScriptElement>(NAVER_MAPS_SCRIPT_SELECTOR));
+}
+
+function setJsContentLoadedFlag(value: boolean): void {
+  const browserWindow = window as BrowserWindow;
+  browserWindow[NAVER_MAPS_JS_CONTENT_LOADED_FLAG] = value;
+}
+
+function isJsContentLoaded(): boolean {
+  const browserWindow = window as BrowserWindow;
+  return Boolean(browserWindow[NAVER_MAPS_JS_CONTENT_LOADED_FLAG]);
+}
+
+function ensureJsContentLoadedCallback(): void {
+  const browserWindow = window as BrowserWindow;
+  browserWindow[NAVER_MAPS_CALLBACK_NAME] = () => {
+    setJsContentLoadedFlag(true);
+  };
+}
+
+function resetNaverMapsRuntime(): void {
+  const scripts = getNaverMapsScripts();
+  scripts.forEach((script) => script.remove());
+
+  const browserWindow = window as BrowserWindow;
+  browserWindow.naver = undefined;
+
+  try {
+    delete (browserWindow as BrowserWindow & { naver?: unknown }).naver;
+  } catch {
+    // ignore delete failure
+  }
+
+  setJsContentLoadedFlag(false);
+}
 
 function getClientKey(options: LoadNaverMapsScriptOptions): { param: string; value: string } {
   if (options.ncpKeyId) {
@@ -59,14 +106,25 @@ function isNaverMapsReady(submodules?: Array<Submodule>): boolean {
   }
 
   if (submodules && submodules.length > 0) {
+    if (!isJsContentLoaded()) {
+      return false;
+    }
+
     const submoduleMap: Record<Submodule, string> = {
       panorama: "Panorama",
       geocoder: "Service",
       drawing: "drawing",
-      visualization: "visualization"
+      visualization: "visualization",
+      gl: "gl"
     };
 
     for (const submodule of submodules) {
+      // GL 모듈은 naver.maps.gl 객체 노출 시점이 환경에 따라 달라질 수 있어
+      // SDK 루트 객체 준비 여부만 확인하고 상세 키 체크는 생략한다.
+      if (submodule === "gl") {
+        continue;
+      }
+
       const key = submoduleMap[submodule];
       if (!maps[key]) {
         return false;
@@ -85,7 +143,19 @@ function createScriptUrl(options: LoadNaverMapsScriptOptions): string {
     queryParts.push(`submodules=${options.submodules.join(",")}`);
   }
 
+  queryParts.push(`callback=${NAVER_MAPS_CALLBACK_NAME}`);
+
   return `${NAVER_MAPS_SCRIPT_BASE_URL}?${queryParts.join("&")}`;
+}
+
+function validateSubmodules(submodules?: Array<Submodule>): void {
+  if (!submodules || submodules.length <= 1) {
+    return;
+  }
+
+  if (submodules.includes("gl")) {
+    throw new Error("The 'gl' submodule cannot be loaded with other submodules.");
+  }
 }
 
 function waitForNaverMapsReady(timeoutMs: number, submodules?: Array<Submodule>): Promise<void> {
@@ -135,14 +205,31 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
     return Promise.reject(new Error("loadNaverMapsScript can only run in a browser environment."));
   }
 
-  if (isNaverMapsReady(options.submodules)) {
-    return Promise.resolve();
-  }
-
+  validateSubmodules(options.submodules);
+  ensureJsContentLoadedCallback();
   const scriptUrl = createScriptUrl(options);
+
+  if (inFlightLoad && inFlightScriptUrl && inFlightScriptUrl !== scriptUrl) {
+    return inFlightLoad
+      .catch(() => undefined)
+      .then(() => loadNaverMapsScript(options));
+  }
 
   if (inFlightLoad && inFlightScriptUrl === scriptUrl) {
     return inFlightLoad;
+  }
+
+  const existingScripts = getNaverMapsScripts();
+  const hasDifferentScript = existingScripts.some((script) => script.src !== scriptUrl);
+
+  if (hasDifferentScript) {
+    resetNaverMapsRuntime();
+    inFlightLoad = null;
+    inFlightScriptUrl = null;
+  }
+
+  if (isNaverMapsReady(options.submodules)) {
+    return Promise.resolve();
   }
 
   const existingScript = document.querySelector<HTMLScriptElement>(`script[src="${scriptUrl}"]`);
@@ -211,6 +298,7 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
   const trackedPromise = new Promise<void>((resolve, reject) => {
     const timeoutMs = options.timeoutMs ?? 10000;
     const script = document.createElement("script");
+    setJsContentLoadedFlag(false);
     const restoreAuthFailure = attachAuthFailureHandler(reject);
     const timeoutId = setTimeout(() => {
       cleanup();

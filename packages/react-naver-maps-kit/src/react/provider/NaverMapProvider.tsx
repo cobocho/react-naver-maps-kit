@@ -13,7 +13,7 @@ type BrowserWindow = Window & {
 
 export type NaverMapSdkStatus = "idle" | "loading" | "ready" | "error";
 
-export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization" | "gl";
 
 export interface NaverMapContextValue {
   sdkStatus: NaverMapSdkStatus;

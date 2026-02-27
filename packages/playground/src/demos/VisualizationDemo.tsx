@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useMemo, useState } from "react";
 import { NaverMap, HeatMap, DotMap } from "react-naver-maps-kit";
 
@@ -34,7 +35,7 @@ const spectrumOptions = [
   { label: "OXYGEN", value: "OXYGEN" }
 ] as const;
 
-export function VisualizationDemo() {
+function VisualizationDemoBase() {
   const [visualizationType, setVisualizationType] = useState<"heatmap" | "dotmap">("heatmap");
   const [pointCount, setPointCount] = useState(200);
   const [radius, setRadius] = useState(20);
@@ -265,3 +266,5 @@ export function VisualizationDemo() {
     </div>
   );
 }
+
+export const VisualizationDemo = withDemoNaverMapProvider(VisualizationDemoBase);

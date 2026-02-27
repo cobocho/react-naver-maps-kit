@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { Ellipse, NaverMap } from "react-naver-maps-kit";
 
@@ -6,7 +7,7 @@ import { EventLog } from "../EventLog.tsx";
 
 const DEFAULT_CENTER = { lat: 37.5666102, lng: 126.9783881 };
 
-export function EllipseDemo() {
+function EllipseDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [boundsSpread, setBoundsSpread] = useState(0.01);
@@ -118,3 +119,5 @@ export function EllipseDemo() {
     </>
   );
 }
+
+export const EllipseDemo = withDemoNaverMapProvider(EllipseDemoBase);
