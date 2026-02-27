@@ -1,5 +1,11 @@
-import React, { useRef, useState, useCallback } from "react";
-import { NaverMapProvider, NaverMap, type NaverMapRef } from "react-naver-maps-kit";
+import React, { Suspense, useRef, useState, useCallback } from "react";
+import {
+  NaverMapProvider,
+  NaverMap,
+  NaverMapContext,
+  type NaverMapContextValue,
+  type NaverMapRef
+} from "react-naver-maps-kit";
 
 import { DEFAULT_CENTER, BUSAN_CENTER, JEJU_CENTER, NCP_KEY_ID } from "../constants";
 
@@ -142,6 +148,94 @@ function FallbackErrorPage() {
             }
           />
         </NaverMapProvider>
+      }
+    />
+  );
+}
+
+/* ─── suspense fallback priority ─── */
+
+function SuspensePriorityNaverFallbackPage() {
+  const [mapReady, setMapReady] = useState(false);
+  const pendingReload = useCallback(() => new Promise<void>(() => undefined), []);
+  const loadingContextValue = {
+    sdkStatus: "loading",
+    sdkError: null,
+    reloadSdk: pendingReload,
+    retrySdk: pendingReload,
+    clearSdkError: () => undefined,
+    submodules: [],
+    map: null,
+    setMap: () => undefined
+  } satisfies NaverMapContextValue;
+
+  return (
+    <ScenarioLayout
+      buttons={<span data-testid="scenario-name">suspense-priority-naver-fallback</span>}
+      logs={<span data-testid="map-ready">{String(mapReady)}</span>}
+      map={
+        <NaverMapContext.Provider value={loadingContextValue}>
+          <NaverMap
+            data-testid="map-container"
+            defaultCenter={DEFAULT_CENTER}
+            defaultZoom={12}
+            style={{ width: "100%", height: 500 }}
+            onMapReady={() => setMapReady(true)}
+            fallback={
+              <div
+                data-testid="naver-fallback-priority"
+                style={{ width: "100%", height: 500, background: "#e5e7eb" }}
+              >
+                NaverMap fallback
+              </div>
+            }
+          />
+        </NaverMapContext.Provider>
+      }
+    />
+  );
+}
+
+function SuspensePrioritySuspenseFallbackPage() {
+  const [mapReady, setMapReady] = useState(false);
+  const pendingReload = useCallback(() => new Promise<void>(() => undefined), []);
+  const loadingContextValue = {
+    sdkStatus: "loading",
+    sdkError: null,
+    reloadSdk: pendingReload,
+    retrySdk: pendingReload,
+    clearSdkError: () => undefined,
+    submodules: [],
+    map: null,
+    setMap: () => undefined
+  } satisfies NaverMapContextValue;
+
+  return (
+    <ScenarioLayout
+      buttons={<span data-testid="scenario-name">suspense-priority-suspense-fallback</span>}
+      logs={<span data-testid="map-ready">{String(mapReady)}</span>}
+      map={
+        <NaverMapContext.Provider value={loadingContextValue}>
+          <Suspense
+            fallback={
+              <div
+                data-testid="suspense-fallback-priority"
+                style={{ width: "100%", height: 500, background: "#dbeafe" }}
+              >
+                Suspense fallback
+              </div>
+            }
+          >
+            <NaverMap
+              suspense
+              data-testid="map-container"
+              defaultCenter={DEFAULT_CENTER}
+              defaultZoom={12}
+              style={{ width: "100%", height: 500 }}
+              onMapReady={() => setMapReady(true)}
+            />
+          </Suspense>
+        </NaverMapContext.Provider>
       }
     />
   );
@@ -645,6 +739,8 @@ function RefImperativePage() {
 export const mapRoutes: Record<string, React.FC> = {
   "/map/smoke": SmokePage,
   "/map/fallback-error": FallbackErrorPage,
+  "/map/suspense-priority/naver-fallback": SuspensePriorityNaverFallbackPage,
+  "/map/suspense-priority/suspense-fallback": SuspensePrioritySuspenseFallbackPage,
   "/map/uncontrolled": UncontrolledPage,
   "/map/controlled": ControlledPage,
   "/map/interaction-toggle": InteractionTogglePage,

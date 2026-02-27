@@ -69,6 +69,7 @@ interface NaverMapLifecycleProps {
   retryOnError?: boolean;
   retryDelayMs?: number;
   fallback?: ReactNode;
+  suspense?: boolean;
 }
 
 interface NaverMapEventProps {
@@ -309,6 +310,7 @@ const NON_DIV_KEYS = new Set([
   "retryOnError",
   "retryDelayMs",
   "fallback",
+  "suspense",
   "defaultCenter",
   "defaultZoom",
   "children"
@@ -439,7 +441,7 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
     throw new Error("NaverMap must be used inside NaverMapProvider.");
   }
 
-  const { sdkStatus, setMap, reloadSdk } = context;
+  const { sdkStatus, sdkError, setMap, reloadSdk } = context;
 
   // ─── mapReady state: children 렌더 트리거 ───
   const [mapReady, setMapReady] = useState(false);
@@ -520,8 +522,21 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
   const mapRef = useRef<naver.maps.Map | null>(null);
   const appliedOptionsRef = useRef<naver.maps.MapOptions>({});
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suspensePromiseRef = useRef<Promise<void> | null>(null);
   const mapOptionsRef = useRef(mapOptions);
   mapOptionsRef.current = mapOptions;
+
+  const createSuspenseLoadPromise = useCallback((): Promise<void> => {
+    if (!suspensePromiseRef.current) {
+      suspensePromiseRef.current = Promise.resolve()
+        .then(() => reloadSdk())
+        .finally(() => {
+          suspensePromiseRef.current = null;
+        });
+    }
+
+    return suspensePromiseRef.current;
+  }, [reloadSdk]);
 
   // ─── invokeMapMethod (안정적 ref) ───
   const invokeMapMethod = useCallback(
@@ -771,6 +786,16 @@ const NaverMapBase = forwardRef<NaverMapRef, NaverMapProps>(function NaverMapInn
   );
 
   // ─── 렌더 ───
+  if (props.suspense) {
+    if (sdkStatus === "error") {
+      throw sdkError ?? new Error("Failed to load Naver Maps SDK.");
+    }
+
+    if (sdkStatus !== "ready") {
+      throw createSuspenseLoadPromise();
+    }
+  }
+
   if (sdkStatus === "error") {
     return <>{props.fallback ?? <div {...divProps}>지도를 불러올 수 없습니다.</div>}</>;
   }

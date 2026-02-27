@@ -1,8 +1,13 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import { Suspense } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useNaverMap } from "../hooks/useNaverMap";
-import { NaverMapProvider } from "../provider/NaverMapProvider";
+import {
+  NaverMapContext,
+  NaverMapProvider,
+  type NaverMapContextValue
+} from "../provider/NaverMapProvider";
 
 import { NaverMap } from "./NaverMap";
 
@@ -23,6 +28,24 @@ function createMockMapInstance(): MockMapInstance {
     setMapTypeId: vi.fn(),
     setOptions: vi.fn(),
     setZoom: vi.fn()
+  };
+}
+
+function createMockContextValue(
+  overrides: Partial<NaverMapContextValue> = {}
+): NaverMapContextValue {
+  const reloadSdk = overrides.reloadSdk ?? vi.fn(async () => undefined);
+
+  return {
+    sdkStatus: "ready",
+    sdkError: null,
+    reloadSdk,
+    retrySdk: overrides.retrySdk ?? reloadSdk,
+    clearSdkError: vi.fn(),
+    submodules: [],
+    map: null,
+    setMap: vi.fn(),
+    ...overrides
   };
 }
 
@@ -142,6 +165,73 @@ describe("NaverMap + Provider + Hook integration", () => {
 
     expect(mapConstructorMock).toHaveBeenCalledTimes(1);
     expect(createdMap.setCenter).not.toHaveBeenCalled();
+  });
+
+  it("suspends when suspense is enabled and sdk is not ready", async () => {
+    const reloadSdk = vi.fn(() => new Promise<void>(() => undefined));
+
+    render(
+      <NaverMapContext.Provider
+        value={createMockContextValue({
+          sdkStatus: "idle",
+          sdkError: null,
+          reloadSdk
+        })}
+      >
+        <Suspense fallback={<div data-testid="suspense-fallback">loading</div>}>
+          <NaverMap suspense style={{ height: 100, width: 100 }} />
+        </Suspense>
+      </NaverMapContext.Provider>
+    );
+
+    expect(screen.getByTestId("suspense-fallback")).toBeTruthy();
+
+    await waitFor(() => {
+      expect(reloadSdk).toHaveBeenCalled();
+    });
+  });
+
+  it("throws sdkError when suspense is enabled and sdkStatus is error", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const sdkError = new Error("suspense failed");
+
+    expect(() =>
+      render(
+        <NaverMapContext.Provider
+          value={createMockContextValue({
+            sdkStatus: "error",
+            sdkError
+          })}
+        >
+          <NaverMap suspense style={{ height: 100, width: 100 }} />
+        </NaverMapContext.Provider>
+      )
+    ).toThrow("suspense failed");
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("keeps fallback rendering when suspense is disabled", () => {
+    const reloadSdk = vi.fn(() => Promise.resolve());
+
+    render(
+      <NaverMapContext.Provider
+        value={createMockContextValue({
+          sdkStatus: "loading",
+          sdkError: null,
+          reloadSdk
+        })}
+      >
+        <NaverMap
+          suspense={false}
+          fallback={<div data-testid="map-fallback">map fallback</div>}
+          style={{ height: 100, width: 100 }}
+        />
+      </NaverMapContext.Provider>
+    );
+
+    expect(screen.getByTestId("map-fallback")).toBeTruthy();
+    expect(reloadSdk).toHaveBeenCalledTimes(0);
   });
 
   it("throws clear error when useNaverMap is used outside provider", () => {

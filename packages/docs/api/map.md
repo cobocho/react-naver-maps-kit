@@ -57,6 +57,7 @@ interface NaverMapLifecycleProps {
   retryOnError?: boolean;
   retryDelayMs?: number;
   fallback?: React.ReactNode;
+  suspense?: boolean;
 }
 
 interface NaverMapEventProps {
@@ -268,6 +269,7 @@ export interface NaverMapRef {
 | `retryOnError` | `boolean`                       | 에러 시 SDK 재시도 여부         |
 | `retryDelayMs` | `number`                        | 재시도 지연(ms)                 |
 | `fallback`     | `React.ReactNode`               | SDK 로딩/에러 시 표시할 대체 UI |
+| `suspense`     | `boolean`                       | SDK 로딩을 React Suspense로 처리 |
 
 ## 지도 이벤트 프로퍼티
 
@@ -388,4 +390,5 @@ function RefExample() {
 - 언마운트 시 이벤트 리스너 정리, destroy 호출, 컨테이너 초기화까지 수행합니다.
 - `defaultCenter`/`defaultZoom`은 uncontrolled 모드로, 초기값만 설정하고 이후 내부 상태로 관리합니다.
 - `center`/`zoom`은 controlled 모드로, React 상태와 동기화합니다.
-- `fallback`은 SDK 로딩 중(`loading`) 또는 에러 발생 시(`error`) 표시됩니다.
+- `fallback`은 `suspense`가 `false`일 때 SDK 로딩 중(`loading`) 또는 에러 발생 시(`error`) 표시됩니다.
+- `suspense`가 `true`이면 SDK 준비 전에는 Promise를 throw하여 `Suspense` fallback을 사용하고, 에러 상태에서는 Error를 throw하여 Error Boundary로 위임합니다.

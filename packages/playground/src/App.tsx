@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from "re
 import { NaverMapProvider } from "react-naver-maps-kit";
 
 import { NaverMapDemo } from "./demos/NaverMapDemo.tsx";
+import { SuspenseDemo } from "./demos/SuspenseDemo.tsx";
 import { MarkerDemo } from "./demos/MarkerDemo.tsx";
 import { InfoWindowDemo } from "./demos/InfoWindowDemo.tsx";
 import { CircleDemo } from "./demos/CircleDemo.tsx";
@@ -31,6 +32,7 @@ type SidebarItem = DemoEntry | SectionEntry;
 const DEMOS: SidebarItem[] = [
   { section: "Core" },
   { id: "navermap", label: "NaverMap", component: NaverMapDemo },
+  { id: "core-suspense", label: "Suspense", component: SuspenseDemo },
   { section: "Overlays" },
   { id: "marker", label: "Marker", component: MarkerDemo },
   { id: "infowindow", label: "InfoWindow", component: InfoWindowDemo },
