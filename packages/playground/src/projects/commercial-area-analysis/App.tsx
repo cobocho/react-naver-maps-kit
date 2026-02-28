@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { NaverMap } from "react-naver-maps-kit";
+import { NaverMap, NaverMapProvider } from "react-naver-maps-kit";
 import { AreaPolygon } from "./components/AreaPolygon";
 import { InfoPanel } from "./components/InfoPanel";
 import { Legend } from "./components/Legend";
@@ -7,7 +7,11 @@ import { ControlPanel } from "./components/ControlPanel";
 import { commercialAreas, getMetricRange } from "./data/mockData";
 import type { CommercialArea, ColorMetric } from "./types";
 
-export default function CommercialAreaAnalysis() {
+type CommercialAreaAnalysisProps = {
+  ncpKeyId: string;
+};
+
+function CommercialAreaAnalysisBase() {
   const [selectedArea, setSelectedArea] = useState<CommercialArea | null>(null);
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null);
   const [colorMetric, setColorMetric] = useState<ColorMetric>("sales");
@@ -63,6 +67,14 @@ export default function CommercialAreaAnalysis() {
         <InfoPanel area={selectedArea} onClose={handleClosePanel} />
       </div>
     </div>
+  );
+}
+
+export default function CommercialAreaAnalysis({ ncpKeyId }: CommercialAreaAnalysisProps) {
+  return (
+    <NaverMapProvider ncpKeyId={ncpKeyId}>
+      <CommercialAreaAnalysisBase />
+    </NaverMapProvider>
   );
 }
 

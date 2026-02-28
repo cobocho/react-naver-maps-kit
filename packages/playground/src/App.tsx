@@ -1,7 +1,5 @@
-import { type JSX, useState, lazy, Suspense } from "react";
+import { type JSX, type ReactNode, useState, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
-import { NaverMapProvider } from "react-naver-maps-kit";
-import type { Submodule } from "react-naver-maps-kit";
 
 import { NaverMapDemo } from "./demos/NaverMapDemo.tsx";
 import { SuspenseDemo } from "./demos/SuspenseDemo.tsx";
@@ -28,15 +26,19 @@ const RealEstateExplorer = lazy(() => import("./projects/real-estate-explorer/Ap
 const CommercialAreaAnalysis = lazy(() => import("./projects/commercial-area-analysis/App.tsx"));
 
 type DemoComponentProps = { ncpKeyId: string };
+type ProjectComponentProps = { ncpKeyId: string };
 type DemoEntry = {
   id: string;
   label: string;
   component: (props: DemoComponentProps) => JSX.Element;
 };
+type ProjectEntry = {
+  id: string;
+  label: string;
+  component: (props: ProjectComponentProps) => ReactNode;
+};
 type SectionEntry = { section: string };
 type SidebarItem = DemoEntry | SectionEntry;
-
-const PROJECT_SUBMODULES: Submodule[] = ["panorama", "visualization", "drawing"];
 
 const DEMOS: SidebarItem[] = [
   { section: "Core" },
@@ -64,7 +66,7 @@ const DEMOS: SidebarItem[] = [
   { id: "gl", label: "GL", component: GlDemo }
 ];
 
-const PROJECTS = [
+const PROJECTS: ProjectEntry[] = [
   { id: "activity-tracker", label: "운동 기록 트래커", component: ActivityTracker },
   { id: "taxi-tracker", label: "실시간 택시 추적", component: TaxiTracker },
   { id: "real-estate-explorer", label: "부동산 매물 탐색", component: RealEstateExplorer },
@@ -178,7 +180,7 @@ function DemoLayout({ ncpKeyId }: DemoComponentProps) {
   );
 }
 
-function ProjectLayout({ ncpKeyId }: DemoComponentProps) {
+function ProjectLayout({ ncpKeyId }: ProjectComponentProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const ProjectComponent = getProjectComponent(projectId ?? "activity-tracker");
 
@@ -187,9 +189,7 @@ function ProjectLayout({ ncpKeyId }: DemoComponentProps) {
       <Sidebar />
       <main className="main-content project-content">
         <Suspense fallback={<div className="loading">로딩 중...</div>}>
-          <NaverMapProvider ncpKeyId={ncpKeyId} submodules={PROJECT_SUBMODULES}>
-            <ProjectComponent />
-          </NaverMapProvider>
+          <ProjectComponent ncpKeyId={ncpKeyId} />
         </Suspense>
       </main>
     </div>
