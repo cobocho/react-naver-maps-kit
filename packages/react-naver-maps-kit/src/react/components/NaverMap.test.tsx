@@ -23,6 +23,10 @@ type MockMapInstance = {
 const GL_CREATION_AVAILABLE_KEY = "__reactNaverMapsKitGlCreationAvailable";
 const GL_FALLBACK_WARNED_KEY = "__reactNaverMapsKitGlFallbackWarned";
 
+function getTestWindow(): Window & { naver?: unknown } & Record<string, unknown> {
+  return window as unknown as Window & { naver?: unknown } & Record<string, unknown>;
+}
+
 function createMockMapInstance(): MockMapInstance {
   return {
     destroy: vi.fn(),
@@ -75,12 +79,13 @@ describe("NaverMap + Provider + Hook integration", () => {
   let removeListenerMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    const testWindow = getTestWindow();
     clearInstanceListenersMock = vi.fn();
     addListenerMock = vi.fn(() => ({}));
     removeListenerMock = vi.fn();
     mapConstructorMock = vi.fn(() => createMockMapInstance());
 
-    (window as Window & { naver?: unknown }).naver = {
+    testWindow.naver = {
       maps: {
         Event: {
           addListener: addListenerMock,
@@ -93,9 +98,10 @@ describe("NaverMap + Provider + Hook integration", () => {
   });
 
   afterEach(() => {
-    delete (window as Window & { naver?: unknown }).naver;
-    delete (window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY];
-    delete (window as Window & Record<string, unknown>)[GL_FALLBACK_WARNED_KEY];
+    const testWindow = getTestWindow();
+    delete testWindow.naver;
+    delete testWindow[GL_CREATION_AVAILABLE_KEY];
+    delete testWindow[GL_FALLBACK_WARNED_KEY];
   });
 
   it("provides map instance via Provider + Map + Hook", async () => {
@@ -290,14 +296,14 @@ describe("NaverMap + Provider + Hook integration", () => {
     expect(secondOptions.gl).toBe(false);
     expect(secondOptions.customStyleId).toBeUndefined();
     expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-    expect((window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY]).toBe(false);
+    expect(getTestWindow()[GL_CREATION_AVAILABLE_KEY]).toBe(false);
 
     getContextSpy.mockRestore();
     consoleWarnSpy.mockRestore();
   });
 
   it("uses cached GL availability to render regular map without retrying GL creation", async () => {
-    (window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY] = false;
+    getTestWindow()[GL_CREATION_AVAILABLE_KEY] = false;
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     render(
