@@ -20,6 +20,9 @@ type MockMapInstance = {
   setZoom: ReturnType<typeof vi.fn>;
 };
 
+const GL_CREATION_AVAILABLE_KEY = "__reactNaverMapsKitGlCreationAvailable";
+const GL_FALLBACK_WARNED_KEY = "__reactNaverMapsKitGlFallbackWarned";
+
 function createMockMapInstance(): MockMapInstance {
   return {
     destroy: vi.fn(),
@@ -91,6 +94,8 @@ describe("NaverMap + Provider + Hook integration", () => {
 
   afterEach(() => {
     delete (window as Window & { naver?: unknown }).naver;
+    delete (window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY];
+    delete (window as Window & Record<string, unknown>)[GL_FALLBACK_WARNED_KEY];
   });
 
   it("provides map instance via Provider + Map + Hook", async () => {
@@ -242,5 +247,80 @@ describe("NaverMap + Provider + Hook integration", () => {
     );
 
     consoleErrorSpy.mockRestore();
+  });
+
+  it("falls back to regular map when GL map creation fails", async () => {
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const getContextSpy = vi
+      .spyOn(HTMLCanvasElement.prototype, "getContext")
+      .mockImplementation((contextId: string) =>
+        contextId === "webgl" || contextId === "experimental-webgl"
+          ? ({} as unknown as RenderingContext)
+          : null
+      );
+
+    mapConstructorMock.mockImplementation((_container, options: naver.maps.MapOptions) => {
+      if (options.gl) {
+        throw new Error("GL init failed");
+      }
+      return createMockMapInstance();
+    });
+
+    render(
+      <NaverMapProvider ncpKeyId="test-key" timeoutMs={1000}>
+        <NaverMap
+          gl
+          customStyleId="test-style-id"
+          defaultCenter={{ lat: 37.5, lng: 127.0 }}
+          defaultZoom={12}
+          style={{ height: 100, width: 100 }}
+        />
+      </NaverMapProvider>
+    );
+
+    await waitFor(() => {
+      expect(mapConstructorMock).toHaveBeenCalledTimes(2);
+    });
+
+    const firstOptions = mapConstructorMock.mock.calls[0]?.[1] as naver.maps.MapOptions;
+    const secondOptions = mapConstructorMock.mock.calls[1]?.[1] as naver.maps.MapOptions;
+
+    expect(firstOptions.gl).toBe(true);
+    expect(firstOptions.customStyleId).toBe("test-style-id");
+    expect(secondOptions.gl).toBe(false);
+    expect(secondOptions.customStyleId).toBeUndefined();
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+    expect((window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY]).toBe(false);
+
+    getContextSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
+  });
+
+  it("uses cached GL availability to render regular map without retrying GL creation", async () => {
+    (window as Window & Record<string, unknown>)[GL_CREATION_AVAILABLE_KEY] = false;
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    render(
+      <NaverMapProvider ncpKeyId="test-key" timeoutMs={1000}>
+        <NaverMap
+          gl
+          customStyleId="test-style-id"
+          defaultCenter={{ lat: 37.5, lng: 127.0 }}
+          defaultZoom={12}
+          style={{ height: 100, width: 100 }}
+        />
+      </NaverMapProvider>
+    );
+
+    await waitFor(() => {
+      expect(mapConstructorMock).toHaveBeenCalledTimes(1);
+    });
+
+    const options = mapConstructorMock.mock.calls[0]?.[1] as naver.maps.MapOptions;
+    expect(options.gl).toBe(false);
+    expect(options.customStyleId).toBeUndefined();
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+
+    consoleWarnSpy.mockRestore();
   });
 });
