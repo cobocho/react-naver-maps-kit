@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Marker, NaverMap, useNaverMap } from "react-naver-maps-kit";
 
 import { EventLog } from "../EventLog.tsx";
@@ -7,15 +7,6 @@ import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 
 const DEFAULT_CENTER = { lat: 37.5666102, lng: 126.9783881 };
 const GL_STYLE_ID = "94230366-adba-4e0e-ac5a-e82a0e137b5e";
-
-function supportsWebGl(): boolean {
-  if (typeof document === "undefined") {
-    return true;
-  }
-
-  const canvas = document.createElement("canvas");
-  return Boolean(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
-}
 
 function GlDemoBase() {
   const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
