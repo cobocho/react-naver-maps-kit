@@ -29,7 +29,8 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
 - `finClientId?: string`
   - 금융용 레거시 호환 키입니다.
 - `submodules?: string[]`
-  - `"geocoder"` 등 서브모듈 목록입니다.
+  - `"geocoder"`, `"panorama"`, `"drawing"`, `"visualization"`, `"gl"` 서브모듈 목록입니다.
+  - `"gl"`은 다른 서브모듈과 함께 사용할 수 없습니다.
 - `timeoutMs?: number`
   - 스크립트 로딩/SDK 준비 대기 타임아웃(ms)입니다. 기본값은 `10000`입니다.
 - `nonce?: string`

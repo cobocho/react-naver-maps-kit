@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useRef, useState, useMemo } from "react";
 import { NaverMap, Gpx } from "react-naver-maps-kit";
 import type { GpxRef } from "react-naver-maps-kit";
@@ -5,7 +6,7 @@ import type { GpxRef } from "react-naver-maps-kit";
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";
 
-export function GpxDemo() {
+function GpxDemoBase() {
   const { entries, log, clear } = useEventLog();
   const gpxRef = useRef<GpxRef>(null);
 
@@ -119,3 +120,5 @@ export function GpxDemo() {
     </>
   );
 }
+
+export const GpxDemo = withDemoNaverMapProvider(GpxDemoBase);

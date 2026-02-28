@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { NaverMap, Marker, MarkerClusterer } from "react-naver-maps-kit";
+import { NaverMap, Marker, MarkerClusterer, NaverMapProvider } from "react-naver-maps-kit";
 import { PriceMarker } from "./components/PriceMarker";
 import { PropertyCard } from "./components/PropertyCard";
 import { PriceFilter } from "./components/PriceFilter";
@@ -138,7 +138,11 @@ function MapContent({
   );
 }
 
-export default function RealEstateExplorer() {
+type RealEstateExplorerProps = {
+  ncpKeyId: string;
+};
+
+function RealEstateExplorerBase() {
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 999999 });
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [showDistricts, setShowDistricts] = useState(false);
@@ -187,6 +191,14 @@ export default function RealEstateExplorer() {
         showSchoolDistricts={showSchoolDistricts}
       />
     </div>
+  );
+}
+
+export default function RealEstateExplorer({ ncpKeyId }: RealEstateExplorerProps) {
+  return (
+    <NaverMapProvider ncpKeyId={ncpKeyId}>
+      <RealEstateExplorerBase />
+    </NaverMapProvider>
   );
 }
 

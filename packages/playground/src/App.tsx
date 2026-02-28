@@ -1,6 +1,5 @@
-import { type JSX, useState, lazy, Suspense } from "react";
+import { type JSX, type ReactNode, useState, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
-import { NaverMapProvider } from "react-naver-maps-kit";
 
 import { NaverMapDemo } from "./demos/NaverMapDemo.tsx";
 import { SuspenseDemo } from "./demos/SuspenseDemo.tsx";
@@ -19,13 +18,25 @@ import { KmzDemo } from "./demos/KmzDemo.tsx";
 import { PanoramaDemo } from "./demos/PanoramaDemo.tsx";
 import { VisualizationDemo } from "./demos/VisualizationDemo.tsx";
 import { DrawingDemo } from "./demos/DrawingDemo.tsx";
+import { GlDemo } from "./demos/GlDemo.tsx";
 
 const ActivityTracker = lazy(() => import("./projects/activity-tracker/App.tsx"));
 const TaxiTracker = lazy(() => import("./projects/taxi-tracker/App.tsx"));
 const RealEstateExplorer = lazy(() => import("./projects/real-estate-explorer/App.tsx"));
 const CommercialAreaAnalysis = lazy(() => import("./projects/commercial-area-analysis/App.tsx"));
 
-type DemoEntry = { id: string; label: string; component: () => JSX.Element };
+type DemoComponentProps = { ncpKeyId: string };
+type ProjectComponentProps = { ncpKeyId: string };
+type DemoEntry = {
+  id: string;
+  label: string;
+  component: (props: DemoComponentProps) => JSX.Element;
+};
+type ProjectEntry = {
+  id: string;
+  label: string;
+  component: (props: ProjectComponentProps) => ReactNode;
+};
 type SectionEntry = { section: string };
 type SidebarItem = DemoEntry | SectionEntry;
 
@@ -51,10 +62,11 @@ const DEMOS: SidebarItem[] = [
   { section: "Submodules" },
   { id: "panorama", label: "Panorama", component: PanoramaDemo },
   { id: "visualization", label: "Visualization", component: VisualizationDemo },
-  { id: "drawing", label: "Drawing", component: DrawingDemo }
+  { id: "drawing", label: "Drawing", component: DrawingDemo },
+  { id: "gl", label: "GL", component: GlDemo }
 ];
 
-const PROJECTS = [
+const PROJECTS: ProjectEntry[] = [
   { id: "activity-tracker", label: "운동 기록 트래커", component: ActivityTracker },
   { id: "taxi-tracker", label: "실시간 택시 추적", component: TaxiTracker },
   { id: "real-estate-explorer", label: "부동산 매물 탐색", component: RealEstateExplorer },
@@ -154,7 +166,7 @@ function Sidebar() {
   );
 }
 
-function DemoLayout() {
+function DemoLayout({ ncpKeyId }: DemoComponentProps) {
   const { demoId } = useParams<{ demoId: string }>();
   const DemoComponent = getDemoComponent(demoId ?? "navermap");
 
@@ -162,13 +174,13 @@ function DemoLayout() {
     <div className="app-layout">
       <Sidebar />
       <main className="main-content">
-        <DemoComponent />
+        <DemoComponent ncpKeyId={ncpKeyId} />
       </main>
     </div>
   );
 }
 
-function ProjectLayout() {
+function ProjectLayout({ ncpKeyId }: ProjectComponentProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const ProjectComponent = getProjectComponent(projectId ?? "activity-tracker");
 
@@ -177,20 +189,20 @@ function ProjectLayout() {
       <Sidebar />
       <main className="main-content project-content">
         <Suspense fallback={<div className="loading">로딩 중...</div>}>
-          <ProjectComponent />
+          <ProjectComponent ncpKeyId={ncpKeyId} />
         </Suspense>
       </main>
     </div>
   );
 }
 
-function EmbedLayout() {
+function EmbedLayout({ ncpKeyId }: DemoComponentProps) {
   const { demoId } = useParams<{ demoId: string }>();
   const DemoComponent = getDemoComponent(demoId ?? "navermap");
 
   return (
     <div className="embed-layout">
-      <DemoComponent />
+      <DemoComponent ncpKeyId={ncpKeyId} />
     </div>
   );
 }
@@ -205,15 +217,13 @@ function App() {
   }
 
   return (
-    <NaverMapProvider ncpKeyId={ncpKeyId} submodules={["panorama", "visualization", "drawing"]}>
-      <Routes>
-        <Route path="/" element={<Navigate to="/demo/navermap" replace />} />
-        <Route path="/demo/:demoId" element={<DemoLayout />} />
-        <Route path="/projects/:projectId" element={<ProjectLayout />} />
-        <Route path="/embed/:demoId" element={<EmbedLayout />} />
-        <Route path="*" element={<Navigate to="/demo/navermap" replace />} />
-      </Routes>
-    </NaverMapProvider>
+    <Routes>
+      <Route path="/" element={<Navigate to="/demo/navermap" replace />} />
+      <Route path="/demo/:demoId" element={<DemoLayout ncpKeyId={ncpKeyId} />} />
+      <Route path="/projects/:projectId" element={<ProjectLayout ncpKeyId={ncpKeyId} />} />
+      <Route path="/embed/:demoId" element={<EmbedLayout ncpKeyId={ncpKeyId} />} />
+      <Route path="*" element={<Navigate to="/demo/navermap" replace />} />
+    </Routes>
   );
 }
 

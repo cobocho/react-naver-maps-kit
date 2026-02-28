@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useRef, useState, useMemo } from "react";
 import { NaverMap, DrawingManager, type DrawingManagerRef } from "react-naver-maps-kit";
 
@@ -82,7 +83,7 @@ function DrawingManagerContent({
   );
 }
 
-export function DrawingDemo() {
+function DrawingDemoBase() {
   const drawingManagerRef = useRef<DrawingManagerRef>(null);
   const [drawings, setDrawings] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -262,3 +263,5 @@ export function DrawingDemo() {
     </div>
   );
 }
+
+export const DrawingDemo = withDemoNaverMapProvider(DrawingDemoBase);

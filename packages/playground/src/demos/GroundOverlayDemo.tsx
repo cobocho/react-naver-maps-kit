@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { GroundOverlay, NaverMap } from "react-naver-maps-kit";
 
@@ -37,7 +38,7 @@ const OVERLAY_PRESETS = [
   }
 ];
 
-export function GroundOverlayDemo() {
+function GroundOverlayDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [selectedPreset, setSelectedPreset] = useState(OVERLAY_PRESETS[0]);
@@ -146,3 +147,5 @@ export function GroundOverlayDemo() {
     </>
   );
 }
+
+export const GroundOverlayDemo = withDemoNaverMapProvider(GroundOverlayDemoBase);

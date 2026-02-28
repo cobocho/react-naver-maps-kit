@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { Suspense, useCallback, useState } from "react";
 import { NaverMap, useNaverMap } from "react-naver-maps-kit";
 
@@ -27,7 +28,7 @@ function resetSdkRuntime(): number {
   return scriptNodes.length;
 }
 
-export function SuspenseDemo() {
+function SuspenseDemoBase() {
   const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
   const { entries, log, clear } = useEventLog();
 
@@ -109,3 +110,5 @@ export function SuspenseDemo() {
     </>
   );
 }
+
+export const SuspenseDemo = withDemoNaverMapProvider(SuspenseDemoBase);

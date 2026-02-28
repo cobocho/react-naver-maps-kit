@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { NaverMap } from "react-naver-maps-kit";
+import { NaverMap, NaverMapProvider } from "react-naver-maps-kit";
 import { RoutePolyline } from "./components/RoutePolyline";
 import { StartEndMarkers } from "./components/StartEndMarkers";
 import { ActivityStatsPanel } from "./components/ActivityStatsPanel";
@@ -7,7 +7,11 @@ import { ControlPanel } from "./components/ControlPanel";
 import { generateActivity } from "./data/mockData";
 import type { Activity, ActivityType, ColorMode } from "./types";
 
-export default function ActivityTracker() {
+type ActivityTrackerProps = {
+  ncpKeyId: string;
+};
+
+function ActivityTrackerBase() {
   const [activityType, setActivityType] = useState<ActivityType>("running");
   const [colorMode, setColorMode] = useState<ColorMode>("speed");
   const [activity, setActivity] = useState<Activity | null>(null);
@@ -66,6 +70,14 @@ export default function ActivityTracker() {
         <ActivityStatsPanel activity={activity} />
       </div>
     </div>
+  );
+}
+
+export default function ActivityTracker({ ncpKeyId }: ActivityTrackerProps) {
+  return (
+    <NaverMapProvider ncpKeyId={ncpKeyId}>
+      <ActivityTrackerBase />
+    </NaverMapProvider>
   );
 }
 

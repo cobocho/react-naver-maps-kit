@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState, useRef, useMemo, useEffect } from "react";
 import { NaverMap, GeoJson } from "react-naver-maps-kit";
 import type { GeoJsonRef, GeoJsonProps } from "react-naver-maps-kit";
@@ -5,7 +6,7 @@ import type { GeoJsonRef, GeoJsonProps } from "react-naver-maps-kit";
 import { useEventLog } from "../useEventLog.ts";
 import { EventLog } from "../EventLog.tsx";
 
-export function GeoJsonDemo() {
+function GeoJsonDemoBase() {
   const { entries, log, clear } = useEventLog();
   const geoJsonRef = useRef<GeoJsonRef>(null);
 
@@ -126,3 +127,5 @@ export function GeoJsonDemo() {
     </>
   );
 }
+
+export const GeoJsonDemo = withDemoNaverMapProvider(GeoJsonDemoBase);

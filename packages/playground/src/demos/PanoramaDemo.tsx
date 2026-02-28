@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useRef, useState } from "react";
 import { Panorama, FlightSpot, NaverMap, Marker, type PanoramaRef } from "react-naver-maps-kit";
 
@@ -70,7 +71,7 @@ const SAMPLE_MARKERS = [
   { id: 3, position: { lat: 37.355, lng: 127.1 }, title: "카페" }
 ];
 
-export function PanoramaDemo() {
+function PanoramaDemoBase() {
   const { entries, log, clear } = useEventLog();
   const panoramaRef = useRef<PanoramaRef>(null);
 
@@ -292,3 +293,5 @@ export function PanoramaDemo() {
     </>
   );
 }
+
+export const PanoramaDemo = withDemoNaverMapProvider(PanoramaDemoBase);

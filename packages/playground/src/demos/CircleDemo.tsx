@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { Circle, NaverMap } from "react-naver-maps-kit";
 
@@ -6,7 +7,7 @@ import { EventLog } from "../EventLog.tsx";
 
 const DEFAULT_POS = { lat: 37.5666102, lng: 126.9783881 };
 
-export function CircleDemo() {
+function CircleDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [radius, setRadius] = useState(500);
@@ -129,3 +130,5 @@ export function CircleDemo() {
     </>
   );
 }
+
+export const CircleDemo = withDemoNaverMapProvider(CircleDemoBase);

@@ -7,7 +7,7 @@ SDK 로딩 상태를 React Context로 제공하는 루트 컴포넌트입니다.
 ```ts
 export type NaverMapSdkStatus = "idle" | "loading" | "ready" | "error";
 
-export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization";
+export type Submodule = "geocoder" | "panorama" | "drawing" | "visualization" | "gl";
 
 export interface NaverMapContextValue {
   sdkStatus: NaverMapSdkStatus;
@@ -43,7 +43,8 @@ export interface NaverMapProviderProps extends LoadNaverMapsScriptOptions {
   - SDK 로딩 실패 또는 인증 실패 시 호출됩니다.
 - `submodules?: Submodule[]`
   - 로드할 서브모듈 목록입니다.
-  - `"geocoder"`, `"panorama"`, `"drawing"`, `"visualization"` 중 선택합니다.
+  - `"geocoder"`, `"panorama"`, `"drawing"`, `"visualization"`, `"gl"` 중 선택합니다.
+  - `"gl"`은 다른 서브모듈과 함께 사용할 수 없습니다.
 - `LoadNaverMapsScriptOptions`
   - `ncpKeyId`, `timeoutMs`, `nonce` 등 로더 옵션을 그대로 전달합니다.
 

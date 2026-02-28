@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { NaverMap, useNaverMap } from "react-naver-maps-kit";
 
@@ -175,6 +176,8 @@ function MapContent() {
   );
 }
 
-export function NaverMapDemo() {
+function NaverMapDemoBase() {
   return <MapContent />;
 }
+
+export const NaverMapDemo = withDemoNaverMapProvider(NaverMapDemoBase);

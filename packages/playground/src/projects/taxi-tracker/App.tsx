@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { NaverMap } from "react-naver-maps-kit";
+import { NaverMap, NaverMapProvider } from "react-naver-maps-kit";
+import type { Submodule } from "react-naver-maps-kit";
 import { TaxiMarker } from "./components/TaxiMarker";
 import { TaxiDetailPanel } from "./components/TaxiDetailPanel";
 import { ControlPanel } from "./components/ControlPanel";
@@ -7,8 +8,13 @@ import { useTaxiSimulation } from "./hooks/useTaxiSimulation";
 import type { Taxi } from "./types";
 
 const UPDATE_INTERVAL = 1000;
+const TAXI_SUBMODULES: Submodule[] = ["gl"];
 
-export default function TaxiTracker() {
+type TaxiTrackerProps = {
+  ncpKeyId: string;
+};
+
+function TaxiTrackerBase() {
   const [isRealtimeEnabled, setIsRealtimeEnabled] = useState(true);
   const [selectedTaxi, setSelectedTaxi] = useState<Taxi | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -86,6 +92,7 @@ export default function TaxiTracker() {
           style={{ width: "100%", height: "100%" }}
           mapTypeId={mapTypeId as naver.maps.MapTypeId}
           onMapReady={handleMapReady}
+          gl
         >
           {taxis.map((taxi) => (
             <TaxiMarker
@@ -118,6 +125,14 @@ export default function TaxiTracker() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TaxiTracker({ ncpKeyId }: TaxiTrackerProps) {
+  return (
+    <NaverMapProvider ncpKeyId={ncpKeyId} submodules={TAXI_SUBMODULES}>
+      <TaxiTrackerBase />
+    </NaverMapProvider>
   );
 }
 

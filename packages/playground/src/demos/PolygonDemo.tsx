@@ -1,3 +1,4 @@
+import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 import { useState } from "react";
 import { NaverMap, Polygon } from "react-naver-maps-kit";
 
@@ -40,7 +41,7 @@ const PRESETS = {
 
 type PresetKey = keyof typeof PRESETS;
 
-export function PolygonDemo() {
+function PolygonDemoBase() {
   const { entries, log, clear } = useEventLog();
 
   const [preset, setPreset] = useState<PresetKey>("triangle");
@@ -150,3 +151,5 @@ export function PolygonDemo() {
     </>
   );
 }
+
+export const PolygonDemo = withDemoNaverMapProvider(PolygonDemoBase);
