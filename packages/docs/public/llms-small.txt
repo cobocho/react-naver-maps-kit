@@ -1,0 +1,883 @@
+<SYSTEM>This is the tiny developer documentation for react-naver-maps-kit.</SYSTEM>
+
+# Start of react-naver-maps-kit documentation
+
+# React Naver Maps KIT
+
+react-naver-maps-kit is a React binding for NAVER Maps JavaScript API v3.
+It provides declarative components, automatic lifecycle handling, and TypeScript-friendly APIs for map applications.
+
+The library centers around three ideas:
+
+- SDK loading and auth are handled once by `NaverMapProvider`.
+- Map and overlay instances are created/destroyed by React component lifecycle.
+- Map state can be used in controlled or uncontrolled style.
+
+```tsx
+import { NaverMapProvider, NaverMap, Marker } from "react-naver-maps-kit";
+
+export default function App() {
+  return (
+    <NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID">
+      <NaverMap
+        defaultCenter={{ lat: 37.5665, lng: 126.978 }}
+        defaultZoom={14}
+        style={{ width: "100%", height: "420px" }}
+      >
+        <Marker position={{ lat: 37.5665, lng: 126.978 }} />
+      </NaverMap>
+    </NaverMapProvider>
+  );
+}
+```
+
+## Quick Start
+
+Install:
+
+```bash
+npm install react-naver-maps-kit
+```
+
+Alternative package managers:
+
+```bash
+pnpm add react-naver-maps-kit
+# or
+yarn add react-naver-maps-kit
+# or
+bun add react-naver-maps-kit
+```
+
+Prerequisites:
+
+- Create NAVER Maps credentials in Naver Cloud Platform.
+- Allow your site domain in key settings.
+- Pass key as `ncpKeyId`.
+- Give map container explicit width/height.
+
+Minimal provider + map setup:
+
+```tsx
+import { NaverMapProvider, NaverMap } from "react-naver-maps-kit";
+
+function Page() {
+  return (
+    <NaverMapProvider ncpKeyId={import.meta.env.VITE_NCP_KEY_ID}>
+      <NaverMap
+        defaultCenter={{ lat: 37.5665, lng: 126.978 }}
+        defaultZoom={12}
+        style={{ width: "100%", height: "500px" }}
+      />
+    </NaverMapProvider>
+  );
+}
+```
+
+## Feature Summary
+
+- Declarative React components for map and overlays
+- High-level hooks for SDK and instance access
+- Rich event prop support on map and overlays
+- Built-in clustering and data-layer components
+- Optional submodules (`panorama`, `visualization`, `drawing`, `geocoder`, `gl`)
+- GL vector map mode support
+- TypeScript-first API surface
+
+## Mental Model
+
+- `NaverMapProvider` is responsible for SDK loading, auth, and SDK status state.
+- `NaverMap` and `Panorama` provide instance context (`map` or `panorama`) to child components.
+- Overlay components subscribe to instance context and mount native objects when ready.
+- Props updates are diffed and applied with imperative NAVER Maps API calls.
+- Unmount performs cleanup (listeners, overlays, instances).
+
+## Core API: NaverMapProvider
+
+`NaverMapProvider` is the root boundary for SDK status and map availability.
+
+Main responsibilities:
+
+- Load NAVER Maps SDK script
+- Track status: `idle | loading | ready | error`
+- Expose retry/reload and error-clear actions
+- Validate submodule combinations
+
+Important props:
+
+- `ncpKeyId`: NAVER Maps credential key id
+- `submodules?: ("geocoder" | "panorama" | "drawing" | "visualization" | "gl")[]`
+- `autoLoad?: boolean` (default `true`)
+- `timeoutMs?: number`
+- `onReady?: () => void`
+- `onError?: (error: Error) => void`
+
+Important rules:
+
+- `gl` cannot be combined with any other submodule.
+- If SDK loading fails, `sdkStatus` becomes `error` and `sdkError` is set.
+
+Provider with status UI:
+
+```tsx
+import { NaverMapProvider, useNaverMap } from "react-naver-maps-kit";
+
+function StatusBanner() {
+  const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
+
+  if (sdkStatus === "loading") return <p>Loading map SDK...</p>;
+  if (sdkStatus === "error") {
+    return (
+      <div>
+        <p>Failed: {sdkError?.message}</p>
+        <button onClick={reloadSdk}>Retry</button>
+      </div>
+    );
+  }
+  return null;
+}
+
+export default function App() {
+  return (
+    <NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID">
+      <StatusBanner />
+      {/* maps */}
+    </NaverMapProvider>
+  );
+}
+```
+
+## Core API: NaverMap
+
+`NaverMap` wraps `naver.maps.Map` as a React component.
+
+### Controlled vs Uncontrolled
+
+Uncontrolled props:
+
+- `defaultCenter`
+- `defaultZoom`
+
+Controlled props:
+
+- `center`
+- `zoom`
+
+Use uncontrolled for simpler static map pages.
+Use controlled when map camera is synced with app state.
+
+Controlled example:
+
+```tsx
+import { useState } from "react";
+import { NaverMap } from "react-naver-maps-kit";
+
+function ControlledMap() {
+  const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
+  const [zoom, setZoom] = useState(12);
+
+  return (
+    <NaverMap
+      center={center}
+      zoom={zoom}
+      onCenterChanged={(c) => setCenter({ lat: c.y, lng: c.x })}
+      onZoomChanged={setZoom}
+      style={{ width: "100%", height: 460 }}
+    />
+  );
+}
+```
+
+### High-value map options
+
+Camera and bounds:
+
+- `center`, `defaultCenter`, `bounds`, `zoom`, `defaultZoom`
+- `minZoom`, `maxZoom`, `maxBounds`
+
+Interaction:
+
+- `draggable`, `scrollWheel`, `pinchZoom`
+- `disableDoubleClickZoom`, `disableDoubleTapZoom`, `disableKineticPan`
+
+Controls:
+
+- `zoomControl`, `zoomControlOptions`
+- `mapTypeControl`, `mapTypeControlOptions`
+- `logoControl`, `scaleControl`, `mapDataControl`
+
+Rendering:
+
+- `gl` (enable vector mode)
+- `customStyleId` (style editor integration)
+
+Lifecycle and fallback:
+
+- `onMapReady`, `onMapDestroy`, `onMapError`
+- `retryOnError`, `retryDelayMs`
+- `fallback`, `suspense`
+
+### Map events
+
+Common event props include:
+
+- Pointer: `onClick`, `onDblClick`, `onMouseMove`, `onRightClick`
+- Camera: `onCenterChanged`, `onZoomChanged`, `onBoundsChanged`
+- Gesture: `onDragStart`, `onDrag`, `onDragEnd`, `onPinch`, `onWheel`
+- Lifecycle-ish: `onInit`, `onIdle`, `onResize`
+
+Event usage:
+
+```tsx
+<NaverMap
+  defaultCenter={{ lat: 37.5665, lng: 126.978 }}
+  defaultZoom={13}
+  style={{ width: "100%", height: 420 }}
+  onClick={(e) => console.log("clicked", e.coord)}
+  onIdle={() => console.log("idle")}
+  onZoomChanged={(z) => console.log("zoom", z)}
+/>
+```
+
+### Ref-based imperative control
+
+`NaverMapRef` exposes map instance helpers like:
+
+- `getInstance`
+- `panTo`, `panBy`, `fitBounds`, `zoomBy`
+- `setCenter`, `setZoom`, `setMapTypeId`
+- `getCenter`, `getZoom`, `getBounds`
+- `refresh`, `stop`, `destroy`
+
+```tsx
+import { useRef } from "react";
+import { NaverMap, type NaverMapRef } from "react-naver-maps-kit";
+
+function RefMap() {
+  const ref = useRef<NaverMapRef>(null);
+
+  return (
+    <>
+      <button onClick={() => ref.current?.panTo({ lat: 37.5665, lng: 126.978 })}>Go Seoul</button>
+      <button onClick={() => ref.current?.zoomBy(1)}>Zoom In</button>
+      <NaverMap ref={ref} defaultCenter={{ lat: 37.5, lng: 127 }} defaultZoom={10} style={{ width: 500, height: 320 }} />
+    </>
+  );
+}
+```
+
+## Overlays
+
+All overlays are declarative and attach to nearest map/panorama context where supported.
+
+### Marker
+
+Use cases:
+
+- pinning locations
+- custom HTML/React marker content
+- interactive map item selection
+
+Common props:
+
+- `position` (required)
+- `title`, `icon`, `zIndex`, `visible`, `draggable`, `clickable`
+- event props like click/drag events
+
+Custom marker children:
+
+```tsx
+<Marker position={{ lat: 37.5665, lng: 126.978 }}>
+  <div
+    style={{
+      padding: "8px 14px",
+      borderRadius: 999,
+      background: "#03C75A",
+      color: "white",
+      fontWeight: 700
+    }}
+  >
+    City Hall
+  </div>
+</Marker>
+```
+
+### InfoWindow
+
+Use with marker interactions to show detail content.
+
+Pattern:
+
+```tsx
+import { useState } from "react";
+import { Marker, InfoWindow, NaverMap } from "react-naver-maps-kit";
+
+function MarkerWithInfo() {
+  const [open, setOpen] = useState(true);
+  const pos = { lat: 37.5665, lng: 126.978 };
+
+  return (
+    <NaverMap defaultCenter={pos} defaultZoom={14} style={{ width: "100%", height: 420 }}>
+      <Marker position={pos} onClick={() => setOpen((v) => !v)} />
+      {open && (
+        <InfoWindow position={pos} onClose={() => setOpen(false)}>
+          <div style={{ minWidth: 140 }}>Hello from InfoWindow</div>
+        </InfoWindow>
+      )}
+    </NaverMap>
+  );
+}
+```
+
+### Shapes
+
+- `Polyline`: routes or paths
+- `Polygon`: areas and zones
+- `Circle`, `Ellipse`, `Rectangle`: geometric region overlays
+
+These support style options and update when props change.
+
+### GroundOverlay
+
+Use image overlay mapped onto geographic bounds.
+
+### Data Layer
+
+- `GeoJson`: load and render GeoJSON feature collections
+- `Gpx`: parse/display GPX data
+- `Kmz`: parse/display KMZ/KML package data
+
+Typical data-layer workflow:
+
+- pass source data/url
+- listen to `onFeaturesAdded`
+- control visibility/style with options
+
+## MarkerClusterer
+
+`MarkerClusterer` groups child markers based on zoom/viewport.
+
+High-level behavior:
+
+1. Child `Marker` records register into cluster registry.
+2. Clusters recompute on map events.
+3. Cluster icons render as markers.
+4. Single points remain as normal markers.
+
+Main props:
+
+- `algorithm`
+- `clusterIcon`
+- `onClusterClick`
+- `behavior` (`recomputeOn`, `debounceMs`)
+- `clusterData` (`includeItems`, `maxItemsInCluster`)
+- `enabled`
+
+Built-in algorithms:
+
+- `supercluster` (default)
+- `grid`
+- `radius`
+
+Basic usage:
+
+```tsx
+<MarkerClusterer algorithm={{ type: "supercluster", radius: 60 }}>
+  {points.map((p) => (
+    <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} />
+  ))}
+</MarkerClusterer>
+```
+
+Cluster click usage:
+
+```tsx
+<MarkerClusterer
+  clusterData={{ includeItems: true }}
+  onClusterClick={({ cluster, helpers }) => {
+    console.log(cluster.count, cluster.items);
+    helpers.zoomToCluster(cluster, { maxZoom: 16 });
+  }}
+>
+  {/* markers */}
+</MarkerClusterer>
+```
+
+## Submodules
+
+Available submodules:
+
+- `geocoder`
+- `panorama`
+- `drawing`
+- `visualization`
+- `gl`
+
+Important constraint:
+
+- `gl` must be loaded alone.
+
+### Panorama submodule
+
+Load:
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID" submodules={["panorama"]}>
+  {/* app */}
+</NaverMapProvider>
+```
+
+Primary components:
+
+- `Panorama`
+- `FlightSpot`
+- `AroundControl`
+
+Use cases:
+
+- street-level view
+- map-panorama synchronized UI
+- flight spot transitions
+
+Panorama example:
+
+```tsx
+import { Panorama } from "react-naver-maps-kit";
+
+<Panorama
+  position={{ lat: 37.5665, lng: 126.978 }}
+  pov={{ pan: 0, tilt: 0, fov: 100 }}
+  style={{ width: "100%", height: 420 }}
+/>;
+```
+
+### Visualization submodule
+
+Load:
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID" submodules={["visualization"]}>
+  {/* app */}
+</NaverMapProvider>
+```
+
+Components:
+
+- `HeatMap`
+- `DotMap`
+
+HeatMap example:
+
+```tsx
+<HeatMap
+  data={[
+    { lat: 37.57, lng: 126.98, weight: 2 },
+    { lat: 37.56, lng: 126.99, weight: 5 }
+  ]}
+  opacity={0.7}
+/>
+```
+
+DotMap example:
+
+```tsx
+<DotMap
+  data={[
+    { lat: 37.57, lng: 126.98 },
+    { lat: 37.56, lng: 126.99 }
+  ]}
+  radius={8}
+/>
+```
+
+### Drawing submodule
+
+Load:
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID" submodules={["drawing"]}>
+  {/* app */}
+</NaverMapProvider>
+```
+
+Component:
+
+- `DrawingManager`
+
+Capabilities:
+
+- draw/edit rectangle, ellipse, polyline, polygon, marker
+- handle drawing events
+- export drawn shape data
+
+Basic drawing setup:
+
+```tsx
+<DrawingManager
+  drawingControl={[
+    naver.maps.drawing.DrawingMode.RECTANGLE,
+    naver.maps.drawing.DrawingMode.POLYGON,
+    naver.maps.drawing.DrawingMode.MARKER
+  ]}
+  onDrawingAdded={(overlay) => console.log("added", overlay)}
+/>
+```
+
+### Geocoder submodule
+
+Load:
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID" submodules={["geocoder"]}>
+  {/* app */}
+</NaverMapProvider>
+```
+
+Provides NAVER geocoding APIs under `naver.maps.Service` and coordinate conversion via `naver.maps.TransCoord`.
+
+Typical tasks:
+
+- address -> lat/lng
+- lat/lng -> address
+- coordinate system conversions
+
+### GL submodule
+
+Load and enable:
+
+```tsx
+<NaverMapProvider ncpKeyId="YOUR_NCP_KEY_ID" submodules={["gl"]}>
+  <NaverMap gl defaultCenter={{ lat: 37.5665, lng: 126.978 }} defaultZoom={13} style={{ width: "100%", height: 500 }} />
+</NaverMapProvider>
+```
+
+Custom style id:
+
+```tsx
+<NaverMap gl customStyleId="YOUR_STYLE_ID" defaultCenter={{ lat: 37.5665, lng: 126.978 }} defaultZoom={13} />
+```
+
+Fallback strategy (if needed):
+
+- detect unsupported environment
+- switch provider submodules and map props to non-GL mode
+
+## Hooks
+
+### useNaverMap
+
+Returns provider context.
+
+Useful values:
+
+- `sdkStatus`
+- `sdkError`
+- `reloadSdk`
+- `retrySdk`
+- `clearSdkError`
+- `submodules`
+
+Supports guard options:
+
+- `requireReady?: boolean`
+- `requireMapInstance?: boolean`
+
+### useNaverMapInstance
+
+Legacy convenience hook returning map instance.
+
+### useMapInstance
+
+Returns nearest map or panorama instance context:
+
+- `instance`: map or panorama
+- `type`: `"map" | "panorama"`
+- `setInstance`
+
+### useMapInstanceRequired
+
+Same as `useMapInstance`, but throws if context is absent.
+
+### useMap
+
+Returns nearest map instance or `null`.
+
+### usePanoramaInstance
+
+Returns nearest panorama instance or `null`.
+
+### usePanorama
+
+Panorama-specific helper exported from panorama module.
+
+## Error Handling Patterns
+
+Provider-level handling:
+
+```tsx
+<NaverMapProvider
+  ncpKeyId="YOUR_NCP_KEY_ID"
+  onError={(err) => {
+    console.error("SDK error:", err);
+  }}
+>
+  {/* app */}
+</NaverMapProvider>
+```
+
+Map-level fallback handling:
+
+```tsx
+<NaverMap
+  style={{ width: "100%", height: 420 }}
+  fallback={<div>Loading map...</div>}
+  onMapError={(e) => console.error(e)}
+/>
+```
+
+### Common failure causes
+
+- Missing or invalid `ncpKeyId`
+- Domain not whitelisted in NAVER console
+- Map container height missing
+- Required submodule not loaded for component usage
+- Invalid submodule combination (`gl` + others)
+
+## Performance Guidelines
+
+- Keep marker arrays stable with `useMemo`.
+- For large point sets, prefer `MarkerClusterer`.
+- Tune clustering behavior using `recomputeOn` and `debounceMs`.
+- Avoid excessive re-renders by memoizing children where needed.
+- Use controlled camera only when state sync is truly required.
+
+Marker memoization example:
+
+```tsx
+import { useMemo } from "react";
+
+const markerElements = useMemo(
+  () =>
+    points.map((p) => <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} />),
+  [points]
+);
+
+return <MarkerClusterer>{markerElements}</MarkerClusterer>;
+```
+
+## Practical Recipes
+
+### Recipe: click map to add marker
+
+```tsx
+import { useState } from "react";
+import { Marker, NaverMap } from "react-naver-maps-kit";
+
+function ClickToAddMarker() {
+  const [items, setItems] = useState<Array<{ id: number; lat: number; lng: number }>>([]);
+
+  return (
+    <NaverMap
+      defaultCenter={{ lat: 37.5665, lng: 126.978 }}
+      defaultZoom={13}
+      style={{ width: "100%", height: 420 }}
+      onClick={(e) => {
+        setItems((prev) => [
+          ...prev,
+          { id: Date.now(), lat: e.coord.y, lng: e.coord.x }
+        ]);
+      }}
+    >
+      {items.map((m) => (
+        <Marker key={m.id} position={{ lat: m.lat, lng: m.lng }} />
+      ))}
+    </NaverMap>
+  );
+}
+```
+
+### Recipe: fit map to marker list
+
+```tsx
+import { useEffect, useRef } from "react";
+import { NaverMap, type NaverMapRef } from "react-naver-maps-kit";
+
+function FitToData({ points }: { points: Array<{ lat: number; lng: number }> }) {
+  const ref = useRef<NaverMapRef>(null);
+
+  useEffect(() => {
+    if (!ref.current || points.length === 0) return;
+    const bounds = new naver.maps.LatLngBounds();
+    points.forEach((p) => bounds.extend(new naver.maps.LatLng(p.lat, p.lng)));
+    ref.current.fitBounds(bounds);
+  }, [points]);
+
+  return <NaverMap ref={ref} style={{ width: "100%", height: 420 }} />;
+}
+```
+
+### Recipe: marker + info window selection
+
+```tsx
+import { useState } from "react";
+import { InfoWindow, Marker, NaverMap } from "react-naver-maps-kit";
+
+type Place = { id: string; name: string; lat: number; lng: number };
+
+function SelectPlace({ places }: { places: Place[] }) {
+  const [selected, setSelected] = useState<Place | null>(null);
+
+  return (
+    <NaverMap defaultCenter={{ lat: 37.5665, lng: 126.978 }} defaultZoom={12} style={{ width: "100%", height: 480 }}>
+      {places.map((p) => (
+        <Marker
+          key={p.id}
+          position={{ lat: p.lat, lng: p.lng }}
+          onClick={() => setSelected(p)}
+        />
+      ))}
+      {selected && (
+        <InfoWindow
+          position={{ lat: selected.lat, lng: selected.lng }}
+          onClose={() => setSelected(null)}
+        >
+          <div>{selected.name}</div>
+        </InfoWindow>
+      )}
+    </NaverMap>
+  );
+}
+```
+
+## TypeScript Guidance
+
+Install global NAVER type package if needed:
+
+```bash
+npm install -D @types/navermaps
+```
+
+`tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["navermaps"]
+  }
+}
+```
+
+Useful exported types include:
+
+- `NaverMapProps`, `NaverMapRef`
+- `NaverMapProviderProps`, `NaverMapSdkStatus`, `Submodule`
+- overlay props/refs for Marker, InfoWindow, shapes, data layers
+- cluster-related types (`Cluster`, `ClusterAlgorithm`, `MarkerClustererProps`)
+- `UseNaverMapOptions`, `MapInstanceContextValue`
+
+## LLM Usage Guidance
+
+When generating code for this library:
+
+- Always wrap map-related components with `NaverMapProvider`.
+- Always set explicit map container dimensions.
+- Pick controlled or uncontrolled camera mode; do not mix both accidentally.
+- If using `Panorama`, `HeatMap`, `DotMap`, or `DrawingManager`, include required submodule.
+- If using GL, set `submodules={["gl"]}` and `gl={true}` on `NaverMap`.
+- For large marker sets, prefer `MarkerClusterer`.
+- Handle SDK loading and errors using `useNaverMap()`.
+
+## Troubleshooting Checklist
+
+1. Map does not render
+
+- Check `ncpKeyId` value.
+- Verify domain whitelist.
+- Confirm map container has height.
+- Confirm provider exists above map.
+
+2. Submodule component not working
+
+- Confirm matching submodule loaded.
+- Check `gl` not mixed with other submodules.
+
+3. Events not firing as expected
+
+- Verify component is mounted and visible.
+- Check prop names (`onClick`, `onZoomChanged`, etc.).
+
+4. Type errors around `naver`
+
+- Install `@types/navermaps`.
+- Add `"types": ["navermaps"]`.
+
+## Documentation Links
+
+Main docs:
+
+- Home: https://react-naver-maps-kit.pages.dev/
+- Getting Started: https://react-naver-maps-kit.pages.dev/guide/getting-started
+- Core Concepts: https://react-naver-maps-kit.pages.dev/guide/core-concepts
+- Troubleshooting: https://react-naver-maps-kit.pages.dev/troubleshooting/common-issues
+
+Submodule guides:
+
+- Geocoder: https://react-naver-maps-kit.pages.dev/guide/submodules/geocoder
+- Panorama: https://react-naver-maps-kit.pages.dev/guide/submodules/panorama
+- Visualization: https://react-naver-maps-kit.pages.dev/guide/submodules/visualization
+- Drawing: https://react-naver-maps-kit.pages.dev/guide/submodules/drawing
+- GL: https://react-naver-maps-kit.pages.dev/guide/submodules/gl
+
+API docs:
+
+- Provider: https://react-naver-maps-kit.pages.dev/api/provider
+- Map: https://react-naver-maps-kit.pages.dev/api/map
+- Hooks: https://react-naver-maps-kit.pages.dev/api/hooks
+- Marker: https://react-naver-maps-kit.pages.dev/api/marker
+- MarkerClusterer: https://react-naver-maps-kit.pages.dev/api/marker-clusterer
+- InfoWindow: https://react-naver-maps-kit.pages.dev/api/info-window
+- Circle: https://react-naver-maps-kit.pages.dev/api/circle
+- Ellipse: https://react-naver-maps-kit.pages.dev/api/ellipse
+- Rectangle: https://react-naver-maps-kit.pages.dev/api/rectangle
+- Polygon: https://react-naver-maps-kit.pages.dev/api/polygon
+- Polyline: https://react-naver-maps-kit.pages.dev/api/polyline
+- GroundOverlay: https://react-naver-maps-kit.pages.dev/api/ground-overlay
+- GeoJson: https://react-naver-maps-kit.pages.dev/api/geo-json
+- Gpx: https://react-naver-maps-kit.pages.dev/api/gpx
+- Kmz: https://react-naver-maps-kit.pages.dev/api/kmz
+- Panorama: https://react-naver-maps-kit.pages.dev/api/panorama
+- FlightSpot: https://react-naver-maps-kit.pages.dev/api/flight-spot
+- HeatMap: https://react-naver-maps-kit.pages.dev/api/heat-map
+- DotMap: https://react-naver-maps-kit.pages.dev/api/dot-map
+- DrawingManager: https://react-naver-maps-kit.pages.dev/api/drawing-manager
+- loadNaverMapsScript: https://react-naver-maps-kit.pages.dev/api/load-script
+
+Examples:
+
+- Markers: https://react-naver-maps-kit.pages.dev/examples/markers
+- Info Window: https://react-naver-maps-kit.pages.dev/examples/info-window
+- Shapes: https://react-naver-maps-kit.pages.dev/examples/shapes
+- Clustering: https://react-naver-maps-kit.pages.dev/examples/clustering
+- Data Layer: https://react-naver-maps-kit.pages.dev/examples/data-layer
+- Controls: https://react-naver-maps-kit.pages.dev/examples/controls
+
+## Playground
+
+- Home: https://react-naver-maps-kit-playground.pages.dev
+- Demo: NaverMap: https://react-naver-maps-kit-playground.pages.dev/demo/navermap
+- Demo: Marker: https://react-naver-maps-kit-playground.pages.dev/demo/marker
+- Demo: InfoWindow: https://react-naver-maps-kit-playground.pages.dev/demo/infowindow
+- Demo: Clusterer: https://react-naver-maps-kit-playground.pages.dev/demo/clusterer
+- Demo: Panorama: https://react-naver-maps-kit-playground.pages.dev/demo/panorama
+- Demo: Visualization: https://react-naver-maps-kit-playground.pages.dev/demo/visualization
+- Demo: Drawing: https://react-naver-maps-kit-playground.pages.dev/demo/drawing
+- Demo: GL: https://react-naver-maps-kit-playground.pages.dev/demo/gl
+- Project: Activity Tracker: https://react-naver-maps-kit-playground.pages.dev/projects/activity-tracker
+- Project: Taxi Tracker: https://react-naver-maps-kit-playground.pages.dev/projects/taxi-tracker
+- Project: Real Estate Explorer: https://react-naver-maps-kit-playground.pages.dev/projects/real-estate-explorer
+- Project: Commercial Area Analysis: https://react-naver-maps-kit-playground.pages.dev/projects/commercial-area-analysis
+
+## Package
+
+- npm: https://www.npmjs.com/package/react-naver-maps-kit
+- GitHub: https://github.com/cobocho/react-naver-maps-kit

@@ -35,7 +35,7 @@ export default defineConfig({
       { text: "가이드", link: "/guide/getting-started" },
       { text: "API", link: "/api/provider" },
       {
-        text: "v1.3.0",
+        text: "v1.4.0",
         items: [
           { text: "Changelog", link: "https://github.com/cobocho/react-naver-maps-kit/releases" },
           { text: "npm", link: "https://www.npmjs.com/package/react-naver-maps-kit" }
@@ -68,7 +68,8 @@ export default defineConfig({
           items: [
             { text: "Panorama (거리뷰)", link: "/guide/submodules/panorama" },
             { text: "Visualization (시각화)", link: "/guide/submodules/visualization" },
-            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" }
+            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" },
+            { text: "GL (벡터지도)", link: "/guide/submodules/gl" }
           ]
         },
         {
@@ -99,6 +100,14 @@ export default defineConfig({
         {
           text: "문제 해결",
           items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
+        },
+        {
+          text: "LLM",
+          items: [
+            { text: "llms.txt", link: "/llms.txt" },
+            { text: "llms-small.txt", link: "/llms-small.txt" },
+            { text: "llms-full.txt", link: "/llms-full.txt" }
+          ]
         }
       ],
       "/examples/": [
@@ -125,7 +134,8 @@ export default defineConfig({
           items: [
             { text: "Panorama (거리뷰)", link: "/guide/submodules/panorama" },
             { text: "Visualization (시각화)", link: "/guide/submodules/visualization" },
-            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" }
+            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" },
+            { text: "GL (벡터지도)", link: "/guide/submodules/gl" }
           ]
         },
         {
@@ -156,6 +166,14 @@ export default defineConfig({
         {
           text: "문제 해결",
           items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
+        },
+        {
+          text: "LLM 문서",
+          items: [
+            { text: "llms.md", link: "/llms.md" },
+            { text: "llms-small.md", link: "/llms-small.md" },
+            { text: "llms-full.md", link: "/llms-full.md" }
+          ]
         }
       ],
       "/api/": [
@@ -202,6 +220,14 @@ export default defineConfig({
             { text: "DotMap", link: "/api/dot-map" },
             { text: "DrawingManager", link: "/api/drawing-manager" }
           ]
+        },
+        {
+          text: "LLM 문서",
+          items: [
+            { text: "llms.md", link: "/llms.md" },
+            { text: "llms-small.md", link: "/llms-small.md" },
+            { text: "llms-full.md", link: "/llms-full.md" }
+          ]
         }
       ],
       "/troubleshooting/": [
@@ -228,7 +254,8 @@ export default defineConfig({
           items: [
             { text: "Panorama (거리뷰)", link: "/guide/submodules/panorama" },
             { text: "Visualization (시각화)", link: "/guide/submodules/visualization" },
-            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" }
+            { text: "Drawing (그리기)", link: "/guide/submodules/drawing" },
+            { text: "GL (벡터지도)", link: "/guide/submodules/gl" }
           ]
         },
         {
@@ -259,6 +286,14 @@ export default defineConfig({
         {
           text: "문제 해결",
           items: [{ text: "자주 묻는 질문", link: "/troubleshooting/common-issues" }]
+        },
+        {
+          text: "LLM 문서",
+          items: [
+            { text: "llms.md", link: "/llms.md" },
+            { text: "llms-small.md", link: "/llms-small.md" },
+            { text: "llms-full.md", link: "/llms-full.md" }
+          ]
         }
       ]
     },
