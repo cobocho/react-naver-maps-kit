@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Marker, NaverMap, useNaverMap } from "react-naver-maps-kit";
 
 import { EventLog } from "../EventLog.tsx";
@@ -8,11 +8,19 @@ import { withDemoNaverMapProvider } from "./withDemoNaverMapProvider.tsx";
 const DEFAULT_CENTER = { lat: 37.5666102, lng: 126.9783881 };
 const GL_STYLE_ID = "94230366-adba-4e0e-ac5a-e82a0e137b5e";
 
+function supportsWebGl(): boolean {
+  if (typeof document === "undefined") {
+    return true;
+  }
+
+  const canvas = document.createElement("canvas");
+  return Boolean(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+}
+
 function GlDemoBase() {
   const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
   const { entries, log, clear } = useEventLog();
 
-  const [glEnabled, setGlEnabled] = useState(true);
   const [markerVisible, setMarkerVisible] = useState(true);
 
   return (
@@ -25,7 +33,6 @@ function GlDemoBase() {
 
       <div className="info-row">
         <span className="info-chip">SDK: {sdkStatus}</span>
-        <span className="info-chip">GL: {glEnabled ? "on" : "off"}</span>
         <span className="info-chip">Style: fixed</span>
         {sdkError && (
           <span className="info-chip" style={{ background: "#ffebee", color: "#d32f2f" }}>
@@ -36,14 +43,13 @@ function GlDemoBase() {
 
       <div className="map-container">
         <NaverMap
-          key={glEnabled ? "gl-on" : "gl-off"}
           defaultCenter={DEFAULT_CENTER}
           defaultZoom={14}
-          gl={glEnabled}
-          customStyleId={glEnabled ? GL_STYLE_ID : undefined}
+          gl={true}
+          customStyleId={GL_STYLE_ID}
           style={{ width: "100%", height: 500 }}
           onMapReady={() => {
-            log(`map ready (gl=${glEnabled ? "on" : "off"})`);
+            log(`map ready (gl=on)`);
           }}
           onMapError={(error) => {
             log(`onMapError -> ${error.message}`);
@@ -82,15 +88,6 @@ function GlDemoBase() {
             <button className="btn btn-primary" onClick={() => void reloadSdk()}>
               SDK 재시도
             </button>
-          </div>
-
-          <div className="control-item">
-            <input
-              type="checkbox"
-              checked={glEnabled}
-              onChange={(e) => setGlEnabled(e.target.checked)}
-            />
-            <label>GL</label>
           </div>
 
           <div className="control-item">

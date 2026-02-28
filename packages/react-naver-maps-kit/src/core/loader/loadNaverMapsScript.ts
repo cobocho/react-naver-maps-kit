@@ -1,3 +1,5 @@
+import { throwIfInvalidSubmoduleCombination } from "../errors/NaverMapSubmoduleConfigurationError";
+
 const NAVER_MAPS_SCRIPT_BASE_URL = "https://oapi.map.naver.com/openapi/v3/maps.js";
 const NAVER_MAPS_SCRIPT_SELECTOR =
   'script[data-react-naver-maps-kit="true"], script[src*="oapi.map.naver.com/openapi/v3/maps.js"]';
@@ -148,16 +150,6 @@ function createScriptUrl(options: LoadNaverMapsScriptOptions): string {
   return `${NAVER_MAPS_SCRIPT_BASE_URL}?${queryParts.join("&")}`;
 }
 
-function validateSubmodules(submodules?: Array<Submodule>): void {
-  if (!submodules || submodules.length <= 1) {
-    return;
-  }
-
-  if (submodules.includes("gl")) {
-    throw new Error("The 'gl' submodule cannot be loaded with other submodules.");
-  }
-}
-
 function waitForNaverMapsReady(timeoutMs: number, submodules?: Array<Submodule>): Promise<void> {
   return new Promise((resolve, reject) => {
     if (isNaverMapsReady(submodules)) {
@@ -205,7 +197,7 @@ export function loadNaverMapsScript(options: LoadNaverMapsScriptOptions): Promis
     return Promise.reject(new Error("loadNaverMapsScript can only run in a browser environment."));
   }
 
-  validateSubmodules(options.submodules);
+  throwIfInvalidSubmoduleCombination(options.submodules);
   ensureJsContentLoadedCallback();
   const scriptUrl = createScriptUrl(options);
 

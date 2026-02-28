@@ -6,6 +6,7 @@ export const version: NaverMapKitVersion = "1.3.0";
 
 export { loadNaverMapsScript } from "./core/loader/loadNaverMapsScript";
 export type { LoadNaverMapsScriptOptions } from "./core/loader/loadNaverMapsScript";
+export { NaverMapSubmoduleConfigurationError } from "./core/errors/NaverMapSubmoduleConfigurationError";
 export { NaverMapProvider, NaverMapContext } from "./react/provider/NaverMapProvider";
 export { NaverMap } from "./react/components/NaverMap";
 export { Marker } from "./overlays/marker/Marker";

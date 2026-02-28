@@ -4,6 +4,7 @@ import {
   loadNaverMapsScript,
   type LoadNaverMapsScriptOptions
 } from "../../core/loader/loadNaverMapsScript";
+import { throwIfInvalidSubmoduleCombination } from "../../core/errors/NaverMapSubmoduleConfigurationError";
 
 import type { ReactNode } from "react";
 
@@ -50,6 +51,8 @@ export function NaverMapProvider({
   timeoutMs,
   nonce
 }: NaverMapProviderProps) {
+  throwIfInvalidSubmoduleCombination(submodules);
+
   const [sdkStatus, setSdkStatus] = useState<NaverMapSdkStatus>("idle");
   const [sdkError, setSdkError] = useState<Error | null>(null);
   const [map, setMap] = useState<naver.maps.Map | null>(null);
