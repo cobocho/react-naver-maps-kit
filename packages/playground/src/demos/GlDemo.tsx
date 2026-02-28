@@ -12,6 +12,7 @@ function GlDemoBase() {
   const { sdkStatus, sdkError, reloadSdk } = useNaverMap();
   const { entries, log, clear } = useEventLog();
 
+  const [glEnabled, setGlEnabled] = useState(true);
   const [markerVisible, setMarkerVisible] = useState(true);
 
   return (
@@ -24,6 +25,7 @@ function GlDemoBase() {
 
       <div className="info-row">
         <span className="info-chip">SDK: {sdkStatus}</span>
+        <span className="info-chip">GL: {glEnabled ? "on" : "off"}</span>
         <span className="info-chip">Style: fixed</span>
         {sdkError && (
           <span className="info-chip" style={{ background: "#ffebee", color: "#d32f2f" }}>
@@ -34,13 +36,14 @@ function GlDemoBase() {
 
       <div className="map-container">
         <NaverMap
+          key={glEnabled ? "gl-on" : "gl-off"}
           defaultCenter={DEFAULT_CENTER}
           defaultZoom={14}
-          gl={true}
-          customStyleId={GL_STYLE_ID}
+          gl={glEnabled}
+          customStyleId={glEnabled ? GL_STYLE_ID : undefined}
           style={{ width: "100%", height: 500 }}
           onMapReady={() => {
-            log(`map ready (gl=on)`);
+            log(`map ready (gl=${glEnabled ? "on" : "off"})`);
           }}
           onMapError={(error) => {
             log(`onMapError -> ${error.message}`);
@@ -79,6 +82,15 @@ function GlDemoBase() {
             <button className="btn btn-primary" onClick={() => void reloadSdk()}>
               SDK 재시도
             </button>
+          </div>
+
+          <div className="control-item">
+            <input
+              type="checkbox"
+              checked={glEnabled}
+              onChange={(e) => setGlEnabled(e.target.checked)}
+            />
+            <label>GL</label>
           </div>
 
           <div className="control-item">
